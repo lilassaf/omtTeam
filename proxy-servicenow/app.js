@@ -106,7 +106,8 @@ app.use('/api', [
     account,
     logoutRoutes,
     productOfferingRoute,
-    knowledgeBaseRoute
+    knowledgeBaseRoute,
+    ProductSpecification
     
 
 ]);
