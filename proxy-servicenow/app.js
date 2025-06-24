@@ -136,7 +136,8 @@ app.use('/api', authjwt, [
     chatbotCases,
     contract,
     Quote,
-    contractQuote
+    contractQuote,
+    
 
 ]);
 
