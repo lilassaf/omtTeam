@@ -1,102 +1,20 @@
 classDiagram
 
   subgraph Component_1
-    class CatalogCategoryRelations {
-      +String sys_id (required, unique)
-      +String sys_updated_by (required, default: "admin")
-      +Date sys_created_on (required)
-      +Number sys_mod_count (required, default: 0)
-      +String external_id (default: "")
-      +String source (required)
-      +Date sys_updated_on (required)
-      +String sys_tags (default: "")
-      +String sys_created_by (required, default: "admin")
-      +String external_source (default: "")
-      +String target (required)
-      +ObjectId catalog (required)
-      +ObjectId category (required)
-      +ObjectId _id
-      +Number __v
-    }
-    class ProductOfferingCatalog {
+    class Account {
       +String name (required)
-      +String code (required, unique)
-      +Date start_date (required)
-      +Date end_date (default: null)
-      +String status (required, enum: [published,draft,archived,retired], default: "draft")
-      +String hierarchy_json (default: "")
-      +String description
-      +String external_id (default: "")
-      +Boolean is_default (default: false)
-      +String number (required, unique)
-      +String sys_id (required, unique)
-      +String sys_updated_by (required)
-      +Date sys_created_on (required)
-      +String sys_created_by (required)
-      +Date sys_updated_on (required)
-      +Number sys_mod_count (default: 0)
-      +String sys_tags (default: "")
-      +String external_source (default: "")
-      +ObjectId _id
-      +Date createdAt
-      +Date updatedAt
-      +Number __v
-    }
-    class ProductOfferingCategory {
-      +String name (required)
-      +String code (required, unique)
-      +Boolean is_leaf (required, default: false)
-      +Date start_date (required)
-      +Date end_date (default: null)
-      +String status (required, enum: [published,draft,archived,retired], default: "draft")
-      +String description
-      +String image
-      +String thumbnail
-      +String number (required, unique)
-      +String sys_id (required, unique)
-      +String sys_created_by (required)
-      +String sys_updated_by (required)
-      +Date sys_created_on (required)
-      +Date sys_updated_on (required)
-      +Number sys_mod_count (default: 0)
-      +String external_id
-      +String sys_tags
-      +String leaf_categories
-      +String external_source
-      +ObjectId _id
-      +Date createdAt
-      +Date updatedAt
-    }
-    class ProductOffering {
-      +Array category
-      +Array channel
-      +String description
-      +String externalId (default: "")
-      +String id
       +String sys_id
-      +String internalId
-      +String lastUpdate (default: "")
-      +String name (required)
-      +Array productOfferingPrice
-      +String productOfferingTerm (default: "")
-      +ObjectId productSpecification
-      +Array prodSpecCharValueUse
-      +Embedded validFor
-      +String version
-      +String status
-      +String lifecycleStatus
-      +String href
-      +ObjectId _id
-      +Number __v
-    }
-    class ProductSpecification {
-      +String sys_id (unique)
-      +String display_name
-      +String specification_category
-      +String specification_type
-      +String start_date
-      +String description
-      +String status
+      +Date sys_created_on
+      +String sys_created_by
+      +String business_owners
+      +String phone
+      +String industry
+      +String email
+      +String website
+      +String customer
+      +Boolean archived (default: false)
+      +Array contacts
+      +Array locations
       +ObjectId _id
       +Date createdAt
       +Date updatedAt
@@ -217,10 +135,11 @@ classDiagram
       +String name
       +String description
       +String state
-      +String defaultflag
-      +String currency
-      +Date validFor.startDateTime
-      +Date validFor.endDateTime
+      +String country
+      +String zip
+      +ObjectId account (required)
+      +ObjectId contact (required)
+      +Boolean archived (default: false)
       +ObjectId _id
       +Date createdAt
       +Date updatedAt
@@ -314,8 +233,24 @@ classDiagram
       +Date updatedAt
       +Number __v
     }
-    class Location {
-      +String sys_id
+    class CatalogCategoryRelations {
+      +String sys_id (required, unique)
+      +String sys_updated_by (required, default: "admin")
+      +Date sys_created_on (required)
+      +Number sys_mod_count (required, default: 0)
+      +String external_id (default: "")
+      +String source (required)
+      +Date sys_updated_on (required)
+      +String sys_tags (default: "")
+      +String sys_created_by (required, default: "admin")
+      +String external_source (default: "")
+      +String target (required)
+      +ObjectId catalog (required)
+      +ObjectId category (required)
+      +ObjectId _id
+      +Number __v
+    }
+    class ProductOfferingCatalog {
       +String name (required)
       +String latitude
       +String longitude
@@ -369,6 +304,8 @@ classDiagram
     }
   end
 
+  Account --> Contact : "contacts"
+  Account --> Location : "locations"
   CatalogCategoryRelations --> ProductOfferingCatalog : "catalog"
   CatalogCategoryRelations --> ProductOfferingCategory : "category"
   Contact --> Account : "account"
@@ -391,6 +328,8 @@ classDiagram
   OpportunityLine --> ProductOffering : "productOffering"
   OpportunityLine --> PriceList : "priceList"
   OpportunityLine --> Opportunity : "opportunity"
+  ProductOffering --> ProductOfferingCategory : "category"
+  ProductOffering --> ProductSpecification : "productSpecification"
   ProductOfferingPrice --> ProductOffering : "productOffering"
   ProductOfferingPrice --> PriceList : "priceList"
   Quote --> Opportunity : "opportunity"
