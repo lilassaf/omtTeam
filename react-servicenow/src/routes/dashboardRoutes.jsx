@@ -23,6 +23,8 @@ import Account from '../views/dashbord/Account';
 import ProductDetails from '../views/dashbord/productdetail';  
 import Contact from '../views/dashbord/Contact';
 import Location from '../views/dashbord/Location';
+import AdminRoute from '../middleware/AdminRoute';
+import ContactRoute from '../middleware/isContactRoute';
 
 
 
@@ -33,70 +35,83 @@ const dashboardRoutes = {
       <DashboardLayout />
     </PrivateRoute>
   ),
-  children: [
+children: [
     { index: true, element: <DashboardWithCharts /> },
-    // catalog
-    { path: 'catalog', element: <Catalog /> },
+
     {
-      path: 'catalog/create',
-      element: <ProductOfferingCatalogFormPage />
+      element: <AdminRoute />,
+      children: [
+        
+        // catalog
+        { path: 'catalog', element: <Catalog /> },
+        {
+          path: 'catalog/create',
+          element: <ProductOfferingCatalogFormPage />
+        },
+        {
+          path: 'catalog/edit/:id',
+          element: <ProductOfferingCatalogFormPage />
+        },
+        { path: 'category', element: <POCategory /> },
+        {
+          path: 'category/create',
+          element: <ProductOfferingCategoryFormPage />
+        },
+        {
+          path: 'category/edit/:id',
+          element: <ProductOfferingCategoryFormPage />
+        },
+        { path: 'product-offering', element: <PO /> },
+        {
+          path: 'product-offering/create',
+          element: <ProductOfferingFormPage />
+        },
+        {
+          path: 'product-offering/edit/:id',
+          element: <ProductOfferingFormPage />
+        },
+        { path: 'product-specification', element: <PS /> },
+        {
+          path: 'product-specification/view/:id',
+          element: <ProductSpecificationFormPage />
+        },
+        {
+          path: 'opportunity/edit/:id',
+          element: <OpportunityFormPage />
+        },
+        {
+          path: 'opportunity/create',
+          element: <OpportunityFormPage />
+        },
+        { path: 'opportunity', element: <Opportunity /> },
+        { path: 'price-list', element: <PriceList /> },
+        {
+          path: 'price-list/edit/:id',
+          element: <PriceListForm />
+        },
+        {
+          path: 'price-list/create',
+          element: <PriceListForm />
+        },
+        { path: 'help', element: <AiSearch /> },
+        { path: 'quote', element: <Quote /> },
+        {
+          path: 'quote/edit/:id',
+          element: <QuoteFormPage />
+        },
+        { path: 'profile', element: <Profile /> },
+        { path: 'account', element: <Account /> },
+        { path: 'contact', element: <Contact /> },
+        { path: 'location', element: <Location /> },
+        // ... other dashboard sub-routes
+      ],
     },
     {
-      path: 'catalog/edit/:id',
-      element: <ProductOfferingCatalogFormPage />
+      element: <ContactRoute />,
+      children: [
+        // ... other dashboard sub-routes
+      ],
     },
-    { path: 'category', element: <POCategory /> },
-    {
-      path: 'category/create',
-      element: <ProductOfferingCategoryFormPage />
-    },
-    {
-      path: 'category/edit/:id',
-      element: <ProductOfferingCategoryFormPage />
-    },
-    { path: 'product-offering', element: <PO /> },
-    {
-      path: 'product-offering/create',
-      element: <ProductOfferingFormPage />
-    },
-    {
-      path: 'product-offering/edit/:id',
-      element: <ProductOfferingFormPage />
-    },
-    { path: 'product-specification', element: <PS /> },
-    {
-      path: 'product-specification/view/:id',
-      element: <ProductSpecificationFormPage />
-    },
-    {
-      path: 'opportunity/edit/:id',
-      element: <OpportunityFormPage />
-    },
-    {
-      path: 'opportunity/create',
-      element: <OpportunityFormPage />
-    },
-    { path: 'opportunity', element: <Opportunity /> },
-    { path: 'price-list', element: <PriceList /> },
-    {
-      path: 'price-list/edit/:id',
-      element: <PriceListForm />
-    },
-    {
-      path: 'price-list/create',
-      element: <PriceListForm />
-    },
-    { path: 'help', element: <AiSearch /> },
-    { path: 'quote', element: <Quote /> },
-    {
-      path: 'quote/edit/:id',
-      element: <QuoteFormPage />
-    },
-    { path: 'profile', element: <Profile /> },
-    { path: 'account', element: <Account /> },
-    { path: 'contact', element: <Contact /> },
-    { path: 'location', element: <Location /> },
-    // ... other dashboard sub-routes
   ],
 };
 

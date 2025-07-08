@@ -33,7 +33,7 @@ const productsRouter = require('./controllers/ProductOffering/servicenowproducts
 const emailroutes = require('./email/router');
 const contract = require('./api/contract');
 const contractQuote = require('./api/contractQuote')
-    // const createAccount = require('./api/createAccount/index')
+// const createAccount = require('./api/createAccount/index')
 const knowledgeBaseRoute = require('./api/ai-search/chatboot');
 const productOfferingRoute = require('./api/ai-search/productoffering');
 const productSpecRoutes = require('./api/ProductSpecification/productSpecRoutes');
@@ -61,34 +61,34 @@ app.set('trust proxy', 1);
 // Configuration
 
 const allowedOrigins = [
-  'https://omt-team-one.vercel.app',
-  'https://omt-team-dhxpck1wp-jmili-mouads-projects.vercel.app',
-  'https://delightful-sky-0cdf0611e.6.azurestaticapps.net',
-  'http://localhost:5173',
-  'https://superb-starburst-b1a498.netlify.app'
+    'https://omt-team-one.vercel.app',
+    'https://omt-team-dhxpck1wp-jmili-mouads-projects.vercel.app',
+    'https://delightful-sky-0cdf0611e.6.azurestaticapps.net',
+    'http://localhost:5173',
+    'https://superb-starburst-b1a498.netlify.app'
 ];
 
 const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true, // This is crucial for sessions
-  allowedHeaders: [
-    'Content-Type', 
-    'Authorization', 
-    'X-CSRF-Token',
-    'X-Requested-With',
-    'Cookie' // Add this for session cookies
-  ],
-  exposedHeaders: [
-    'Set-Cookie', // Add this
-    'X-CSRF-Token'
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true, // This is crucial for sessions
+    allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'X-CSRF-Token',
+        'X-Requested-With',
+        'Cookie' // Add this for session cookies
+    ],
+    exposedHeaders: [
+        'Set-Cookie', // Add this
+        'X-CSRF-Token'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 };
 
 // Apply CORS middleware ONCE
@@ -119,14 +119,12 @@ app.use('/api', [
     signupRoutes, // Registration + confirmation
     emailroutes,
     // createAccount,
-    Quote,
     contact,
     location,
     account,
     logoutRoutes,
     productOfferingRoute,
     knowledgeBaseRoute,
-    ProductSpecification,
     productSpecRoutes
 
 
@@ -151,6 +149,7 @@ app.use('/api', authjwt, [
     chatbotCases,
     contract,
     Quote,
+    ProductSpecification,
     contractQuote
 
 ]);
@@ -186,7 +185,7 @@ app.use((req, res) => {
 });
 
 // Graceful shutdown on SIGINT
-process.on('SIGINT', async() => {
+process.on('SIGINT', async () => {
     console.log('\nGracefully shutting down...');
     // Perform DB cleanup or any other necessary shutdown tasks
     process.exit(0);

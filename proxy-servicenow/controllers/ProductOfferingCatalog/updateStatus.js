@@ -55,7 +55,7 @@ module.exports = async (req, res) => {
 
         // ServiceNow update
         const snResponse = await axios.patch(
-            `${process.env.SERVICE_NOW_URL}/api/sn_prd_pm/update_status/poc_pub`,
+            `${process.env.SERVICE_NOW_URL}/api/x_1598581_omt_dx_0/product_management_api/poc_pubg`,
             updateBody,
             {
                 headers: {
