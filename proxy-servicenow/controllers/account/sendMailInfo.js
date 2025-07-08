@@ -8,13 +8,14 @@ module.exports = async (req, res) => {
 
   try {
     const { to, token } = req.body;
+    console.log(req.body);
 
     if (!token || !to) {
       return res.status(400).json({ error: 'Missing required fields (to, token)' });
     }
 
     // 1. Verify token in ServiceNow
-    const table = 'u_opportunity_tokens';
+    const table = 'u_u_opportunity_tokens';
     const query = `u_token=${token}^u_used=false`;
 
     const tokenResp = await axios.get(`${process.env.SERVICE_NOW_URL}/api/now/table/${table}`, {

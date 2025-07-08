@@ -3,7 +3,6 @@ import React from 'react';
 import PageHeader from './headerTable';
 
 const PageLayout = ({
-  title,
   searchQuery,
   setSearchQuery,
   open,

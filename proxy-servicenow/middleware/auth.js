@@ -1,23 +1,27 @@
-const jwt = require('jsonwebtoken');
+// middleware/verifySession.js
+const sessionStore = require('../utils/sessionStore');
 
-const verifyJWT = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Unauthorized - Missing token' });
-  }
-
-  const token = authHeader.split(' ')[1];
-
+const verifySession = async (req, res, next) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    const sessionId = req.cookies?.session_id;
+    if (!sessionId) throw new Error('Missing session cookie');
+
+    const session = sessionStore.getSession(sessionId);
+    if (!session) {
+      res.clearCookie('session_id');
+      throw new Error('Invalid session');
+    }
+
+    // Attach the entire session to req.session
+    req.session = session;
     next();
   } catch (error) {
-    console.error('JWT verification error:', error.message);
-    return res.status(401).json({ error: 'Unauthorized - Invalid token' });
+    console.error('Session verification failed:', error.message);
+    res.status(401).clearCookie('session_id').json({ 
+      error: 'session_expired',
+      message: 'Please login again' 
+    });
   }
 };
 
-module.exports = verifyJWT;
+module.exports = verifySession;

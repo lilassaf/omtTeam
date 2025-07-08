@@ -61,25 +61,38 @@ app.set('trust proxy', 1);
 // Configuration
 
 const allowedOrigins = [
-    'https://omt-team-one.vercel.app',
-    'https://omt-team-dhxpck1wp-jmili-mouads-projects.vercel.app',
-    'https://delightful-sky-0cdf0611e.6.azurestaticapps.net',
-    'http://localhost:5173',
-    'https://superb-starburst-b1a498.netlify.app/'
+  'https://omt-team-one.vercel.app',
+  'https://omt-team-dhxpck1wp-jmili-mouads-projects.vercel.app',
+  'https://delightful-sky-0cdf0611e.6.azurestaticapps.net',
+  'http://localhost:5173',
+  'https://superb-starburst-b1a498.netlify.app'
 ];
 
-app.use(cors({
-    origin: function(origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    exposedHeaders: ['Authorization']
-}));
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true, // This is crucial for sessions
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'X-CSRF-Token',
+    'X-Requested-With',
+    'Cookie' // Add this for session cookies
+  ],
+  exposedHeaders: [
+    'Set-Cookie', // Add this
+    'X-CSRF-Token'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+};
+
+// Apply CORS middleware ONCE
+app.use(cors(corsOptions));
 
 app.use(limiter);
 app.use(express.json());

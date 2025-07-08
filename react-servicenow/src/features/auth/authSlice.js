@@ -1,28 +1,81 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { userLogin, registerUser, userLogout, fetchUserInfo } from './authActions';
-const userToken = localStorage.getItem('access_token') || null;
+import { userLogin, userLogout, fetchUserInfo } from './authActions';
+import CryptoJS from 'crypto-js';
 
-const initialState = {
-  loading: false,
-  userInfo: null,
-  userToken,
-  error: null,
-  success: false,
+// Encryption configuration
+const SECRET_KEY = 'Rk$8zE9!v&7Bq@pFjR2LpT%yXdWmZg';
+
+// Encryption/decryption helpers
+const encryptData = (data) => {
+  return CryptoJS.AES.encrypt(JSON.stringify(data), SECRET_KEY).toString();
 };
+
+const decryptData = (ciphertext) => {
+  try {
+    const bytes = CryptoJS.AES.decrypt(ciphertext, SECRET_KEY);
+    return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+  } catch (e) {
+    console.error('Decryption failed', e);
+    return null;
+  }
+};
+
+const loadInitialState = () => {
+  const encryptedData = localStorage.getItem('authState');
+  if (!encryptedData) return {
+    loading: false,
+    userInfo: null,
+    error: null,
+    isAuthenticated: false,
+    pendingLogout: null,
+  };
+
+  try {
+    const decrypted = decryptData(encryptedData);
+    if (decrypted?.userInfo && typeof decrypted.isAuthenticated === 'boolean') {
+      return {
+        ...decrypted,
+        loading: false,
+        error: null,
+        pendingLogout: null,
+      };
+    }
+    localStorage.removeItem('authState');
+    return {
+      loading: false,
+      userInfo: null,
+      error: null,
+      isAuthenticated: false,
+      pendingLogout: null,
+    };
+  } catch (e) {
+    localStorage.removeItem('authState');
+    return {
+      loading: false,
+      userInfo: null,
+      error: null,
+      isAuthenticated: false,
+      pendingLogout: null,
+    };
+  }
+};
+
+const initialState = loadInitialState();
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    // Synchronous logout if needed
-    logout: (state) => {
-      state.userInfo = null;
-      state.userToken = null;
+    resetAuth: () => {
+      localStorage.removeItem('authState');
+      return loadInitialState();
+    },
+    completeBackgroundLogout: (state) => {
+      state.pendingLogout = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      // Login cases
       .addCase(userLogin.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -30,55 +83,60 @@ const authSlice = createSlice({
       .addCase(userLogin.fulfilled, (state, { payload }) => {
         state.loading = false;
         state.userInfo = payload;
-        state.userToken = payload.access_token;
+        state.isAuthenticated = true;
+        localStorage.setItem('authState', encryptData({
+          userInfo: payload,
+          isAuthenticated: true,
+        }));
       })
       .addCase(userLogin.rejected, (state, { payload }) => {
         state.loading = false;
         state.error = payload;
       })
-      
-      // Registration cases
-      .addCase(registerUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(registerUser.fulfilled, (state) => {
-        state.loading = false;
-        state.success = true;
-      })
-      .addCase(registerUser.rejected, (state, { payload }) => {
-        state.loading = false;
-        state.error = payload;
-      })
-      
-      // Logout cases
       .addCase(userLogout.pending, (state) => {
         state.loading = true;
       })
       .addCase(userLogout.fulfilled, (state) => {
         state.loading = false;
         state.userInfo = null;
-        state.userToken = null;
+        state.isAuthenticated = false;
+        localStorage.removeItem('authState');
       })
       .addCase(userLogout.rejected, (state, { payload }) => {
         state.loading = false;
         state.error = payload;
+        state.userInfo = null;
+        state.isAuthenticated = false;
+        localStorage.removeItem('authState');
       })
       .addCase(fetchUserInfo.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    })
-    .addCase(fetchUserInfo.fulfilled, (state, { payload }) => {
-      state.loading = false;
-      state.userInfo = payload.user; // Store the user data from /api/me
-      state.success = true;
-    })
-    .addCase(fetchUserInfo.rejected, (state, { payload }) => {
-      state.loading = false;
-      state.error = payload;
-    });
+        state.loading = true;
+      })
+      .addCase(fetchUserInfo.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        state.userInfo = payload;
+        state.isAuthenticated = true;
+        localStorage.setItem('authState', encryptData({
+          userInfo: payload,
+          isAuthenticated: true,
+        }));
+      })
+      .addCase(fetchUserInfo.rejected, (state, { payload }) => {
+        state.loading = false;
+        state.error = payload;
+        state.userInfo = null;
+        state.isAuthenticated = false;
+        localStorage.removeItem('authState');
+      });
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { resetAuth, completeBackgroundLogout } = authSlice.actions;
+
+export const selectCurrentUser = (state) => state.auth.userInfo;
+export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
+export const selectAuthLoading = (state) => state.auth.loading;
+export const selectAuthError = (state) => state.auth.error;
+export const selectPendingLogout = (state) => state.auth.pendingLogout;
+
 export default authSlice.reducer;
