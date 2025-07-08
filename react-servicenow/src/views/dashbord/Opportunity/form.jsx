@@ -328,7 +328,6 @@ const OpportunityFormPage = () => {
           });
         }
         
-        setOpen(false);
         localStorage.removeItem(FORM_STORAGE_KEY);
         resetForm();
         setCurrentStep(0);

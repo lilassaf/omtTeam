@@ -39,7 +39,7 @@ module.exports = async (req, res) => {
       isPrimaryContact: true,
       active: true,
     }
-    contact = acc.name !=="" && await createContact(payload);
+    //contact = acc.name !=="" && await createContact(payload);
 
     // Create price list if needed
     if (createNewPriceList) {

@@ -2,17 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   getall,
-  deleteCatalog
-} from '../../../features/servicenow/product-offering/productOfferingCatalogSlice';
+  deleteCategory
+} from '../../../features/servicenow/product-offering/productOfferingCategorySlice';
 import { Pagination, Spin, Button } from 'antd';
 import { debounce } from 'lodash';
 import { useNavigate } from 'react-router-dom';
 
 // Import components
 import PageHeader from '../../../layout/dashbord/headerTable';
-import CatalogTable from '../../../components/dashboard/ProductOfferingCategory/Table';
+import CategoryTable from '../../../components/dashboard/ProductOfferingCategory/Table';
 
-const ProductOfferingCatalog = () => {
+const ProductOfferingCategory = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const {
@@ -22,7 +22,7 @@ const ProductOfferingCatalog = () => {
     totalItems,
     loading,
     error
-  } = useSelector(state => state.productOfferingCatalog);
+  } = useSelector(state => state.productOfferingCategory);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [pageSize, setPageSize] = useState(10);
@@ -54,8 +54,8 @@ const ProductOfferingCatalog = () => {
   }, [currentPage]);
 
   // Navigation handlers
-  const navigateToCreate = () => navigate('/dashboard/catalog/create');
-  const handleRowClick = (id) => navigate(`/dashboard/catalog/edit/${id}`);
+  const navigateToCreate = () => navigate('/dashboard/category/create');
+  const handleRowClick = (id) => navigate(`/dashboard/category/edit/${id}`);
 
   // Bulk actions
   const handleBulkDelete = () => {
@@ -64,7 +64,7 @@ const ProductOfferingCatalog = () => {
       return !record?.categories?.some(category => category.status === 'published');
     });
     
-    deletableKeys.forEach(id => dispatch(deleteCatalog(id)));
+    deletableKeys.forEach(id => dispatch(deleteCategory(id)));
     setSelectedRowKeys([]);
     fetchData();
   };
@@ -183,7 +183,7 @@ const ProductOfferingCatalog = () => {
   const emptyState = (
     <div className="py-12 text-center">
       <i className="ri-information-line mx-auto text-3xl text-gray-400 mb-3"></i>
-      <p className="text-gray-500">No catalog items found</p>
+      <p className="text-gray-500">No category items found</p>
       <Button
         type="primary"
         className="mt-4 flex items-center mx-auto bg-blue-600 hover:bg-blue-700 border-blue-600"
@@ -207,7 +207,7 @@ const ProductOfferingCatalog = () => {
       {/* Sticky Header */}
       <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
         <PageHeader
-          title="Product Offering Catalog"
+          title="Product Offering Category"
           searchPlaceholder="Search by name or number..."
           createButtonText="New"
           onSearchChange={(e) => setSearchTerm(e.target.value)}
@@ -234,12 +234,12 @@ const ProductOfferingCatalog = () => {
           <div className="flex justify-center items-center h-64">
             <Spin
               size="large"
-              tip="Loading catalog items..."
+              tip="Loading category items..."
               indicator={<i className="ri-refresh-line animate-spin text-2xl"></i>}
             />
           </div>
         ) : (
-          <CatalogTable
+          <CategoryTable
             data={data}
             columns={columns}
             rowSelection={rowSelection}
@@ -271,4 +271,4 @@ const ProductOfferingCatalog = () => {
   );
 };
 
-export default ProductOfferingCatalog;
+export default ProductOfferingCategory;
