@@ -1,26 +1,11 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
-
-const TokenValid = (token) => {
-  try {
-    const decoded = jwtDecode(token);
-    const currentTime = Date.now() / 1000;
-    return decoded.exp > currentTime;
-  } catch (e) {
-    return false;
-  }
-};
+import { selectIsAuthenticated } from '../features/auth/authSlice';
 
 const IsAuth = ({ children }) => {
-  const token = localStorage.getItem('access_token');
-
-  if (token && TokenValid(token)) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  return children;
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  return isAuthenticated ? <Navigate to="/dashboard" replace /> : children;
 };
-
 
 export default IsAuth;

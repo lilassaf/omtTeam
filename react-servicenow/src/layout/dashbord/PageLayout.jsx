@@ -2,7 +2,6 @@
 import React from 'react';
 
 const PageLayout = ({
-  title,
   searchQuery,
   setSearchQuery,
   open,
