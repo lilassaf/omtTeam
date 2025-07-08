@@ -3,13 +3,13 @@ import { useFormik } from 'formik';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { notification, Spin, Popconfirm, Tabs, Table, Tooltip } from 'antd';
+import SignatureModal from '../../../components/dashboard/quote/buttonsignature'
 import { 
   getQuote, 
   resetCurrentQuote,
   updateQuoteState 
 } from '../../../features/servicenow/quote/quotaSlice';
 import {
-  generateContract,
   downloadContract
 } from '../../../features/servicenow/contract/contractSlice';
 
@@ -96,25 +96,7 @@ function QuoteFormPage() {
     }
   };
 
-  // Handle generate contract
-  const handleGenerateContract = async (quoteId) => {
-    try {
-      setPartiallyLoading(true);
-      await dispatch(generateContract(quoteId)).unwrap();
-      notification.success({
-        message: 'Success',
-        description: 'Contract generated successfully'
-      });
-      dispatch(getQuote(quoteId)); // Refresh the quote data
-    } catch (error) {
-      notification.error({
-        message: 'Error',
-        description: error.message || 'Failed to generate contract'
-      });
-    } finally {
-      setPartiallyLoading(false);
-    }
-  };
+
 
   // Handle download contract
  const handleDownloadContract = async (contractId, quoteNumber) => {
@@ -226,11 +208,6 @@ function QuoteFormPage() {
                 )
               },
               {
-                title: 'Product',
-                dataIndex: ['product_offering', 'name'],
-                key: 'product',
-              },
-              {
                 title: 'Quantity',
                 dataIndex: 'quantity',
                 key: 'quantity',
@@ -257,58 +234,7 @@ function QuoteFormPage() {
                 key: 'status',
                 render: (status) => <StatusCell status={status} />,
               },
-              {
-                title: 'Actions',
-                key: 'actions',
-                render: (_, record) => (
-                  <div className="flex items-center gap-2">
-                    {/* Status toggle button */}
-                    {!isApproved && (
-                      <Tooltip title={`${action} Quote`}>
-                        <Popconfirm
-                          title={`${action} Quote`}
-                          description={`Are you sure you want to ${action.toLowerCase()} this quote?`}
-                          onConfirm={() => handleStatusUpdate(currentQuote._id, newStatus)}
-                          okText="Yes"
-                          cancelText="No"
-                        >
-                          <button className="text-gray-500 hover:text-green-600">
-                            <i className="ri-check-line text-2xl"></i>
-                          </button>
-                        </Popconfirm>
-                      </Tooltip>
-                    )}
-                    {isApproved && (
-                      <Tooltip title={currentQuote.contracts?.length > 0 ? "Download Contract" : "Generate Contract"}>
-                        {currentQuote.contracts?.length > 0 ? (
-                          <button
-                            className="text-gray-500 hover:text-orange-300"
-                            onClick={() => handleDownloadContract(currentQuote?.contracts[0]._id, currentQuote.number)}
-                            disabled={partiallyLoading}
-                          >
-                            <i className="ri-contract-fill text-2xl"></i>
-                          </button>
-                        ) : (
-                          <Popconfirm
-                            title="Generate Contract"
-                            description="Generate a contract for this quote?"
-                            onConfirm={() => handleGenerateContract(currentQuote._id)}
-                            okText="Yes"
-                            cancelText="No"
-                          >
-                            <button
-                              className="text-gray-500 hover:text-orange-300"
-                              disabled={partiallyLoading}
-                            >
-                              <i className="ri-contract-line text-2xl"></i>
-                            </button>
-                          </Popconfirm>
-                        )}
-                      </Tooltip>
-                    )}
-                  </div>
-                ),
-              },
+             
             ]}
             dataSource={formik.values.quote_lines || []}
             pagination={{ pageSize: 5 }}
@@ -464,7 +390,7 @@ function QuoteFormPage() {
 
           {isEditMode && (
             <div className="flex items-center gap-2">
-
+              
               {/* Status toggle button in header */}
               {!isApproved && (
                 <Tooltip title={`${action} Quote`}>
@@ -492,20 +418,7 @@ function QuoteFormPage() {
                       Download Contract
                     </button>
                   ) : (
-                    <Popconfirm
-                      title="Generate Contract"
-                      description="Generate a contract for this quote?"
-                      onConfirm={() => handleGenerateContract(currentQuote._id)}
-                      okText="Yes"
-                      cancelText="No"
-                    >
-                    <button className="overflow-hidden relative w-fit px-2 h-10 bg-cyan-700 text-white hover:bg-cyan-800 cursor-pointer"
-                        disabled={partiallyLoading}
-                      >
-                        
-                        Generate Contract
-                      </button>
-                    </Popconfirm>
+                 <SignatureModal dispatch={dispatch} quoteId={currentQuote._id}></SignatureModal>
                   )}
                 </Tooltip>
               )}

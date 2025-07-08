@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quotation {{number}}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            line-height: 1.6;
+            background-color: #fff;
+        }
+
+        .page {
+            padding: 1.5cm;
+            page-break-after: always;
+            position: relative;
+            height: 29.7cm;
+            box-sizing: border-box;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #0066cc;
+        }
+
+        .header img {
+            height: 60px;
+        }
+
+        .header-info {
+            text-align: right;
+        }
+
+        .header-info h1 {
+            color: #0066cc;
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .header-info .document-type {
+            font-size: 16px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        h1 {
+            color: #0066cc;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            color: #0066cc;
+            font-size: 18px;
+            margin: 25px 0 15px 0;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f5f9ff;
+            color: #0066cc;
+            font-weight: 600;
+        }
+
+        .summary-table {
+            width: 60%;
+            margin-left: auto;
+        }
+
+        .summary-table td {
+            border: none;
+            padding: 8px 10px;
+        }
+
+        .summary-table tr:last-child td {
+            border-top: 1px solid #ddd;
+            font-weight: bold;
+        }
+
+        .signature-table {
+            margin-top: 60px;
+            width: 100%;
+        }
+
+        .signature-table td {
+            border: none;
+            padding: 5px;
+            vertical-align: top;
+            width: 50%;
+        }
+
+        .signature-line {
+            border-top: 1px solid #333;
+            margin-top: 40px;
+            width: 80%;
+        }
+
+        .page-number {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .terms {
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .terms h3 {
+            font-size: 14px;
+            margin: 20px 0 10px 0;
+            color: #0066cc;
+        }
+
+        .company-info {
+            margin-bottom: 25px;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .highlight-box {
+            background-color: #f5f9ff;
+            border-left: 4px solid #0066cc;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 10px 1.5cm;
+            font-size: 10px;
+            color: #999;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Cover Page -->
+    <div class="page">
+        <div class="header">
+            <img src="https://proxy-servicenow.onrender.com/assets/images/logo.svg" alt="OM Telecom Logo" style="height: 80px;">
+            <div class="header-info">
+                <h1>QUOTATION</h1>
+                <div class="document-type">Ref: {{number}}</div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 100px;">
+            <h1 style="font-size: 28px;">Quotation</h1>
+            <p style="font-size: 18px; color: #666;">Prepared for</p>
+            <p style="font-size: 22px; font-weight: bold; color: #0066cc;">{{account.name}}</p>
+        </div>
+
+        <div style="position: absolute; bottom: 60px; width: calc(100% - 3cm);">
+            <div class="highlight-box">
+                <p style="margin: 0;"><strong>Valid Until:</strong> {{formatDate expiration_date}}</p>
+                <p style="margin: 10px 0 0 0;"><strong>Prepared On:</strong> {{formatDate createdAt}}</p>
+            </div>
+        </div>
+        <div class="page-number">1</div>
+    </div>
+
+    <!-- Introduction Page -->
+    <div class="page">
+        <div class="header">
+            <img src="https://proxy-servicenow.onrender.com/assets/images/logo.svg" alt="OM Telecom Logo" style="height: 80px;">
+            <div class="header-info">
+                <h1>QUOTATION</h1>
+                <div class="document-type">Ref: {{number}}</div>
+            </div>
+        </div>
+
+        <h1 style="text-align: center;">Connecting You to What Matters Most</h1>
+
+        <div style="display: flex; align-items: center; margin: 30px 0;">
+            <div style="flex: 1; padding-right: 30px;">
+                <p>Experience seamless, high-speed communication like never before. OM Telecom delivers cutting-edge
+                    solutions tailored to meet the demands of today's fast-paced digital world.</p>
+                <p>Our advanced network infrastructure ensures reliability, security, and unmatched performance for
+                    businesses and individuals alike.</p>
+            </div>
+            <div style="flex: 1; text-align: center;">
+                <div style="background-color: #f5f9ff; padding: 20px; border-radius: 8px; display: inline-block;">
+                    <p style="font-weight: bold; margin: 0; color: #0066cc;">Quotation Summary</p>
+                    <p style="margin: 10px 0 0 0;"><strong>Reference:</strong> {{number}}</p>
+                    <p style="margin: 5px 0;"><strong>Valid Until:</strong> {{formatDate expiration_date}}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="highlight-box">
+            <h3 style="margin-top: 0;">About This Quotation</h3>
+            <p>This document outlines the products and services we propose to deliver, along with associated costs and
+                terms. Please review carefully and contact us with any questions.</p>
+        </div>
+
+        <div class="page-number">2</div>
+    </div>
+
+    <!-- Quotation Details -->
+    <div class="page">
+        <div class="header">
+            <img src="https://proxy-servicenow.onrender.com/assets/images/logo.svg" alt="OM Telecom Logo" style="height: 80px;">
+            <div class="header-info">
+                <h1>QUOTATION</h1>
+                <div class="document-type">Ref: {{number}}</div>
+            </div>
+        </div>
+
+        <h1>Quotation Details</h1>
+
+        <div class="company-info">
+            <h2>Client Information</h2>
+            <p><strong>Company:</strong> {{account.name}}</p>
+            {{#if account.contacts.[0]}}
+            <p><strong>Primary Contact:</strong> {{account.contacts.[0].firstName}} {{account.contacts.[0].lastName}}
+            </p>
+            <p><strong>Email:</strong> {{account.contacts.[0].email}} | <strong>Phone:</strong>
+                {{account.contacts.[0].phone}}</p>
+            {{/if}}
+            <p><strong>Country:</strong> {{account.country}}</p>
+        </div>
+
+        <h2>Summary</h2>
+        <table class="summary-table">
+            <tr>
+                <td><strong>Quotation Number:</strong></td>
+                <td>{{number}}</td>
+            </tr>
+            <tr>
+                <td><strong>Quotation Date:</strong></td>
+                <td>{{formatDate createdAt}}</td>
+            </tr>
+            <tr>
+                <td><strong>Expiration Date:</strong></td>
+                <td>{{formatDate expiration_date}}</td>
+            </tr>
+            <tr>
+                <td><strong>Subscription Period:</strong></td>
+                <td>{{formatDate subscription_start_date}} to {{formatDate subscription_end_date}}</td>
+            </tr>
+            <tr>
+                <td><strong>Total Amount ({{currency}}):</strong></td>
+                <td>{{calculateTotal quote_lines}}</td>
+            </tr>
+            <tr>
+                <td><strong>Monthly Recurring ({{currency}}):</strong></td>
+                <td>{{calculateMonthlyTotal quote_lines}}</td>
+            </tr>
+        </table>
+
+        <h2>Products & Services</h2>
+        <p>{{short_description}}</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Item #</th>
+                    <th>Description</th>
+                    <th>Qty</th>
+                    <th>Unit</th>
+                    <th>Term</th>
+                    <th>Unit Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each quote_lines}}
+                <tr>
+                    <td>{{number}}</td>
+                    <td>{{product_offering.name}}</td>
+                    <td>{{quantity}}</td>
+                    <td>{{unit_of_measurement}}</td>
+                    <td>{{term_month}} months</td>
+                    <td>{{currency}} {{unit_price}}</td>
+                    <td>{{currency}} {{calculateLineTotal quantity unit_price}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        <div class="page-number">3</div>
+    </div>
+
+    <!-- Terms and Conditions with Signature Section -->
+    <div class="page">
+        <div class="header">
+            <img src="https://proxy-servicenow.onrender.com/assets/images/logo.svg" alt="OM Telecom Logo" style="height: 80px;">
+            <div class="header-info">
+                <h1>QUOTATION</h1>
+                <div class="document-type">Ref: {{number}}</div>
+            </div>
+        </div>
+
+        <h1>Terms & Conditions</h1>
+
+        <div class="terms">
+            <h3>Contract Term</h3>
+            <p>The initial contract term is {{opportunity.term_month}} months, automatically renewing on a
+                month-to-month basis thereafter unless terminated with 30 days written notice.</p>
+
+            <h3>Pricing & Payment</h3>
+            <p>All prices are exclusive of applicable taxes. Payment terms are net 30 days from invoice date. Late
+                payments may be subject to interest charges of 1.5% per month.</p>
+
+            <h3>Service Delivery</h3>
+            <p>Services will commence on {{formatDate subscription_start_date}} and continue through {{formatDate
+                subscription_end_date}}. OM Telecom will make reasonable efforts to meet all service timelines.</p>
+
+            <h3>Changes & Amendments</h3>
+            <p>Any changes to this quotation require written agreement from both parties and may result in adjusted
+                pricing or timelines.</p>
+
+            <h3>Termination</h3>
+            <p>Either party may terminate this agreement with 30 days written notice. Early termination may incur
+                applicable cancellation fees.</p>
+
+            <h3>General Provisions</h3>
+            <p>This document constitutes the entire agreement between the parties. Any disputes shall be governed by the
+                laws of the jurisdiction where OM Telecom is headquartered.</p>
+        </div>
+
+        <div style="margin-top: 50px;">
+            <h2>Acceptance</h2>
+            <p>By signing below, both parties agree to the terms outlined in this quotation.</p>
+
+            <table class="signature-table">
+                <tr>
+                    <td>
+                        <strong>Client</strong><br>
+                        <p>{{account.name}}</p>
+                        <div class="signature-line"></div>
+                        <p>Signature:</p>
+                        <p>Date: ________________________</p>
+                    </td>
+                    <td>
+                        <strong>OM Telecom</strong><br>
+                        <p>Manager</p>
+                        {{#if signature.base64}}
+                        <div style="margin: 15px 0;">
+                            <img src="{{signature.base64}}" alt="Signature" style="height: 50px;">
+                        </div>
+                        {{else}}
+                        <div class="signature-line"></div>
+                        {{/if}}
+                        <p>Date: {{formatDate signature.date}}</p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="footer">
+            OM Telecom | {{account.country}} | www.omtelecom.com | info@omtelecom.com
+        </div>
+        <div class="page-number">4</div>
+    </div>
+</body>
+
+</html>

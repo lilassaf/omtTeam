@@ -74,7 +74,6 @@ module.exports = async (req, res) => {
                 }
             }
         );
-
         // Handle ServiceNow response
         const snData = snResponse.data.result;
         if (!snData || snData.sys_id !== quote.sys_id) {

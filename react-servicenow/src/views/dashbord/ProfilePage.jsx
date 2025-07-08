@@ -32,7 +32,7 @@ const ProfilePage = () => {
   const userData = getUserData();
 
   return (
-    <section className="w-full overflow-hidden bg-gray-50">
+    <section className="w-full overflow-auto h-full bg-gray-50">
       <div className="flex flex-col">
         {/* Cover Image */}
         <div className="w-full xl:h-[10rem] lg:h-[18rem] md:h-[16rem] sm:h-[14rem] h-[11rem] bg-gradient-to-b from-cyan-700  from-10% to-cyan-700/40  to-90%  to-white">
