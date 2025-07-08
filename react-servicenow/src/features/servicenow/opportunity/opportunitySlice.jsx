@@ -66,6 +66,25 @@ export const getOpportunities = createAsyncThunk(
   }
 );
 
+//getOne Opportunity
+export const getOpportunity = createAsyncThunk(
+  'opportunity/getOpportunity',
+  async ({id }, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${backendUrl}/api/opportunity/${id}`,
+        { 
+          headers: getHeaders()
+         },
+      );
+      console.log("here")
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 export const updateOpportunityPricing = createAsyncThunk(
   'opportunity/updateOpportunityPricing',
   async ( body , { rejectWithValue }) => {
@@ -211,7 +230,8 @@ const initialState = {
   currentPage: 1,
   totalItems: 0,
   limit: 6,
-  totalPages: 1
+  totalPages: 1,
+  currentOpportunity: null,
 };
 
 const opportunitySlice = createSlice({
@@ -220,6 +240,9 @@ const opportunitySlice = createSlice({
   reducers: {
     resetError: (state) => {
       state.error = null;
+    },
+    resetData: (state) => {
+      state.currentOpportunity = null;
     },
     setCurrentPage: (state, action) => {
       state.currentPage = action.payload;
@@ -268,6 +291,20 @@ const opportunitySlice = createSlice({
       .addCase(getOpportunities.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.error || 'Failed to fetch opportunities';
+      })
+
+      //getOne Opportunity
+      .addCase(getOpportunity.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getOpportunity.fulfilled, (state, action) => {
+        state.loading = false;
+        console.log(action.payload)
+        state.currentOpportunity = action.payload.data;
+      })
+      .addCase(getOpportunity.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.error || 'Failed to fetch Opportunity';
       })
 
       // Update Opportunity Pricing
@@ -411,6 +448,6 @@ const opportunitySlice = createSlice({
   },
 });
 
-export const { resetError, setCurrentPage } = opportunitySlice.actions;
+export const { resetError, resetData, setCurrentPage } = opportunitySlice.actions;
 
 export default opportunitySlice.reducer;

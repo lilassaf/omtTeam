@@ -64,7 +64,7 @@ module.exports = async (req, res) => {
 
         // ServiceNow update - using table API endpoint
         const snResponse = await axios.patch(
-            `${process.env.SERVICE_NOW_URL}/api/sn_quote_mgmt_core/bismilah`,
+            `${process.env.SERVICE_NOW_URL}/api/x_1598581_omt_dx_0/dxc_order_management_api/quote`,
             updateBody,
             {
                 headers: {
@@ -74,7 +74,6 @@ module.exports = async (req, res) => {
                 }
             }
         );
-
         // Handle ServiceNow response
         const snData = snResponse.data.result;
         if (!snData || snData.sys_id !== quote.sys_id) {
