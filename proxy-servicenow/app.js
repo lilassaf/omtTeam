@@ -84,6 +84,7 @@ app.use(cors({
 app.use(limiter);
 app.use(express.json());
 app.use(bodyParser.json());
+app.use('/assets', express.static('assets'));
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from public directory
