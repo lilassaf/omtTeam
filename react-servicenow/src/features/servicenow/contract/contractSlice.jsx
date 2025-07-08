@@ -1,27 +1,17 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import {api} from "../../../utils/axioswithsession";
 import dayjs from 'dayjs';
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-// Helper function to get authorization headers
-const getHeaders = () => {
-  const access_token = localStorage.getItem('access_token');
-  return { 
-    authorization: access_token,
-    'Content-Type': 'application/json'
-  };
-};
 
 // Async Thunk for contract generation
 export const generateContract = createAsyncThunk(
   'contract/generate',
   async ({ quoteId, signature }, { rejectWithValue }) => { // Accept signature parameter
     try {
-      const response = await axios.post(
-        `${backendUrl}/api/contract/${quoteId}`,
+      const response = await api.post(
+        `/api/contract/${quoteId}`,
         { signature }, // Include signature in request body
-        { headers: getHeaders() }
       );
       return response.data;
     } catch (error) {
@@ -39,10 +29,9 @@ export const downloadContract = createAsyncThunk(
   'contract/download',
   async ({ contractId, quoteNumber }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${backendUrl}/api/download-contract/${contractId}`,
+      const response = await api.get(
+        `/api/download-contract/${contractId}`,
         {
-          headers: getHeaders(),
           responseType: 'blob'
         }
       );

@@ -1,24 +1,18 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import {api} from "../../../utils/axioswithsession";
 
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-// Helper function to get authorization headers
-const getHeaders = () => {
-  const access_token = localStorage.getItem('access_token');
-  return { authorization: access_token };
-};
 
 // Async Thunk for contract generation
 export const generateContract = createAsyncThunk(
   'contractQ/generate',
   async (dataBody, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        `${backendUrl}/api/contract-quote/`,
+      const response = await api.post(
+        `/api/contract-quote/`,
         dataBody,
-        { headers: getHeaders() }
+        
       );
       return response.data;
     } catch (error) {
