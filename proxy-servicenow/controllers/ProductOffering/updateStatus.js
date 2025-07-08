@@ -47,7 +47,7 @@ module.exports = async (req, res)=>{
      
       const payload = {"sys_id":sys_id, "status":req.body.status};
       const snResponse = await axios.patch(
-        `${process.env.SERVICE_NOW_URL}/api/sn_prd_pm/product_offering_api/po_pub`,
+        `${process.env.SERVICE_NOW_URL}/api/x_1598581_omt_dx_0/product_management_api/po_pub`,
         payload,
         {
           headers: {
