@@ -5,7 +5,6 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
 // ServiceNow API headers
 const getHeaders = () => ({
   'Content-Type': 'application/json',
-  'authorization': `${localStorage.getItem('access_token')}`, // or your auth method
 });
 
 // Async Thunks for each operation in the workflow
@@ -18,7 +17,8 @@ export const workflow = createAsyncThunk(
       const response = await axios.post(
         `${backendUrl}/api/opportunity-workflow`,
         opportunityData,
-        { headers: getHeaders() }
+        { headers: getHeaders(),
+         }
       );
       
       return response.data.data;
@@ -53,6 +53,7 @@ export const getOpportunities = createAsyncThunk(
         `${backendUrl}/api/opportunity`,
         { 
           headers: getHeaders(),
+          withCredentials: true,
           params: { page, limit, q }
          },
         
