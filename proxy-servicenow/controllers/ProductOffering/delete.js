@@ -35,7 +35,7 @@ module.exports = async (req, res) => {
           const snResponse = await axios.delete(
               `${process.env.SERVICE_NOW_URL}/api/sn_tmf_api/catalogmanagement/productOffering/${sys_id}`,
               {
-                  headers: { 'Authorization': `Bearer ${decodedToken.sn_access_token}` },
+                  headers: { 'Authorization': `Bearer ${req.session.snAccessToken}` },
                   params: { sysparm_suppress_auto_sys_field: true }
               }
           );

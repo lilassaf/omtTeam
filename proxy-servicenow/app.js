@@ -88,7 +88,7 @@ const corsOptions = {
         'Set-Cookie', // Add this
         'X-CSRF-Token'
     ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 };
 
 // Apply CORS middleware ONCE
@@ -126,13 +126,11 @@ app.use('/api', [
     productOfferingRoute,
     knowledgeBaseRoute,
     productSpecRoutes
-
-
 ]);
 
 
 // Protected routes
-app.use('/api', authjwt, [
+app.use('/api',authjwt, [
     // routes that need middaleware
     ProductOfferingCatalog,
     ProductOfferingCategory,

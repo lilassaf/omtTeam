@@ -14,10 +14,6 @@ require('dotenv').config();
 // DELETE
 router.delete('/product-offering-category/:id', async (req, res) => {
   try {
-    // Authentication
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ error: 'Authorization required' });
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const { id } = req.params;
 
     // Fetch existing category
@@ -30,7 +26,7 @@ router.delete('/product-offering-category/:id', async (req, res) => {
                 await deleteCatalogCategoryRelationship(
                     null,
                     existingCategory,
-                    decodedToken.sn_access_token
+                    req.session.snAccessToken
                 );
             } catch (error) {
                 return res.status(500).json({
@@ -44,7 +40,7 @@ router.delete('/product-offering-category/:id', async (req, res) => {
     const snResponse = await axios.delete(
       `${process.env.SERVICE_NOW_URL}/api/now/table/sn_prd_pm_product_offering_category/${existingCategory.sys_id}`,
       {
-        headers: { 'Authorization': `Bearer ${decodedToken.sn_access_token}` }
+        headers: { 'Authorization': `Bearer ${req.session.snAccessToken}` }
       }
     );
 

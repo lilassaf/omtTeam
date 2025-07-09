@@ -7,8 +7,7 @@ const deleteCatalogCategoryRelationship = require('../CatalogCategroyRelationshi
 
 module.exports = async (req, res) => {
     try {
-        const token = req.headers.authorization.split(' ')[1];
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+      
         const { id } = req.params;
 
         // Find the catalog by MongoDB _id to get ServiceNow sys_id
@@ -34,7 +33,7 @@ module.exports = async (req, res) => {
             await deleteCatalogCategoryRelationship(
                 catalog,
                 null,
-                decodedToken.sn_access_token
+                req.session.snAccessToken
             );
         } catch (error) {
             return res.status(500).json({
@@ -49,7 +48,7 @@ module.exports = async (req, res) => {
             await deleteCatalogCategoryRelationship(
                 catalog,
                 null,
-                decodedToken.sn_access_token
+                req.session.snAccessToken
             );
         } catch (error) {
             return res.status(500).json({
@@ -62,7 +61,7 @@ module.exports = async (req, res) => {
         const snResponse = await axios.delete(
             `${process.env.SERVICE_NOW_URL}/api/now/table/sn_prd_pm_product_offering_catalog/${sys_id}`,
             {
-                headers: { 'Authorization': `Bearer ${decodedToken.sn_access_token}` },
+                headers: { 'Authorization': `Bearer ${req.session.snAccessToken}` },
                 params: { sysparm_suppress_auto_sys_field: true }
             }
         );

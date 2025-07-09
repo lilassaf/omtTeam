@@ -8,14 +8,6 @@ module.exports = async (req, res) => {
   let session;
   try {
     const { id } = req.params;
-    // Get authorization token
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-      return res.status(401).json({ error: 'Authorization token required' });
-    }
-
-    // Verify JWT and get ServiceNow credentials
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     
     // Find the quote with associated sys_id
     const quote = await Quote.findById(id);
@@ -33,7 +25,7 @@ module.exports = async (req, res) => {
       `${process.env.SERVICE_NOW_URL}/api/now/table/sn_quote_mgmt_core_quote/${quote.sys_id}`,
       {
         headers: {
-          'Authorization': `Bearer ${decodedToken.sn_access_token}`,
+          'Authorization': `Bearer ${req.session.snAccessToken}`,
           'Content-Type': 'application/json'
         }
       }

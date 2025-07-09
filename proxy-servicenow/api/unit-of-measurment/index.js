@@ -22,7 +22,7 @@ router.get('/measurment-unit', async (req, res) => {
       const serviceNowUrl = `${process.env.SERVICE_NOW_URL}/api/now/table/sn_prd_pm_uom`;
       const serviceNowHeaders = {
         'Accept': 'application/json',
-        'Authorization': `Bearer ${decodedToken.sn_access_token}` // or 'Token' as needed
+        'Authorization': `Bearer ${req.session.snAccessToken}` // or 'Token' as needed
       };
   
       // ServiceNow API call with query parameters

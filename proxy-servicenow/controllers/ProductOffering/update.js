@@ -53,7 +53,7 @@ module.exports = async (req, res) => {
                 updateBody,
                 {
                     headers: {
-                        'Authorization': `Bearer ${decodedToken.sn_access_token}`,
+                        'Authorization': `Bearer ${req.session.snAccessToken}`,
                         'Content-Type': 'application/json'
                     }
                 }

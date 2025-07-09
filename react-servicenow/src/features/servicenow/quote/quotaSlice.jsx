@@ -89,9 +89,7 @@ export const deleteQuote = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       await api.delete(
-        `/api/quote/${id}`,
-        
-      );
+        `/api/quote/${id}`);
       return id;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);

@@ -25,7 +25,6 @@ export const getPublish = createAsyncThunk(
     try {
       
       const response = await api.get(`/api/product-offering-catalog-publish`, {
-        headers: { authorization: access_token },
         params: { q }
       });
       return response.data;
@@ -40,9 +39,7 @@ export const getOne = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       
-      const response = await api.get(`/api/product-offering-catalog/${id}`, {
-        headers: { authorization: access_token },
-      });
+      const response = await api.get(`/api/product-offering-catalog/${id}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -55,12 +52,8 @@ export const createCatalog = createAsyncThunk(
   async (productData, { rejectWithValue }) => {
     try {
       // Ensure status is set to draft for new catalogs
-      const catalogData = { ...productData, status: 'draft' };
-      
-      
-      const response = await api.post(`/api/product-offering-catalog`, catalogData, {
-        headers: { authorization: access_token },
-      });
+      const catalogData = { ...productData, status: 'draft' }; 
+      const response = await api.post(`/api/product-offering-catalog`, catalogData);
       return response.data.result;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -74,9 +67,7 @@ export const updateCatalogStatus = createAsyncThunk(
     try {
       
       const response = await api.patch(
-        `/api/product-offering-catalog-status/${id}`,
-        { status },
-      );
+        `/api/product-offering-catalog-status/${id}`,{ status });
       return response.data.result;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message);
@@ -105,9 +96,7 @@ export const deleteCatalog = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       
-      await api.delete(`/api/product-offering-catalog/${id}`, {
-        headers: { authorization: access_token },
-      });
+      await api.delete(`/api/product-offering-catalog/${id}`);
       return id;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);

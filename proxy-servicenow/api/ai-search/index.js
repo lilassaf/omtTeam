@@ -21,7 +21,7 @@ router.get('/ai-search', async (req, res) => {
 
     const response = await axios.get(`${process.env.SERVICE_NOW_URL}/api/sn_prd_pm/ai_search_proxy2/search?term=${encodeURIComponent(term)}`, {
       headers:  {
-        'Authorization': `Bearer ${decodedToken.sn_access_token}`,
+        'Authorization': `Bearer ${req.session.snAccessToken}`,
         'Content-Type': 'application/json'
       }
     });

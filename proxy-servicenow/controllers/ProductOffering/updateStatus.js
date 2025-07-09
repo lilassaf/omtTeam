@@ -52,7 +52,7 @@ module.exports = async (req, res)=>{
         {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${decoded.sn_access_token}`
+            'Authorization': `Bearer ${req.session.snAccessToken}`
           }
         }
       );

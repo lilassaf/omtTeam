@@ -11,8 +11,7 @@ const getOpportunityWithDetails = require('../Opportunity/getOpportuntityWithdet
 
 module.exports = async (req, res) => {
   try {
-    const token = req.headers.authorization.split(' ')[1];
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+ 
     const id = req.params.id;  
 
     if (!id) {
@@ -31,7 +30,7 @@ module.exports = async (req, res) => {
       { opty_sys_id: localOpportunity.sys_id },
       {
         headers: {
-          'Authorization': `Bearer ${decodedToken.sn_access_token}`,
+          'Authorization': `Bearer ${req.session.snAccessToken}`,
           'Content-Type': 'application/json',
         }
       }
