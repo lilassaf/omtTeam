@@ -667,6 +667,7 @@ function ProductOfferingFormPage() {
                     className="w-full"
                     loading={loadingCategories}
                     filterOption={false}
+                    disabled={formik.isSubmitting || isEditMode}
                   />
                   {formik.touched.category && formik.errors.category && (
                     <p className="text-red-500 text-sm mt-1">{formik.errors.category}</p>
@@ -690,6 +691,7 @@ function ProductOfferingFormPage() {
                     className="w-full"
                     loading={loadingSpecifications}
                     filterOption={false}
+                    disabled={formik.isSubmitting || isEditMode}
                   />
                   {formik.touched.p_spec && formik.errors.p_spec && (
                     <p className="text-red-500 text-sm mt-1">{formik.errors.p_spec}</p>

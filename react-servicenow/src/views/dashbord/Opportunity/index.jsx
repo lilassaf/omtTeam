@@ -64,6 +64,7 @@ const OpportunityIndex = () => {
 
   // Fetch data with debounced search
   const fetchData = debounce((page, size, query) => {
+    dispatch(resetError());
     dispatch(getOpportunities({
       page,
       limit: size,
