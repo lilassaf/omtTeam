@@ -53,7 +53,7 @@ module.exports = async (req, res) => {
     // Step 4: Delete the account from ServiceNow if sys_id exists
     if (account.sys_id) {
       try {
-        const connection = snConnection.getConnection(req.user.sn_access_token);
+        const connection = snConnection.getConnection(req.session.snAccessToken);
         await axios.delete(
           `${connection.baseURL}/api/now/table/customer_account/${account.sys_id}`,
           { headers: connection.headers }
