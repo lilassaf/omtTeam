@@ -51,10 +51,7 @@ async function createAccount(req, res=null) {
     const mongoPAy ={
       _id:newId,
       sys_id: snResponse.data.result.sys_id,
-<<<<<<< HEAD
-=======
       number: snResponse.data.result.number,
->>>>>>> f51a9c582772a7a89a4b8d2dd5ecee26195e2add
       ...snResponse.data.result
     }
     // Step 2: Create in MongoDB with ServiceNow response data

@@ -51,14 +51,14 @@ const ProductSpecification = () => {
         if (currentPage) setCurrent(currentPage);
     }, [currentPage]);
 
-   
+
     const handleRowClick = (id) => navigate(`/dashboard/product-specification/view/${id}`);
 
 
 
 
     const columns = [
-       
+
         {
             title: 'Name',
             dataIndex: 'name',
@@ -133,7 +133,7 @@ const ProductSpecification = () => {
         </div>
     );
 
-  
+
 
     return (
         <div className="bg-gray-50 h-full flex flex-col max-w-full">
@@ -142,7 +142,7 @@ const ProductSpecification = () => {
                 <PageHeader
                     title="Product Specification"
                     searchPlaceholder="Search by name..."
-                    createButtonText = ''
+                    createButtonText=''
                     onSearchChange={(e) => setSearchTerm(e.target.value)}
                     onSearch={(value) => setSearchTerm(value)}
                 />
@@ -189,6 +189,9 @@ const ProductSpecification = () => {
                         current={current}
                         total={totalItems}
                         pageSize={pageSize}
+                        onChange={(page) => {
+                            setCurrent(page);
+                        }}
                         className="mt-2 md:mt-0"
                     />
                     <div className="text-gray-600 text-sm">

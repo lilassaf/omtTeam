@@ -5,11 +5,7 @@ module.exports = async (req, res) => {
     
     const searchQuery = req.query.q;
     const page = parseInt(req.query.page) || 1;
-<<<<<<< HEAD
-    const limit = parseInt(req.query.limit) || 6;
-=======
     const limit = parseInt(req.query.limit) || 10;
->>>>>>> f51a9c582772a7a89a4b8d2dd5ecee26195e2add
     const skip = (page - 1) * limit;
 
     let query = {};
@@ -40,22 +36,11 @@ module.exports = async (req, res) => {
       }));
 
       return res.json({
-<<<<<<< HEAD
-        success : true,
         data: formattedData,
-        pagination: {
-=======
-        data: formattedData,
->>>>>>> f51a9c582772a7a89a4b8d2dd5ecee26195e2add
           totalItems,
           totalPages,
           page: parseInt(page),
           limit: parseInt(limit),
-<<<<<<< HEAD
-          
-        }
-=======
->>>>>>> f51a9c582772a7a89a4b8d2dd5ecee26195e2add
       });
     }
 

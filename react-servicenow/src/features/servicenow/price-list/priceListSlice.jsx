@@ -1,23 +1,17 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import {api} from "../../../utils/axioswithsession";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-// ServiceNow API headers
-const getHeaders = () => ({
-  'Content-Type': 'application/json',
-  'authorization': `${localStorage.getItem('access_token')}`,
-});
 
 // CREATE Price List
 export const createPriceList = createAsyncThunk(
   'opportunity/createPriceList',
   async (priceListData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        `${backendUrl}/api/price-list`,
+      const response = await api.post(
+        `/api/price-list`,
         priceListData,
-        { headers: getHeaders() }
+       
       );
       return response.data;
     } catch (error) {
@@ -31,10 +25,9 @@ export const getPriceList = createAsyncThunk(
   'opportunity/getPriceList',
   async ({ q, page = 1, limit = 10 }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${backendUrl}/api/price-list`,
+      const response = await api.get(
+        `/api/price-list`,
         {
-          headers: getHeaders(),
           params: { q, page, limit }
         }
       );
@@ -50,9 +43,8 @@ export const getOnePriceList = createAsyncThunk(
   'opportunity/getOnePriceList',
   async ({ id }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${backendUrl}/api/price-list/${id}`,
-        {headers: getHeaders()}
+      const response = await api.get(
+        `/api/price-list/${id}`,
       );
       return response.data;
     } catch (error) {
@@ -66,9 +58,8 @@ export const deletePriceList = createAsyncThunk(
   'opportunity/deletePriceList',
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.delete(
-        `${backendUrl}/api/price-list/${id}`,
-        { headers: getHeaders() }
+      const response = await api.delete(
+        `/api/price-list/${id}`,
       );
       return response.data;
     } catch (error) {

@@ -1,16 +1,15 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import {api} from "../../../utils/axioswithsession";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 // Async Thunks
 export const getall = createAsyncThunk(
   'productOfferingCatalog/getall',
   async ({ page = 1, limit = 6, q }, { rejectWithValue }) => {
     try {
-      const access_token = localStorage.getItem('access_token');
-      const response = await axios.get(`${backendUrl}/api/product-offering-catalog`, {
-        headers: { authorization: access_token },
+      
+      const response = await api.get(`/api/product-offering-catalog`, {
+        
         params: { page, limit, q }
       });
       return response.data;
@@ -24,8 +23,8 @@ export const getPublish = createAsyncThunk(
   'productOfferingCatalog/getPublish',
   async ({ q }, { rejectWithValue }) => {
     try {
-      const access_token = localStorage.getItem('access_token');
-      const response = await axios.get(`${backendUrl}/api/product-offering-catalog-publish`, {
+      
+      const response = await api.get(`/api/product-offering-catalog-publish`, {
         headers: { authorization: access_token },
         params: { q }
       });
@@ -40,8 +39,8 @@ export const getOne = createAsyncThunk(
   'productOfferingCatalog/getOne',
   async (id, { rejectWithValue }) => {
     try {
-      const access_token = localStorage.getItem('access_token');
-      const response = await axios.get(`${backendUrl}/api/product-offering-catalog/${id}`, {
+      
+      const response = await api.get(`/api/product-offering-catalog/${id}`, {
         headers: { authorization: access_token },
       });
       return response.data;
@@ -58,8 +57,8 @@ export const createCatalog = createAsyncThunk(
       // Ensure status is set to draft for new catalogs
       const catalogData = { ...productData, status: 'draft' };
       
-      const access_token = localStorage.getItem('access_token');
-      const response = await axios.post(`${backendUrl}/api/product-offering-catalog`, catalogData, {
+      
+      const response = await api.post(`/api/product-offering-catalog`, catalogData, {
         headers: { authorization: access_token },
       });
       return response.data.result;
@@ -73,11 +72,10 @@ export const updateCatalogStatus = createAsyncThunk(
   'productOfferingCatalog/updateStatus',
   async ({ id, status }, { rejectWithValue }) => {
     try {
-      const access_token = localStorage.getItem('access_token');
-      const response = await axios.patch(
-        `${backendUrl}/api/product-offering-catalog-status/${id}`,
+      
+      const response = await api.patch(
+        `/api/product-offering-catalog-status/${id}`,
         { status },
-        { headers: { authorization: access_token } }
       );
       return response.data.result;
     } catch (err) {
@@ -90,11 +88,10 @@ export const updateCatalog = createAsyncThunk(
   'productOfferingCatalog/update',
   async ({ id, ...productData }, { rejectWithValue }) => {
     try {
-      const access_token = localStorage.getItem('access_token');
-      const response = await axios.patch(
-        `${backendUrl}/api/product-offering-catalog/${id}`,
+      
+      const response = await api.patch(
+        `/api/product-offering-catalog/${id}`,
         productData,
-        { headers: { authorization: access_token } }
       );
       return response.data.result;
     } catch (error) {
@@ -107,8 +104,8 @@ export const deleteCatalog = createAsyncThunk(
   'productOfferingCatalog/delete',
   async (id, { rejectWithValue }) => {
     try {
-      const access_token = localStorage.getItem('access_token');
-      await axios.delete(`${backendUrl}/api/product-offering-catalog/${id}`, {
+      
+      await api.delete(`/api/product-offering-catalog/${id}`, {
         headers: { authorization: access_token },
       });
       return id;

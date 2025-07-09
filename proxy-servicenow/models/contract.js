@@ -17,6 +17,9 @@ const contractSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+   m_signature: {
+    type: Date,
+  },
   created_at: {
     type: Date,
     default: Date.now

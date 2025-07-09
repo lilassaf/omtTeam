@@ -18,6 +18,7 @@ import {
   workflow,
   updateOpportunityPricing,
   resetData,
+  resetError,
   getSalesCycleTypes,
   getStages,
   getUnitOfMeasures,
@@ -84,9 +85,9 @@ const OpportunityFormPage = () => {
         term_month: isEditMode && initialData?.term_month||'12',
         sales_cycle_type: isEditMode && initialData?.sales_cycle_type._id||'',
         probability: isEditMode && initialData?.probability||'50',
-        stage: isEditMode && initialData?.stage._id||'6834b29a3582eabbafc8bec0',
+        stage: isEditMode && initialData?.stage?._id||'6834b29a3582eabbafc8bec0',
         industry: "telecommunications",
-        account: isEditMode && initialData?.account._id||''
+        account: isEditMode && initialData?.account?._id||''
       },
       priceList: {
         name: '',
@@ -328,7 +329,6 @@ const OpportunityFormPage = () => {
           });
         }
         
-        setOpen(false);
         localStorage.removeItem(FORM_STORAGE_KEY);
         resetForm();
         setCurrentStep(0);
@@ -382,6 +382,7 @@ const OpportunityFormPage = () => {
       setEditMode(false);
       formik.resetForm()
       await dispatch(resetData());
+      await dispatch(resetError());
     };
     setCurrentStep(0);
     navigate('/dashboard/opportunity');
@@ -392,6 +393,7 @@ const OpportunityFormPage = () => {
     setEditMode(false);
     formik.resetForm();
     setCurrentStep(0);
+    dispatch(resetError());
     navigate('/dashboard/opportunity');
   };
 
@@ -647,6 +649,7 @@ const OpportunityFormPage = () => {
       ),
     },
   ];
+  
 
   if (!initialized || (isEditMode && loading)) {
     return (

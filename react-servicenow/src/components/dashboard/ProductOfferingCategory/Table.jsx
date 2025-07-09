@@ -92,7 +92,7 @@ const CategoryTable = ({
   const bulkActionsRef = useRef(null);
   const ROW_HEIGHT = 55;
   const MIN_HEIGHT = 200;
-  const PAGINATION_HEIGHT = 43; // Approx height of pagination component
+  const PAGINATION_HEIGHT = 73; // Approx height of pagination component
 
   useEffect(() => {
     const calculateTableHeight = () => {
