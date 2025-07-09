@@ -56,7 +56,7 @@ async function createProductOfferingPrice(req, res = null) {
     };
     
 
-    const connection = snConnection.getConnection(req.user.sn_access_token);
+    const connection = snConnection.getConnection(req.session.snAccessToken);
     const snResponse = await axios.post(
       `${connection.baseURL}/api/sn_tmf_api/catalogmanagement/productOfferingPrice`,
       payload,

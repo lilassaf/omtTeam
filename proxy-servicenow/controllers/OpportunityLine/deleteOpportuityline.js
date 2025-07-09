@@ -30,7 +30,7 @@ async function deleteOpportunityLine(req, res = null){
     }
 
     // Delete from ServiceNow using sys_id
-    const connection = snConnection.getConnection(req.user.sn_access_token);
+    const connection = snConnection.getConnection(req.session.snAccessToken);
     const snResponse = await axios.delete(
       `${connection.baseURL}/api/now/table/sn_opty_mgmt_core_opportunity_line_item/${sysId}`,
       { headers: connection.headers } // Note: removed req.body as DELETE requests don't typically have a body

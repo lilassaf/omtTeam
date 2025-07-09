@@ -23,7 +23,7 @@ module.exports = async (req, res) => {
 
     if (servicenowId) {
       try {
-        const connection = snConnection.getConnection(req.user.sn_access_token);
+        const connection = snConnection.getConnection(req.session.snAccessToken);
         const snResponse = await axios.delete(
           `${connection.baseURL}/api/sn_tmf_api/catalogmanagement/productOfferingPrice/${req.params.id}`,
           req.body,
