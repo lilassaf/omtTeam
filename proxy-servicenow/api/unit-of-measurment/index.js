@@ -1,29 +1,20 @@
 const express = require('express');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
+const snConnection = require('../../utils/servicenowConnection');
 
 const router = express.Router();
 require('dotenv').config();
 
 router.get('/measurment-unit', async (req, res) => {
     try {
+
       // Verify JWT
-      const authHeader = req.headers.authorization;
-      
-      const token = authHeader.split(' ')[1];
-      let decodedToken;
-      try {
-        decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-      } catch (jwtError) {
-        return res.status(401).json({ error: 'Invalid token', details: jwtError.message });
-      }
+      const connection = snConnection.getConnection(req.session.snAccessToken);
   
       // ServiceNow configuration
-      const serviceNowUrl = `${process.env.SERVICE_NOW_URL}/api/now/table/sn_prd_pm_uom`;
-      const serviceNowHeaders = {
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${decodedToken.sn_access_token}` // or 'Token' as needed
-      };
+      const serviceNowUrl = `${connection.baseURL}/api/now/table/sn_prd_pm_uom`;
+      const serviceNowHeaders = connection.headers;
   
       // ServiceNow API call with query parameters
       const response = await axios.get(serviceNowUrl, {
