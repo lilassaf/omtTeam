@@ -100,51 +100,7 @@ const OpportunityIndex = () => {
     fetchData(current, pageSize, searchTerm);
   };
 
-  const handleWin = (id) => {
-    Modal.confirm({
-      title: 'Confirm Win',
-      content: 'Are you sure you want to record this as a Win?',
-      okText: 'Yes, Win',
-      cancelText: 'Cancel',
-      async onOk() {
-        const body = { 
-          id,
-          stage: "6834b2d23582eabbafc8bec2"
-        }
-        const res = await dispatch(updateStage(body));
-        if(!res.error){
-          notification.success({
-            message: 'Win recorded!',
-            description: "We've updated the opportunity to the Closed-Won stage"
-          });
-          fetchData(current, pageSize, searchTerm);
-        }
-      },
-    });
-  };
 
-  const handleLose = (id) => {
-    Modal.confirm({
-      title: 'Confirm Lose',
-      content: 'Are you sure you want to record this as a Lose?',
-      okText: 'Yes, Lose',
-      cancelText: 'Cancel',
-      async onOk() {
-        const body = { 
-          id,
-          stage: "6834b2ee3582eabbafc8bec4"
-        }
-        const res = await dispatch(updateStage(body));
-        if(!res.error){
-          notification.success({
-            message: 'Lose recorded!',
-            description: "We've updated the opportunity to the Closed-Lost stage"
-          });
-          fetchData(current, pageSize, searchTerm);
-        }
-      },
-    });
-  };
 
   // StatusCell component for consistent status rendering
   const StatusCell = ({ status }) => {

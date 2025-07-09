@@ -18,7 +18,7 @@ async function downloadContract(req, res) {
         }
 
         // Get your ServiceNow connection details
-        const connection = snConnection.getConnection(req.user.sn_access_token);
+        const connection = snConnection.getConnection(req.session.snAccessToken);
         
         // Make the download request with authentication
         const response = await axios.get(
