@@ -329,9 +329,7 @@ const OpportunityFormPage = () => {
           });
         }
         
-        localStorage.removeItem(FORM_STORAGE_KEY);
-        resetForm();
-        setCurrentStep(0);
+        handleReset();
       } catch (error) {
         console.error('Submission error:', error);
         notification.error({

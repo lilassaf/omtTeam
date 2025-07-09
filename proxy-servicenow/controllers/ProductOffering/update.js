@@ -1,16 +1,15 @@
 const axios = require('axios');
-const jwt = require('jsonwebtoken');
 const ProductOffering = require('../../models/ProductOffering');
 const handleMongoError = require('../../utils/handleMongoError');
-const catMongo = require('../../models/ProductOfferingCategory');
+const snConnection = require('../../utils/servicenowConnection');
 
 // Update Product Offering 
 module.exports = async (req, res) => {
         try {
-            const token = req.headers.authorization.split(' ')[1];
-            const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+            const connection = snConnection.getConnection(req.session.snAccessToken);
+
             const { id } = req.params;
-    
+
             const catmongoID = req.body.category;
             const specMongoID = req.body.productSpecification;
             // Find the productOffering by MongoDB _id to get ServiceNow sys_id
@@ -32,7 +31,7 @@ module.exports = async (req, res) => {
                 return res.status(400).json({ error: 'productOffering not synced with ServiceNow (missing sys_id)' });
             }
     
-            const sys_id = productOffering.id;
+            const sys_id = productOffering.id || productOffering.sys_id;
     
     
             const allowedFields = [
@@ -49,14 +48,9 @@ module.exports = async (req, res) => {
             });
             
             const snResponse = await axios.patch(
-                `${process.env.SERVICE_NOW_URL}/api/sn_tmf_api/catalogmanagement/productOffering/${sys_id}`,
+                `${connection.baseURL}/api/sn_tmf_api/catalogmanagement/productOffering/${sys_id}`,
                 updateBody,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${decodedToken.sn_access_token}`,
-                        'Content-Type': 'application/json'
-                    }
-                }
+                { headers: connection.headers }
             );
 
             let mongoResponse;

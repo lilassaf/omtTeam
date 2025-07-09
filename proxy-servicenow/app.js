@@ -88,7 +88,7 @@ const corsOptions = {
         'Set-Cookie', // Add this
         'X-CSRF-Token'
     ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS']
 };
 
 // Apply CORS middleware ONCE
