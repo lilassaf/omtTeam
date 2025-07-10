@@ -1,23 +1,25 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import { userLogin } from '../../features/auth/authActions';
+import { userLogin, fetchUserInfo } from '../../features/auth/authActions';
 import { message } from 'antd';
 
 const MESSAGE_MAPPINGS = {
-  missing_fields: 'Both username and password are required',
-  invalid_credentials: 'Incorrect username or password',
-  authentication_failed: 'Unable to authenticate',
-  csrf_failed: 'Security verification failed',
-  invalid_session: 'Your session has expired',
+  missing_token: 'Invalid confirmation link',
+  invalid_or_expired_token: 'Invalid or expired confirmation link',
+  token_expired: 'Confirmation link has expired',
+  user_exists: 'User already exists',
   timeout: 'Request timeout',
-  network_error: 'Network error. Please check your connection.',
+  auth_failed: 'Authentication failed',
+  invalid_data: 'Invalid registration data',
   unknown_error: 'An unexpected error occurred',
-  login_success: 'Login successful'
+  registration_confirmed: 'Registration confirmed successfully! You can now log in.',
+  default_success: 'Action completed successfully'
 };
 
+// Yup validation schema
 const validationSchema = yup.object({
   username: yup.string().required('Username is required'),
   password: yup.string().required('Password is required')
@@ -37,9 +39,16 @@ function LoginForm() {
       try {
         const result = await dispatch(userLogin(values));
 
-        if (userLogin.fulfilled.match(result)) {          
-          message.success(MESSAGE_MAPPINGS.login_success);
-          navigate('/dashboard');
+        if (userLogin.fulfilled.match(result)) {
+          const token = result.payload?.id_token;
+          if (token) {
+            localStorage.setItem('access_token', `Bearer ${token}`);
+            await dispatch(fetchUserInfo());
+            message.success('Login successful');
+            navigate('/dashboard');
+          } else {
+            message.error('Login successful but no token received');
+          }
         } else {
           const errorPayload = result.payload;
           const errorMessage = typeof errorPayload === 'object'
@@ -60,9 +69,10 @@ function LoginForm() {
   return (
     <div className="max-w-md mx-auto">
       <form onSubmit={formik.handleSubmit} className="mb-4 space-y-5">
+
         {/* Username Field */}
         <div>
-          <div className="shadow-lg flex gap-2 items-center bg-white p-2 rounded group duration-300">
+          <div className="shadow-lg flex gap-2 items-center bg-white p-2  rounded group duration-300">
             <i className="ri-user-2-line group-hover:rotate-[360deg] duration-300"></i>
             <input
               type="text"
@@ -82,7 +92,7 @@ function LoginForm() {
 
         {/* Password Field */}
         <div>
-          <div className="shadow-lg flex gap-2 items-center bg-white p-2 rounded group duration-300">
+          <div className="shadow-lg flex gap-2 items-center bg-white p-2  rounded group duration-300">
             <i className="ri-lock-2-line group-hover:rotate-[360deg] duration-300"></i>
             <input
               type="password"
@@ -104,13 +114,14 @@ function LoginForm() {
         <button
           type="submit"
           disabled={formik.isSubmitting}
-          className={`w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition duration-300 ${
-            formik.isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
+          className={`w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition duration-300 ${formik.isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
         >
           {formik.isSubmitting ? 'Signing in...' : 'Sign in'}
         </button>
       </form>
+
+
     </div>
   );
 }

@@ -1,7 +1,7 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const axios = require('axios');
-const { v4: uuidv4 } = require('uuid');
-const sessionStore = require('../../utils/sessionStore'); // ✅ Correct import
+require('dotenv').config();
 
 const router = express.Router();
 
@@ -64,29 +64,15 @@ router.post('/logout', async (req, res) => {
         success: true,
         message: 'Logged out successfully'
       });
-    } else {
-      console.warn(`[${transactionId}] Logout completed with warning: token revocation failed`);
-      return res.status(200).json({
-        success: true,
-        message: ERROR_MESSAGES.PARTIAL_LOGOUT,
-        warning: 'ServiceNow token revocation failed'
-      });
-    }
 
   } catch (error) {
-    console.error(`[${transactionId}] Critical logout error:`, error.message);
-
-    res.clearCookie('session_id', getCookieOptions())
-      .status(500)
-      .json({
-        error: 'logout_failed',
-        error_description: ERROR_MESSAGES.LOGOUT_FAILED,
-        ...(process.env.NODE_ENV === 'development' && {
-          details: error.message,
-          errorId: transactionId
-        })
-      });
+    console.error('Logout error:', error);
+    return res.status(500).json({ 
+      success: false,
+      message: 'Failed to log out, try again later.'
+    });
   }
 });
+
 
 module.exports = router;

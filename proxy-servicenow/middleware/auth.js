@@ -1,5 +1,4 @@
-// middleware/verifySession.js
-const sessionStore = require('../utils/sessionStore');
+const jwt = require('jsonwebtoken');
 
 const verifyJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -15,14 +14,13 @@ const verifyJWT = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
+    req.session = {snAccessToken: req.user.sn_access_token};
+    
     next();
   } catch (error) {
-    console.error('Session verification failed:', error.message);
-    res.status(401).clearCookie('session_id').json({ 
-      error: 'session_expired',
-      message: 'Please login again' 
-    });
+    console.error('JWT verification error:', error.message);
+    return res.status(401).json({ error: 'Unauthorized - Invalid token' });
   }
 };
 
-module.exports = verifySession;
+module.exports = verifyJWT;
