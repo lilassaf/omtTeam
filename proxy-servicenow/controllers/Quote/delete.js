@@ -1,5 +1,4 @@
 const axios = require('axios');
-const jwt = require('jsonwebtoken');
 const Quote = require('../../models/quote');
 const QuoteLine = require('../../models/quoteLine');
 const handleMongoError = require('../../utils/handleMongoError');

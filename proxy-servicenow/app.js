@@ -105,7 +105,6 @@ app.use('/api', [
     signupRoutes, // Registration + confirmation
     emailroutes,
     // createAccount,
-    Quote,
     contact,
     location,
     account,
