@@ -9,6 +9,7 @@ const Sidebar = ({ toggleSidebar, open, isSidebarCollapsed }) => {
   const userInfo = useSelector(state => state.auth.userInfo);
   const userRole = userInfo?.role?.toLowerCase();
 
+  
   const toggleExpand = (path) => {
     setExpandedItems(prev => ({ ...prev, [path]: !prev[path] }));
   };

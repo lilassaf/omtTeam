@@ -4,37 +4,8 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 
-const api = axios.create({
-  baseURL: API_URL,
-  timeout: 10000,
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  }
-});
 
-// Enhanced error handling wrapper
-const handleApiError = (error, defaultMessage = 'Request failed') => {
-  if (!error.response) {
-    return {
-      type: 'network_error',
-      message: 'Server unavailable or network error',
-      originalError: error.message
-    };
-  }
 
-  const { status, data } = error.response;
-  return {
-    type: data?.error || 'api_error',
-    code: status,
-    message: data?.error_description || data?.message || defaultMessage,
-    details: data?.details,
-    validationErrors: data?.errors,
-    serverResponse: data
-  };
-};
-
-// Enhanced login with better error handling
 export const userLogin = createAsyncThunk(
   'auth/login',
   async ({ username, password }, { rejectWithValue }) => {

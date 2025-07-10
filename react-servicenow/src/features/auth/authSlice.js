@@ -60,7 +60,6 @@ const loadInitialState = () => {
   }
 };
 
-const initialState = loadInitialState();
 
 const authSlice = createSlice({
   name: 'auth',

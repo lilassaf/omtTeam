@@ -5,88 +5,62 @@ const sessionStore = require('../../utils/sessionStore'); // ✅ Correct import
 
 const router = express.Router();
 
-const ERROR_MESSAGES = {
-  LOGOUT_FAILED: 'Logout failed due to server error',
-  PARTIAL_LOGOUT: 'Logged out but token revocation failed',
-  NO_SESSION: 'No active session found'
-};
 
-/**
- * Secure cookie options (matches login configuration)
- */
-const getCookieOptions = () => ({
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'Strict',
-  path: '/',
-  domain: process.env.COOKIE_DOMAIN || undefined
-});
-
-/**
- * Revoke ServiceNow token with 1 retry if needed
- */
-const revokeServiceNowToken = async (token, attempt = 1) => {
-  try {
-    const response = await axios.post(
-      `${process.env.SERVICE_NOW_URL}/oauth_revoke_token.do`,
-      new URLSearchParams({
-        token,
-        client_id: process.env.CLIENT_ID,
-        client_secret: process.env.CLIENT_SECRET
-      }),
-      {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'X-Requested-With': 'XMLHttpRequest'
-        },
-        timeout: 5000
-      }
-    );
-    return response.status === 200;
-  } catch (err) {
-    console.error(`Token revocation failed (attempt ${attempt}):`, err.message);
-    if (attempt < 2 && (!err.response || err.code === 'ECONNABORTED')) {
-      return revokeServiceNowToken(token, attempt + 1);
-    }
-    return false;
-  }
-};
-
-/**
- * Logout endpoint
- */
 router.post('/logout', async (req, res) => {
-  const transactionId = uuidv4();
-  console.log(`[${transactionId}] Starting logout process`);
-
   try {
-    const sessionId = req.cookies?.session_id;
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.split(' ')[1];
 
-    if (!sessionId) {
-      console.log(`[${transactionId}] No session found`);
-      return res.status(200).json({
-        success: true,
-        message: ERROR_MESSAGES.NO_SESSION
-      });
+    // Verify token if present
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // Revoke ServiceNow token if exists
+        const revokeTokenInBackground = async (sn_access_token) => {
+          try {
+            await axios.post(
+              `${process.env.SERVICE_NOW_URL}/oauth_revoke_token.do`,
+              new URLSearchParams({
+                token: sn_access_token,
+                client_id: process.env.CLIENT_ID,
+                client_secret: process.env.CLIENT_SECRET
+              }),
+              { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+            );
+          } catch (error) {
+            // Token is expired or invalid
+            console.error('Token verification failed:', error);
+            return res.status(401).json({ success: false, message: 'Token expired or invalid' });
+          }
+        };
+        
+        // In your logout handler
+        if (decoded?.sn_access_token) {
+          revokeTokenInBackground(decoded.sn_access_token);
+        }
+      } catch (verificationError) {
+        console.warn('Token verification warning:', verificationError.message);
+        // Optionally, handle expired tokens if necessary
+      }
     }
 
-    const session = sessionStore.getSession(sessionId);
-    let tokenRevocationSuccess = true;
+    // Set appropriate headers based on environment
+    const headers = {
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    };
 
-    if (session?.snAccessToken) {
-      tokenRevocationSuccess = await revokeServiceNowToken(session.snAccessToken);
-      sessionStore.deleteSession(sessionId);
-      console.log(`[${transactionId}] Session ${sessionId.substring(0, 8)}... deleted`);
+    // Only set Clear-Site-Data in production with HTTPS
+    if (req.secure || process.env.NODE_ENV === 'production') {
+      headers['Clear-Site-Data'] = '"cookies", "storage"';
     }
 
-    res.clearCookie('session_id', {
-      ...getCookieOptions(),
-      expires: new Date(0)
-    });
-
-    if (tokenRevocationSuccess) {
-      console.log(`[${transactionId}] Logout completed successfully`);
-      return res.status(200).json({
+    return res
+      .set(headers)
+      .status(200)  // Use 200 status here as success
+      .json({ 
         success: true,
         message: 'Logged out successfully'
       });
