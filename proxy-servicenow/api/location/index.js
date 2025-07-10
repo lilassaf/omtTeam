@@ -8,6 +8,7 @@ const delLocation = require('../../controllers/location/delete');
 const getAdresse = require('../../controllers/location/getAdresse');
 const deleteLocation = require('../../controllers/location/delete');
 const getAll = require('../../controllers/location/getall');
+const getOne = require('../../controllers/location/getone');
 
 
 
@@ -16,6 +17,6 @@ router.post('/location', create);
 router.get('/reverse-geocode', getAdresse);
 router.delete('/location/:id',deleteLocation);
 router.get('/location', getAll);
-
+router.get('/location/:id',getOne);
 
 module.exports = router;

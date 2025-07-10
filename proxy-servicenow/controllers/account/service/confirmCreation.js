@@ -51,7 +51,7 @@ const confirmCreation = async (req, res) => {
       const decoded = Buffer.from(rawToken, 'base64').toString('utf-8'); // "accountSysId:guid"
 
       // Split to extract the accountSysId and GUID
-      const [accountSysId, guid] = decoded.split(':');
+      [accountSysId, guid] = decoded.split(':');
       console.log("2",accountSysId);
 
       if (!accountSysId) {
