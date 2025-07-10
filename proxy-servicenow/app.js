@@ -7,6 +7,7 @@ const authjwt = require('./middleware/auth');
 const connectDB = require('./utils/connectionMongodb');
 const morgan = require('morgan'); // Optional: for request logging
 
+
 // Route imports
 const authRoutes = require('./api/auth/login');
 const signupRoutes = require('./api/auth/signup');

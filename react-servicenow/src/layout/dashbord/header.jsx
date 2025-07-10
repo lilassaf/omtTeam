@@ -6,6 +6,7 @@ import { SearchOutlined, BellOutlined, LogoutOutlined, UserOutlined, SettingOutl
 import { userLogout, fetchUserInfo } from '../../features/auth/authActions';
 import ProductSearch from '../../views/dashbord/npl-search';
 
+
 function Header() {
   const dispatch = useDispatch();
   const navigate = useNavigate();

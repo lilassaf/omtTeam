@@ -8,6 +8,7 @@ const verifyJWT = (req, res, next) => {
     return res.status(401).json({ error: 'Unauthorized - Missing token' });
   }
 
+  
   const token = authHeader.split(' ')[1];
 
   try {

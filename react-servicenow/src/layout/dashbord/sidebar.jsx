@@ -7,6 +7,7 @@ const Sidebar = ({ toggleSidebar, open, isSidebarCollapsed }) => {
   const location = useLocation();
   const [expandedItems, setExpandedItems] = useState({});
 
+  
   const toggleExpand = (path) => {
     setExpandedItems(prev => ({ ...prev, [path]: !prev[path] }));
   };
