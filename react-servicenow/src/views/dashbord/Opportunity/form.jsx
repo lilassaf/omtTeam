@@ -85,7 +85,7 @@ const OpportunityFormPage = () => {
         estimated_closed_date: isEditMode && formatDateForInput(initialData?.estimated_closed_date)||formatDateForInput(new Date(new Date().getTime() + 86400000)),
         description: isEditMode && initialData?.description||'',
         term_month: isEditMode && initialData?.term_month||'12',
-        sales_cycle_type: isEditMode && initialData?.sales_cycle_type._id||'',
+        sales_cycle_type: isEditMode && initialData?.sales_cycle_type?._id||'',
         probability: isEditMode && initialData?.probability||'50',
         stage: isEditMode && initialData?.stage?._id||'6834b29a3582eabbafc8bec0',
         industry: "telecommunications",
@@ -355,7 +355,7 @@ const OpportunityFormPage = () => {
       if (isEditMode) {
               await dispatch(getOpportunity({id}))
               .then(() => {  
-                dispatch(getByPriceList(initialData.price_list._id)); 
+                dispatch(getByPriceList(initialData?.price_list._id)); 
                 formik.resetForm({ values: getInitialValues() })
                 setInitialized(true);
               })
@@ -429,6 +429,7 @@ const OpportunityFormPage = () => {
           stage: "6834b2d23582eabbafc8bec2"
         }
         const res = await dispatch(updateStage(body));
+        await dispatch(getOpportunity({id}))
         if(!res.error){
           notification.success({
             message: 'Win recorded!',
@@ -452,6 +453,7 @@ const OpportunityFormPage = () => {
           stage: "6834b2ee3582eabbafc8bec4"
         }
         const res = await dispatch(updateStage(body));
+        await dispatch(getOpportunity({id}))
         if(!res.error){
           notification.success({
             message: 'Lose recorded!',
@@ -466,10 +468,12 @@ const OpportunityFormPage = () => {
   const handleQuoteGeneration = async () => {
       try {
         await dispatch(createQuote(id)).unwrap();
+        await dispatch(getOpportunity({id}))
         notification.success({
           message: 'Quote Created',
           description: 'The quote and its line items have been created successfully.',
         });
+        
       } catch (error) {
         notification.error({
           message: 'Creation Failed',
@@ -745,10 +749,10 @@ const OpportunityFormPage = () => {
             <div>
               <h1 className="text-xl font-semibold text-gray-800">Opportunity</h1>
               <p className="text-gray-600 text-md flex items-center gap-2">
-                {isEditMode ? initialData.short_description : 'New opportunity'}
+                {isEditMode ? initialData?.short_description : 'New opportunity'}
                 {isEditMode && (
                   <span className="px-2 py-0.5 bg-cyan-100 text-cyan-800 text-xs font-medium rounded-md capitalize">
-                    {initialData.stage?.sys_name}
+                    {initialData?.stage?.sys_name}
                   </span>
                 )}
               </p>
@@ -775,7 +779,9 @@ const OpportunityFormPage = () => {
                 okText="Win"
                 cancelText="Lose"
               >
-                <button className="overflow-hidden relative w-38 h-10 text-base font-medium bg-cyan-700 text-white hover:bg-cyan-800 cursor-pointer border-none rounded-md z-10 group transition-colors">
+                <button className="overflow-hidden relative w-38 h-10 text-base font-medium bg-cyan-700 text-white hover:bg-cyan-800 cursor-pointer border-none rounded-md z-10 group transition-colors"
+                hidden={ !isEditMode || initialData?.stage?.type !== "open" }
+                >
                     Close Opportunity
                 </button>
               </Popconfirm>
@@ -870,7 +876,7 @@ const OpportunityFormPage = () => {
                 <OpportunityStep3
                   formik={formik}
                   editMode={isEditMode}
-                  lineItems={isEditMode && initialData.line_items}
+                  lineItems={isEditMode && initialData?.line_items}
                   pops={productOfferingPrices}
                   setOffSearchTerm={setOffSearchTerm}
                 />

@@ -22,7 +22,7 @@ router.get('/channel', async (req, res) => {
       const serviceNowUrl = `${process.env.SERVICE_NOW_URL}/api/now/table/sn_prd_pm_distribution_channel`;
       const serviceNowHeaders = {
         'Accept': 'application/json',
-        'Authorization': `Bearer ${decodedToken.sn_access_token}` // or 'Token' as needed
+        'Authorization': `Bearer ${req.session.snAccessToken}` // or 'Token' as needed
       };
   
       // ServiceNow API call with query parameters
@@ -70,7 +70,7 @@ router.get('/product-spec', async (req, res) => {
         const serviceNowUrl = `${process.env.SERVICE_NOW_URL}/api/sn_tmf_api/catalogmanagement/productSpecification`;
         const serviceNowHeaders = {
         'Accept': 'application/json',
-        'Authorization': `Bearer ${decodedToken.sn_access_token}` // or 'Token' as needed
+        'Authorization': `Bearer ${req.session.snAccessToken}` // or 'Token' as needed
         };
 
         // ServiceNow API call with query parameters

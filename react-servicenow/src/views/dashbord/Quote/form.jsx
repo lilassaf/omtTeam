@@ -4,10 +4,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { notification, Spin, Popconfirm, Tabs, Table, Tooltip } from 'antd';
 import SignatureModal from '../../../components/dashboard/quote/buttonsignature'
-import { 
-  getQuote, 
+import {
+  getQuote,
   resetCurrentQuote,
-  updateQuoteState 
+  updateQuoteState,
+  deleteQuote
 } from '../../../features/servicenow/quote/quotaSlice';
 import {
   downloadContract
@@ -55,7 +56,7 @@ function QuoteFormPage() {
   // Calculate subtotal from quote lines
   const calculateSubtotal = () => {
     if (!formik.values.quote_lines || formik.values.quote_lines.length === 0) return '0.00';
-    
+
     const subtotal = formik.values.quote_lines.reduce((sum, line) => {
       return sum + (parseFloat(line.unit_price) * parseInt(line.quantity) * parseInt(line.term_month));
     }, 0);
@@ -96,31 +97,50 @@ function QuoteFormPage() {
     }
   };
 
+  const handleDeleteQuote = async (quoteId) => {
+    try {
+      setDeleting(true);
+      await dispatch(deleteQuote(quoteId)).unwrap();
+      notification.success({
+        message: 'Success',
+        description: 'Quote deleted successfully'
+      });
+      navigate('/dashboard/quote');
+    } catch (error) {
+      notification.error({
+        message: 'Error',
+        description: error.message || 'Failed to delete quote'
+      });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
 
 
   // Handle download contract
- const handleDownloadContract = async (contractId, quoteNumber) => {
-  try {
-    setPartiallyLoading(true);
-    const response = await dispatch(downloadContract({contractId, quoteNumber})).unwrap(); 
-    // Create download link using the content and fileName from the response
-    const url = window.URL.createObjectURL(new Blob([response.content]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', response.fileName); // Use the filename from the response
-    document.body.appendChild(link);
-    link.click();
-    link.parentNode.removeChild(link);
-    
-  } catch (error) {
-    notification.error({
-      message: 'Error',
-      description: error.message || 'Failed to download contract'
-    });
-  } finally {
-    setPartiallyLoading(false);
-  }
-};
+  const handleDownloadContract = async (contractId, quoteNumber) => {
+    try {
+      setPartiallyLoading(true);
+      const response = await dispatch(downloadContract({ contractId, quoteNumber })).unwrap();
+      // Create download link using the content and fileName from the response
+      const url = window.URL.createObjectURL(new Blob([response.content]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', response.fileName); // Use the filename from the response
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+
+    } catch (error) {
+      notification.error({
+        message: 'Error',
+        description: error.message || 'Failed to download contract'
+      });
+    } finally {
+      setPartiallyLoading(false);
+    }
+  };
 
   // Determine status actions
   const getStatusActions = (currentStatus) => {
@@ -136,7 +156,7 @@ function QuoteFormPage() {
   const isApproved = currentQuote?.state === 'Approved';
 
   // Tab items configuration
-  
+
 
   // Fetch quote details
   useEffect(() => {
@@ -234,7 +254,7 @@ function QuoteFormPage() {
                 key: 'status',
                 render: (status) => <StatusCell status={status} />,
               },
-             
+
             ]}
             dataSource={formik.values.quote_lines || []}
             pagination={{ pageSize: 5 }}
@@ -390,7 +410,7 @@ function QuoteFormPage() {
 
           {isEditMode && (
             <div className="flex items-center gap-2">
-              
+
               {/* Status toggle button in header */}
               {!isApproved && (
                 <Tooltip title={`${action} Quote`}>
@@ -414,17 +434,17 @@ function QuoteFormPage() {
                       onClick={() => handleDownloadContract(currentQuote?.contracts[0]._id, currentQuote.number)}
                       disabled={partiallyLoading}
                     >
-                     
+
                       Download Contract
                     </button>
                   ) : (
-                 <SignatureModal dispatch={dispatch} quoteId={currentQuote._id}></SignatureModal>
+                    <SignatureModal dispatch={dispatch} quoteId={currentQuote._id}></SignatureModal>
                   )}
                 </Tooltip>
               )}
-               <Popconfirm
+              <Popconfirm
                 title="Are you sure you want to delete this quote?"
-                onConfirm={() => {}}
+                onConfirm={() => handleDeleteQuote(currentQuote._id)}
                 okText="Yes"
                 cancelText="No"
                 okButtonProps={{ danger: true }}
@@ -433,14 +453,11 @@ function QuoteFormPage() {
                   className="overflow-hidden relative w-32 h-10 border-2 rounded-md text-base font-medium z-10 group transition-colors bg-white border-cyan-700 text-cyan-700 hover:bg-cyan-50 cursor-pointer"
                   disabled={deleting}
                 >
-                  {deleting ? (
-                    <Spin indicator={<i className="ri-refresh-line animate-spin text-lg"></i>} />
-                  ) : (
-                    <>
+             
                      
                       Delete
-                    </>
-                  )}
+                
+             
                 </button>
               </Popconfirm>
             </div>
@@ -557,7 +574,7 @@ function QuoteFormPage() {
               <div className="w-full md:w-1/2">
                 <label className="block font-medium mb-1 text-gray-700">Status</label>
                 <div className="flex space-x-4">
-                  {['draft',  'Approved',].map(status => (
+                  {['draft', 'Approved',].map(status => (
                     <label
                       key={status}
                       className={`flex items-center px-4 py-2 border rounded-md cursor-not-allowed ${formik.values.state === status
