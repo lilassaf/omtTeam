@@ -35,7 +35,8 @@ const editOpportunityPrices = async (req, res) => {
       try {
         pops = await getProductOfferingPriceByPriceList({
           params: { id: selectedPriceList.toString() },
-          user: req.user
+          user: req.user,
+          session: req.session
         });
         pops.success = true;
       } catch (error) {
@@ -73,7 +74,8 @@ const editOpportunityPrices = async (req, res) => {
         try {
           await deleteOpportunityLine({
             params: { id: lineItemId._id.toString() },
-            user: req.user
+            user: req.user,
+            session: req.session
           });
           console.log("opportunity line item deleted");
           return { success: true, id: lineItemId._id };
@@ -90,7 +92,8 @@ const editOpportunityPrices = async (req, res) => {
         try {
           priceListDeletionResult = await deletePriceList({
             params: { id: oldPriceListId.toString() },
-            user: req.user
+            user: req.user,
+            session: req.session
           });
           priceListDeletionResult.success = true;
         } catch (error) {
