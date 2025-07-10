@@ -52,8 +52,8 @@ const StatusCell = ({ status }) => {
 
   return (
     <div className="flex items-center">
-      <span className={`h-2 w-2 rounded-full mr-2 ${colors.dot}`}></span>
-      <span className={`text-xs ${colors.text}`}>
+      <span className={`h-2 w-2 rounded-full mr-2 ${colors?.dot}`}></span>
+      <span className={`text-xs ${colors?.text}`}>
         {displayText}
       </span>
     </div>
@@ -264,11 +264,12 @@ function ProductOfferingFormPage() {
             : 'New Product Offering has been created successfully',
         });
         resetForm();
+        navigate('/dashboard/product-offering');
       } catch (error) {
         console.error('Submission error:', error);
         notification.error({
           message: 'Operation Failed',
-          description: error.message || 'Something went wrong. Please try again.',
+          description: error || 'Something went wrong. Please try again.',
         });
       }
     },

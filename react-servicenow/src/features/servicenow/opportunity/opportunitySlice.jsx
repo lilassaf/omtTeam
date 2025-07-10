@@ -382,7 +382,7 @@ const opportunitySlice = createSlice({
       })
       .addCase(getUnitOfMeasures.rejected, (state, action) => {
         state.loading = false;
-        //state.error = action.payload?.error?.message || 'Failed to fetch unit of measures';
+        state.error = action.payload?.error?.message || 'Failed to fetch unit of measures';
       })
 
 
