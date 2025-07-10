@@ -28,7 +28,7 @@ async function deleteProductSpecification(req, res = null) {
     // Supprimer depuis ServiceNow si token disponible
     if (req.user && req.user.sn_access_token) {
       try {
-        const connection = snConnection.getConnection(req.user.sn_access_token);
+        const connection = snConnection.getConnection(req.session.snAccessToken);
         const snResponse = await axios.delete(
           `${connection.baseURL}/api/now/table/sn_prd_pm_product_specification/${sysId}`,
           { headers: connection.headers }

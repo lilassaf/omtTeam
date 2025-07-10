@@ -10,7 +10,10 @@ const priceListSchema = new mongoose.Schema({
   description: String,
   state: String,
   defaultflag: String,
-  currency:String,
+  currency: {
+    type: mongoose.Schema.Types.Mixed, // Accepts any type
+    required: true
+  },
   validFor: {
     startDateTime: Date,
     endDateTime: Date

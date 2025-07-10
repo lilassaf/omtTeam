@@ -54,7 +54,7 @@ async function updateOpportunityCore(req) {
   }
 
   // Update in ServiceNow
-  const connection = snConnection.getConnection(req.user.sn_access_token);
+  const connection = snConnection.getConnection(req.session.snAccessToken);
   const snResponse = await axios.patch(
     `${connection.baseURL}/api/now/table/sn_opty_mgmt_core_opportunity/${opportunity.sys_id}`,
     updateData,

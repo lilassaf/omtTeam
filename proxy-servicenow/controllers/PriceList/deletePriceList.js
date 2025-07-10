@@ -44,7 +44,7 @@ async function deletePriceList(req, res = null) {
     }
 
     // Delete from ServiceNow using the sys_id
-    const connection = snConnection.getConnection(req.user.sn_access_token);
+    const connection = snConnection.getConnection(req.session.snAccessToken);
     const snResponse = await axios.delete(
       `${connection.baseURL}/api/now/table/sn_csm_pricing_price_list/${sysId}`,
       { headers: connection.headers }
