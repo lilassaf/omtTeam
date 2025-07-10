@@ -23,7 +23,7 @@ async function updateStage(req, res) {
     }
 
     // Update ServiceNow
-    const connection = snConnection.getConnection(req.user.sn_access_token);
+    const connection = snConnection.getConnection(req.session.snAccessToken);
     await axios.patch(
       `${connection.baseURL}/api/now/table/sn_opty_mgmt_core_opportunity/${opportunity.sys_id}`,
       { stage: stageDoc.sys_id },
