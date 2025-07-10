@@ -25,6 +25,7 @@ module.exports = async (req, res) => {
       return res.status(404).json({ error: `Opportunity not found with _id: ${id}` });
     }
 
+    req
     const snResponse = await axios.post(
       `${process.env.SERVICE_NOW_URL}/api/x_1598581_omt_dx_0/dxc_order_management_api/quote`,
       { opty_sys_id: localOpportunity.sys_id },

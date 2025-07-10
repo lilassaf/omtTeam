@@ -55,8 +55,6 @@ const SignatureModal = ({dispatch, quoteId }) => {
 
     const signatureData = sigCanvas.current?.toDataURL();
     setSignature(signatureData);
-    console.log(signatureData);
-    console.log(quoteId);
     
     setIsModalOpen(false);
     
