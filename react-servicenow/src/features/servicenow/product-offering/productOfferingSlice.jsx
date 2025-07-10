@@ -90,7 +90,6 @@ export const deleteProductOffering = createAsyncThunk(
     try {
       await api.delete(
         `/api/product-offering/${id}`,
-        
       );
       return id;
     } catch (error) {

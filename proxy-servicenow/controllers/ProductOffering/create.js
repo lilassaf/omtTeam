@@ -35,7 +35,7 @@ module.exports = async (req, res) => {
 
         const newId = new mongoose.Types.ObjectId();
         //initialize servicenow connection
-        const connection = snConnection.getConnection(req.user.sn_access_token);
+        const connection = snConnection.getConnection(req.session.snAccessToken);
 
         // Prepare ServiceNow payload
         const snPayload = {

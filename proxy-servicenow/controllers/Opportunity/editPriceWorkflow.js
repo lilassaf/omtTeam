@@ -8,10 +8,11 @@ const deletePriceList = require("../PriceList/deletePriceList");
 const getOpportunityWithDetails = require("./getOpportuntityWithdetails");
 const { updateOpportunityCore } = require('./updateOpportunity');
 const getProductOfferingPriceByPriceList = require('../ProductOfferingPrice/getProductOfferingPriceByPriceList');
-const create = require("../account/create");
+
 
 const editOpportunityPrices = async (req, res) => {
-  const { createNewPriceList, selectedPriceList, opportunityId, productOfferings, priceList } = req.body;
+  const opportunityId = req.params.id;
+  const { createNewPriceList, selectedPriceList, productOfferings, priceList } = req.body;
   const payload = { ...req };
   try {
     // 1. Get existing opportunity with account info
@@ -21,6 +22,7 @@ const editOpportunityPrices = async (req, res) => {
       .populate('price_list', '_id sys_id name');
 
     if (!opportunity) {
+      console.log("Opportunity not found");
       return res.status(404).json({
         success: false,
         error: 'Opportunity not found'
@@ -33,7 +35,8 @@ const editOpportunityPrices = async (req, res) => {
       try {
         pops = await getProductOfferingPriceByPriceList({
           params: { id: selectedPriceList.toString() },
-          user: req.user
+          user: req.user,
+          session: req.session
         });
         pops.success = true;
       } catch (error) {
@@ -71,7 +74,8 @@ const editOpportunityPrices = async (req, res) => {
         try {
           await deleteOpportunityLine({
             params: { id: lineItemId._id.toString() },
-            user: req.user
+            user: req.user,
+            session: req.session
           });
           console.log("opportunity line item deleted");
           return { success: true, id: lineItemId._id };
@@ -88,7 +92,8 @@ const editOpportunityPrices = async (req, res) => {
         try {
           priceListDeletionResult = await deletePriceList({
             params: { id: oldPriceListId.toString() },
-            user: req.user
+            user: req.user,
+            session: req.session
           });
           priceListDeletionResult.success = true;
         } catch (error) {
@@ -159,7 +164,8 @@ const editOpportunityPrices = async (req, res) => {
         ...req.body.opportunity, // Spread all opportunity fields
         price_list: newPriceList._id // Include the new price list reference
       },
-      user: req.user
+      user: req.user,
+      session: req.session
     });
 
     //get complet updated opp 

@@ -40,7 +40,7 @@ async function createAccount(req, res=null) {
     }
 
     // Step 1: Create in ServiceNow first
-    const connection = snConnection.getConnection(req.user.sn_access_token);
+    const connection = snConnection.getConnection(req.session.snAccessToken);
     const snResponse = await axios.post(
       `${connection.baseURL}/api/now/table/customer_account`, 
       snPay,

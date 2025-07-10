@@ -1,18 +1,13 @@
 const axios = require('axios');
-const jwt = require('jsonwebtoken');
 const ProductOffering = require('../../models/ProductOffering');
 const handleMongoError = require('../../utils/handleMongoError');
+const snConnection = require('../../utils/servicenowConnection');
 
 module.exports = async (req, res)=>{
   
     try{
       const id = req.body.id;
-      const authHeader = req.headers.authorization;
-      const [bearer, token] = authHeader.split(' ');
-      if (bearer !== 'Bearer' || !token) {
-        return res.status(401).json({ error: 'Invalid authorization format' });
-      }
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const connection = snConnection.getConnection(req.session.snAccessToken);
 
       // Find the productOffering by MongoDB _id to get ServiceNow sys_id
       let productOffering;
@@ -33,7 +28,7 @@ module.exports = async (req, res)=>{
           return res.status(400).json({ error: 'productOffering not synced with ServiceNow (missing sys_id)' });
       }
 
-      const sys_id = productOffering.id;
+      const sys_id = productOffering.id || productOffering.sys_id;
   
       // Validate allowed fields
       const allowedFields = ['id', 'status'];
@@ -47,13 +42,10 @@ module.exports = async (req, res)=>{
      
       const payload = {"sys_id":sys_id, "status":req.body.status};
       const snResponse = await axios.patch(
-        `${process.env.SERVICE_NOW_URL}/api/x_1598581_omt_dx_0/product_management_api/po_pub`,
+        `${connection.baseURL}/api/x_1598581_omt_dx_0/product_management_api/po_pub`,
         payload,
         {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${req.session.snAccessToken}`
-          }
+          headers: connection.headers
         }
       );
       try {

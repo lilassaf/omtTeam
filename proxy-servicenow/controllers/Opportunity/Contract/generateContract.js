@@ -24,7 +24,7 @@ async function generateContract(req, res) {
 
     if(exists) { return res.status(200).json(exists) }
     // Step 3: Create in ServiceNow
-    const connection = snConnection.getConnection(req.user.sn_access_token);
+    const connection = snConnection.getConnection(req.session.snAccessToken);
     const snResponse = await axios.get(
         `${connection.baseURL}/api/sn_prd_pm/quote?sys_id=${quote.sys_id}`,
         { headers: connection.headers }

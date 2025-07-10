@@ -1,15 +1,13 @@
 const axios = require('axios');
-const jwt = require('jsonwebtoken');
 const ProductOffering = require('../../models/ProductOffering');
 const handleMongoError = require('../../utils/handleMongoError');
-
+const snConnection = require('../../utils/servicenowConnection');
 
 module.exports = async (req, res) => {
   try {
-          const token = req.headers.authorization.split(' ')[1];
-          const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-          const { id } = req.params;
-  
+          
+          const connection = snConnection.getConnection(req.session.snAccessToken);
+          const {id} = req.params;
           // Find the productOffering by MongoDB _id to get ServiceNow sys_id
           let productOffering;
           try {
@@ -28,14 +26,11 @@ module.exports = async (req, res) => {
           if (!productOffering.id && !productOffering.sys_id) {
               return res.status(400).json({ error: 'productOffering not synced with ServiceNow (missing sys_id)' });
           }
-  
           const sys_id = productOffering.id || productOffering.sys_id;
-  
-  
           const snResponse = await axios.delete(
-              `${process.env.SERVICE_NOW_URL}/api/sn_tmf_api/catalogmanagement/productOffering/${sys_id}`,
+              `${connection.baseURL}/api/sn_tmf_api/catalogmanagement/productOffering/${sys_id}`,
               {
-                  headers: { 'Authorization': `Bearer ${req.session.snAccessToken}` },
+                  headers: connection.headers,
                   params: { sysparm_suppress_auto_sys_field: true }
               }
           );

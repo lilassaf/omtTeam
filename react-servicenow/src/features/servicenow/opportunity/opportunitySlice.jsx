@@ -75,12 +75,11 @@ export const getOpportunity = createAsyncThunk(
 
 export const updateOpportunityPricing = createAsyncThunk(
   'opportunity/updateOpportunityPricing',
-  async ( body , { rejectWithValue }) => {
+  async ( {id, body} , { rejectWithValue }) => {
     try {
       const response = await api.patch(
-        `/api/opportunity-edit`,
+        `/api/opportunity-edit/${id}`,
         body,
-        
       );
       return response.data;
     } catch (error) {
@@ -287,7 +286,6 @@ const opportunitySlice = createSlice({
       })
       .addCase(getOpportunity.fulfilled, (state, action) => {
         state.loading = false;
-        console.log(action.payload)
         state.currentOpportunity = action.payload.data;
       })
       .addCase(getOpportunity.rejected, (state, action) => {
@@ -382,7 +380,7 @@ const opportunitySlice = createSlice({
       })
       .addCase(getUnitOfMeasures.rejected, (state, action) => {
         state.loading = false;
-        //state.error = action.payload?.error?.message || 'Failed to fetch unit of measures';
+        state.error = action.payload?.error?.message || 'Failed to fetch unit of measures';
       })
 
 

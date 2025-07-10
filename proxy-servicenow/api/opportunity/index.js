@@ -25,7 +25,7 @@ router.delete('/opportunity/:id', deleteOpportunity);
 
 //workflow
 router.post('/opportunity-workflow', workflow);
-router.patch('/opportunity-edit', workflowEdit);
+router.patch('/opportunity-edit/:id', workflowEdit);
 
 //stages
 router.get('/opportunity-stage', getStages);

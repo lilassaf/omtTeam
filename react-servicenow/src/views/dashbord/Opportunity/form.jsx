@@ -11,7 +11,8 @@ import {
   Table,
   Tooltip,
   Badge,
-  Steps
+  Steps,
+  Modal
 } from 'antd';
 import { formatDateForInput } from '@/utils/formatDateForInput.js';
 import {
@@ -22,19 +23,19 @@ import {
   getSalesCycleTypes,
   getStages,
   getUnitOfMeasures,
-  getOpportunity
+  getOpportunity,
+  deleteOpportunity,
+  updateStage
 } from '../../../features/servicenow/opportunity/opportunitySlice';
 import { createQuote } from '../../../features/servicenow/quote/quotaSlice';
 import { getAccount } from '../../../features/servicenow/account/accountSlice';
 import { getPriceList } from '../../../features/servicenow/price-list/priceListSlice';
 import { getByPriceList } from '../../../features/servicenow/product-offering-price/productOfferingPriceSlice';
 import { getall as getProductOfferings } from '../../../features/servicenow/product-offering/productOfferingSlice';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import OpportunityStep1 from '../../../components/dashboard/Opportunity/Steps/Step1_CreateOpportunity';
 import OpportunityStep2 from '../../../components/dashboard/Opportunity/Steps/Step2_SelectPriceList';
 import OpportunityStep3 from '../../../components/dashboard/Opportunity/Steps/Step3_ProductOfferingPrice';
-import OpportunityStep4 from '../../../components/dashboard/Opportunity/Steps/Step4_Summary';
+//import OpportunityStep4 from '../../../components/dashboard/Opportunity/Steps/Step4_Summary';
 
 const { Step } = Steps;
 
@@ -51,6 +52,7 @@ const OpportunityFormPage = () => {
   const [offSearchTerm, setOffSearchTerm] = useState('');
   const [pLSearchTerm, setPLSearchTerm] = useState('');
   const [accSearchTerm, setAccSearchTerm] = useState('');
+  const [deleting, setDeleting] = useState(false);
   const headerRef = useRef(null);
   const pdfRef = useRef();
   const [initialized, setInitialized] = useState(false);
@@ -183,12 +185,12 @@ const OpportunityFormPage = () => {
                     const { createNewPriceList, priceList, selectedPriceList } = this.options.context;
                     
                     if (createNewPriceList) {
-                      return value === priceList?.currency;
+                      return value === priceList?.currency?.value || priceList?.currency;
                     } else {
                       // Find the selected price list from pre-fetched data
                       const selectedPL = priceLists.find(pl => pl._id === selectedPriceList);
                       
-                      return value === selectedPL?.currency;
+                      return value === selectedPL?.currency?.value || selectedPL?.currency;
                     }
                   }
                 ),
@@ -299,7 +301,7 @@ const OpportunityFormPage = () => {
           }),
         ),
       account: Yup.object().when('opportunity.sales_cycle_type', {
-        is: (value) => value === '6834b3513582eabbafc8bec7',
+        is: (value) => value === '6834b3513582eabbafc8bec7' && !isEditMode,
         then: () => Yup.object().shape({
           name: Yup.string().required('Account name is required'),
           email: Yup.string().email('Invalid email').required('Email is required'),
@@ -315,7 +317,7 @@ const OpportunityFormPage = () => {
     onSubmit: async (values, { resetForm }) => {
       try {
         if(isEditMode){
-            await dispatch(updateOpportunityPricing(values));
+            await dispatch(updateOpportunityPricing({id:id, body:values}));
             notification.success({
               message: 'Opportunity Updated',
               description: 'Opportunity has been updated successfully',
@@ -329,9 +331,7 @@ const OpportunityFormPage = () => {
           });
         }
         
-        localStorage.removeItem(FORM_STORAGE_KEY);
-        resetForm();
-        setCurrentStep(0);
+        handleReset();
       } catch (error) {
         console.error('Submission error:', error);
         notification.error({
@@ -395,6 +395,72 @@ const OpportunityFormPage = () => {
     setCurrentStep(0);
     dispatch(resetError());
     navigate('/dashboard/opportunity');
+  };
+
+  // Handle delete
+    const handleDelete = async () => {
+      setDeleting(true);
+      try {
+        await dispatch(deleteOpportunity(id)).unwrap();
+        notification.success({
+          message: 'Opportunity Deleted',
+          description: 'Opportunity has been deleted successfully',
+        });
+        navigate('/dashboard/opportunity');
+      } catch (error) {
+        notification.error({
+          message: 'Deletion Failed',
+          description: error.payload || 'Failed to delete Opportunity',
+        });
+      } finally {
+        setDeleting(false);
+      }
+    };
+
+    const handleWin = (id) => {
+    Modal.confirm({
+      title: 'Confirm Win',
+      content: 'Are you sure you want to record this as a Win?',
+      okText: 'Yes, Win',
+      cancelText: 'Cancel',
+      async onOk() {
+        const body = { 
+          id,
+          stage: "6834b2d23582eabbafc8bec2"
+        }
+        const res = await dispatch(updateStage(body));
+        if(!res.error){
+          notification.success({
+            message: 'Win recorded!',
+            description: "We've updated the opportunity to the Closed-Won stage"
+          });
+          fetchData(current, pageSize, searchTerm);
+        }
+      },
+    });
+  };
+
+  const handleLose = (id) => {
+    Modal.confirm({
+      title: 'Confirm Lose',
+      content: 'Are you sure you want to record this as a Lose?',
+      okText: 'Yes, Lose',
+      cancelText: 'Cancel',
+      async onOk() {
+        const body = { 
+          id,
+          stage: "6834b2ee3582eabbafc8bec4"
+        }
+        const res = await dispatch(updateStage(body));
+        if(!res.error){
+          notification.success({
+            message: 'Lose recorded!',
+            description: "We've updated the opportunity to the Closed-Lost stage"
+          });
+          fetchData(current, pageSize, searchTerm);
+        }
+      },
+    });
   };
 
   const handleQuoteGeneration = async () => {
@@ -475,9 +541,6 @@ const OpportunityFormPage = () => {
     setCurrentStep(currentStep - 1);
   };
 
-  const downloadPDF = () => {
-    // ... (keep your existing downloadPDF logic)
-  };
 
   // StatusCell component for consistent status rendering
   const StatusCell = ({ status }) => {
@@ -703,12 +766,27 @@ const OpportunityFormPage = () => {
               Cancel
             </button>
 
+            <Tooltip title={`Close Opportunity`}>
+              <Popconfirm
+                title="Close Opportunity"
+                description="Won or Lost the opportunity?"
+                onConfirm={()=> handleWin(id)}
+                onCancel={()=> handleLose(id)}
+                okText="Win"
+                cancelText="Lose"
+              >
+                <button className="overflow-hidden relative w-38 h-10 text-base font-medium bg-cyan-700 text-white hover:bg-cyan-800 cursor-pointer border-none rounded-md z-10 group transition-colors">
+                    Close Opportunity
+                </button>
+              </Popconfirm>
+            </Tooltip>
+
             <button
               type="button"
               onClick={handleQuoteGeneration}
               disabled={formik.isSubmitting}
               className="overflow-hidden relative w-38 h-10 text-base font-medium bg-cyan-700 text-white hover:bg-cyan-800 cursor-pointer border-none rounded-md z-10 group transition-colors"
-              hidden={!isEditMode}
+              hidden={!isEditMode || initialData?.stage?.type !== "closed_won"}
             >
               Generate Quote
             </button>
@@ -731,6 +809,33 @@ const OpportunityFormPage = () => {
                 <span>Create</span>
               )}
             </button>
+
+            {isEditMode && (
+              <Popconfirm
+                title="Delete Product Offering"
+                description={
+                  <div>
+                    <p className="font-medium">Are you sure you want to delete this opportunity?</p>
+                    <p className="text-gray-600 mt-2">
+                      This action cannot be undone.
+                    </p>
+                  </div>
+                }
+                icon={<i className="ri-error-warning-line text-red-500 text-xl mr-2"></i>}
+                onConfirm={handleDelete}
+                okText="Delete"
+                okButtonProps={{ loading: deleting, danger: true }}
+                cancelText="Cancel"
+              >
+                <button
+                  type="button"
+                  disabled={formik.isSubmitting || deleting}
+                  className="overflow-hidden relative w-32 h-10 bg-white border-cyan-700 text-cyan-700 border-2 hover:bg-cyan-50 text-base font-medium cursor-pointer z-10 group disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Delete
+                </button>
+              </Popconfirm>
+            )}
           </div>
         </div>
       </div>
@@ -739,11 +844,11 @@ const OpportunityFormPage = () => {
       <div className="flex-grow overflow-y-auto">
         <div className="bg-white shadow-sm max-w-7xl mx-auto my-6">
           <div className="p-6">
-            <Steps current={currentStep} className="mb-8">
+            <Steps current={currentStep} className="mb-8" onChange={(current) => setCurrentStep(current)}>
               <Step title="Opportunity" />
               <Step title="Price List" />
               <Step title="Line Items" />
-              <Step title="Summary" />
+              {/* {<Step title="Summary" />} */}
             </Steps>
 
             <form onSubmit={(e) => { e.preventDefault() }} className="space-y-6">
@@ -770,9 +875,9 @@ const OpportunityFormPage = () => {
                   setOffSearchTerm={setOffSearchTerm}
                 />
               )}
-              {currentStep === 3 && (
+              {/* {currentStep === 3 && (
                 <OpportunityStep4 formik={formik} pdfRef={pdfRef} />
-              )}
+              )} */}
 
               <div className="flex justify-between pt-4 border-t border-gray-200">
                 <div>
@@ -787,7 +892,7 @@ const OpportunityFormPage = () => {
                   )}
                 </div>
                 <div className="flex gap-2">
-                  {currentStep < 3 ? (
+                  {currentStep < 2 ? (
                     <button
                       type="button"
                       onClick={nextStep}

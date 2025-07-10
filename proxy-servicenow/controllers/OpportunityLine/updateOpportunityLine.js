@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
     }
 
     // 3. Update in ServiceNow
-    const connection = snConnection.getConnection(req.user.sn_access_token);
+    const connection = snConnection.getConnection(req.session.snAccessToken);
     const snResponse = await axios.patch(
       `${connection.baseURL}/api/now/table/sn_opty_mgmt_core_opportunity_line_item/${opportunityLine.sys_id}`,
       updateData,

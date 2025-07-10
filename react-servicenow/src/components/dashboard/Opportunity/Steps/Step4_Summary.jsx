@@ -75,7 +75,7 @@ const OpportunityStep4 = ({ formik, pdfRef }) => {
             {currentPriceList?.name || 'N/A'}
           </Descriptions.Item>
           <Descriptions.Item label="Currency">
-            {currentPriceList?.currency || 'N/A'}
+            {currentPriceList?.currency?.value || currentPriceList?.currency || 'N/A'}
           </Descriptions.Item>
           <Descriptions.Item label="Status">
             <Tag color={currentPriceList?.state === 'published' ? 'green' : 'blue'}>
