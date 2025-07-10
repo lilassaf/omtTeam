@@ -66,8 +66,8 @@ async function generateContract(req, res) {
       quote: quote._id,
       file_name: fileName,
       download_url: downloadUrl,
-      m_signature:  Date.now(),
-      generated_at: new Date()
+      m_signature: signature,
+      m_signature_date: Date.now()
     });
 
     const savedContract = await contract.save();

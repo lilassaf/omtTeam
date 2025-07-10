@@ -12,7 +12,7 @@ router.get('/chatbot/cases', async (req, res) => {
     if (!token) return res.status(401).json({ error: 'Missing token' });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const snToken = decoded.sn_access_token;
+    const snToken = req.session.snAccessToken;
 
     const serviceNowUrl = `${process.env.SERVICE_NOW_URL}api/sn_prd_pm/get_cases_api/cases`;
 

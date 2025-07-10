@@ -9,8 +9,7 @@ export const getall = createAsyncThunk(
   async ({ page = 1, limit = 6, q = '' } = {}, { rejectWithValue }) => {
     try {
       
-      const response = await api.get(`/api/product-offering-category`, {
-        
+      const response = await api.get(`/api/product-offering-category`, {       
         params: { page, limit, q }
       });
       return response.data;
@@ -41,7 +40,7 @@ export const getOne = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       
-      const response = await api.get(`/api/product-offering-category/${id}`, );
+      const response = await api.get(`/api/product-offering-category/${id}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -54,12 +53,7 @@ export const createCategory = createAsyncThunk(
   async (productData, { rejectWithValue }) => {
     try {
       
-      const response = await api.post(`/api/product-offering-category`, productData, {
-        headers: {
-          authorization: access_token,
-          'Content-Type': 'application/json'
-        },
-      });
+      const response = await api.post(`/api/product-offering-category`, productData);
       return response.data.result;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -74,7 +68,7 @@ export const updateCategoryStatus = createAsyncThunk(
       
       const response = await api.patch(
         `/api/product-offering-category-status/${id}`,
-        { status },
+        { status }
         
       );
       return response.data.result;
@@ -91,9 +85,7 @@ export const updateCategory = createAsyncThunk(
       
       const response = await api.patch(
         `/api/product-offering-category/${id}`,
-        productData,
-        
-      );
+        productData   );
       return response.data.result;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -105,10 +97,8 @@ export const deleteCategory = createAsyncThunk(
   'ProductOfferingCategory/delete',
   async (id, { rejectWithValue }) => {
     try {
-      
       console.log(id);
-      await api.delete(`/api/product-offering-category/${id}`,
-        );
+      await api.delete(`/api/product-offering-category/${id}`);
       return id;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
