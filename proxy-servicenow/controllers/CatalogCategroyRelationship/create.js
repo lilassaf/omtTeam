@@ -24,6 +24,7 @@ module.exports = async (catalog, category, token) => {
         }
       }
     );
+    
 
     if (!snResponse.data.result || !snResponse.data.result.sys_id) {
       throw new Error('Invalid ServiceNow response format');
