@@ -11,6 +11,7 @@ const VerifyToken = ({ children }) => {
   const { loading, error, verifiedAccount } = useSelector(state => state.account);
   const token = searchParams.get('token');
 
+  
   useEffect(() => {
     if (token) {
       dispatch(verifyAccountToken(token));

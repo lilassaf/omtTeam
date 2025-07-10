@@ -28,6 +28,7 @@ import ContactRoute from '../middleware/isContactRoute';
 
 
 
+
 const dashboardRoutes = {
   path: '/dashboard',
   element: (
@@ -35,14 +36,9 @@ const dashboardRoutes = {
       <DashboardLayout />
     </PrivateRoute>
   ),
-children: [
+  children: [
     { index: true, element: <DashboardWithCharts /> },
-
-    {
-      element: <AdminRoute />,
-      children: [
-        
-        // catalog
+    // catalog
         { path: 'catalog', element: <Catalog /> },
         {
           path: 'catalog/create',
@@ -104,16 +100,7 @@ children: [
         { path: 'contact', element: <Contact /> },
         { path: 'location', element: <Location /> },
         // ... other dashboard sub-routes
-      ],
-    },
-    {
-      element: <ContactRoute />,
-      children: [
-        // ... other dashboard sub-routes
-      ],
-    },
   ],
 };
 
 export default dashboardRoutes;
-

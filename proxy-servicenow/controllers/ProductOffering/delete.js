@@ -30,7 +30,7 @@ module.exports = async (req, res) => {
           const snResponse = await axios.delete(
               `${connection.baseURL}/api/sn_tmf_api/catalogmanagement/productOffering/${sys_id}`,
               {
-                  headers: connection.headers,
+                  headers: { 'Authorization': `Bearer ${req.session.snAccessToken}` },
                   params: { sysparm_suppress_auto_sys_field: true }
               }
           );
