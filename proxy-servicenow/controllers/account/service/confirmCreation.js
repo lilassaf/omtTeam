@@ -185,19 +185,6 @@ const confirmCreation = async (req, res) => {
       authConfig
     );
 
-    // Send single welcome email to account with all contacts' credentials
-   try {
-      if (contactsCredentials.length > 0) {
-        await sendWelcomeEmail(
-          userData.email,
-          userData.name,
-          contactsCredentials
-        );
-      }
-    } catch (emailError) {
-      console.error('Email sending failed (non-critical):', emailError);
-      // Continue with registration even if email fails
-    }
     // Clean up the pending registration
     pendingRegistrations.delete(token);
     emailToTokenMap.delete(userData.email);

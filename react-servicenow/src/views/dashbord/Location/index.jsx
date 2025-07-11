@@ -1,12 +1,15 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAccount, deleteAccount } from '../../../features/servicenow/account/accountSlice';
+import { useNavigate } from 'react-router-dom';
+import { 
+  getLocations, 
+  deleteLocation 
+} from '../../../features/servicenow/location/locationSlice';
 import { Table, Button, Popconfirm, Pagination, Badge, message } from 'antd';
 import { debounce } from 'lodash';
-import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../../layout/dashbord/headerTable';
 
-const AccountImport = () => {
+const LocationTable = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const {
@@ -16,8 +19,8 @@ const AccountImport = () => {
     loading,
     error,
     deleteLoading,
-    deleteSuccess
-  } = useSelector(state => state.account);
+    deleteError
+  } = useSelector(state => state.location);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [pageSize] = useState(10);
@@ -27,7 +30,7 @@ const AccountImport = () => {
 
   // Fetch data with debounced search
   const fetchData = useCallback(debounce((page, size, query) => {
-    dispatch(getAccount({
+    dispatch(getLocations({
       page,
       limit: size,
       q: query
@@ -52,27 +55,27 @@ const AccountImport = () => {
     if (currentPage) setCurrent(currentPage);
   }, [currentPage]);
 
-  // Handle delete success - clears selection automatically
+  // Handle delete success
   useEffect(() => {
-    if (deleteSuccess) {
-      message.success('Account(s) deleted successfully');
-      fetchData(current, pageSize, searchTerm);
-      setSelectedRowKeys([]); // Automatically clear selection
+    if (deleteError) {
+      message.error(deleteError);
     }
-  }, [deleteSuccess, current, pageSize, searchTerm, fetchData]);
+  }, [deleteError]);
 
   // Handle row click
   const handleRowClick = (record) => ({
-    onClick: () => navigate(`/dashboard/account/view/${record._id}`),
+    onClick: () => navigate(`/dashboard/location/view/${record._id}`),
   });
 
   // Handle bulk delete
   const handleBulkDelete = async () => {
     try {
-      await Promise.all(selectedRowKeys.map(id => dispatch(deleteAccount(id))));
-      // Selection will be cleared automatically by the deleteSuccess effect
+      await Promise.all(selectedRowKeys.map(id => dispatch(deleteLocation(id))));
+      message.success('Location(s) deleted successfully');
+      fetchData(current, pageSize, searchTerm);
+      setSelectedRowKeys([]);
     } catch (error) {
-      message.error('Failed to delete accounts');
+      message.error('Failed to delete locations');
       console.error("Delete error:", error);
     }
   };
@@ -90,7 +93,7 @@ const AccountImport = () => {
           className="text-cyan-600 font-medium hover:underline cursor-pointer"
           onClick={(e) => {
             e.stopPropagation();
-            navigate(`/dashboard/account/view/${record._id}`);
+            navigate(`/dashboard/location/view/${record._id}`);
           }}
         >
           {text}
@@ -98,31 +101,27 @@ const AccountImport = () => {
       )
     },
     {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
-      render: (email) => email || 'N/A'
+      title: 'City',
+      dataIndex: 'city',
+      key: 'city',
+      sorter: (a, b) => (a.city || '').localeCompare(b.city || '')
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status) => {
-        const isActive = status === 'active';
-        return (
-          <div className="flex items-center">
-            <span className={`h-2 w-2 rounded-full mr-2 ${isActive ? 'bg-green-500' : 'bg-gray-400'}`}></span>
-            <span className={`text-xs ${isActive ? 'text-green-700' : 'text-gray-600'}`}>
-              {isActive ? 'Active' : 'Inactive'}
-            </span>
-          </div>
-        );
-      },
-      filters: [
-        { text: 'Active', value: 'active' },
-        { text: 'Inactive', value: 'inactive' },
-      ],
-      onFilter: (value, record) => record.status === value,
+      title: 'State',
+      dataIndex: 'state',
+      key: 'state',
+      sorter: (a, b) => (a.state || '').localeCompare(b.state || '')
+    },
+    {
+      title: 'Country',
+      dataIndex: 'country',
+      key: 'country',
+      sorter: (a, b) => (a.country || '').localeCompare(b.country || '')
+    },
+    {
+      title: 'Account',
+      key: 'account',
+      render: (_, record) => record.account?.name || 'N/A',
     },
     {
       title: 'Updated Date',
@@ -139,8 +138,8 @@ const AccountImport = () => {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
         <PageHeader
-          title="Accounts"
-          searchPlaceholder="Search by name..."
+          title="Locations"
+          searchPlaceholder="Search locations..."
           onSearchChange={(e) => setSearchTerm(e.target.value)}
           onSearch={(value) => setSearchTerm(value)}
         />
@@ -158,7 +157,7 @@ const AccountImport = () => {
 
               <div className="flex flex-wrap gap-2">
                 <Popconfirm
-                  title="Delete selected accounts?"
+                  title="Delete selected locations?"
                   description="This action cannot be undone. Are you sure?"
                   onConfirm={handleBulkDelete}
                   okText="Delete"
@@ -211,7 +210,7 @@ const AccountImport = () => {
             emptyText: (
               <div className="py-12 text-center">
                 <i className="ri-information-line mx-auto text-3xl text-gray-400 mb-3"></i>
-                <p className="text-gray-500">No account items found</p>
+                <p className="text-gray-500">No locations found</p>
               </div>
             )
           }}
@@ -237,4 +236,4 @@ const AccountImport = () => {
   );
 };
 
-export default AccountImport;
+export default LocationTable;

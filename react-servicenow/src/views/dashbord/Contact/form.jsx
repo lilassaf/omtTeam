@@ -3,9 +3,8 @@ import { useFormik } from 'formik';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { notification, Spin, Popconfirm, Tabs, Table, Tooltip } from 'antd';
-import { getOneAccount, deleteAccount } from '../../../features/servicenow/account/accountSlice';
+import { getOneContact, deleteContact } from '../../../features/servicenow/contact/contactSlice';
 
-// StatusCell component for consistent status rendering
 const StatusCell = ({ status }) => {
   const statusColors = {
     active: { dot: 'bg-green-500', text: 'text-green-700' },
@@ -26,7 +25,7 @@ const StatusCell = ({ status }) => {
   );
 };
 
-function AccountFormPage() {
+function ContactFormPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams();
@@ -35,15 +34,15 @@ function AccountFormPage() {
   const [initialized, setInitialized] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  // Select account data from Redux store
-  const { currentAccount, loading, loadingAccount } = useSelector(
-    state => state.account
+  // Select contact data from Redux store
+  const { currentContact, loading, loadingContact } = useSelector(
+    state => state.contact
   );
 
-  // Fetch account details
+  // Fetch contact details
   useEffect(() => {
     if (isEditMode) {
-      dispatch(getOneAccount(id)).then(() => setInitialized(true));
+      dispatch(getOneContact(id)).then(() => setInitialized(true));
     } else {
       setInitialized(true);
     }
@@ -51,20 +50,27 @@ function AccountFormPage() {
 
   // Initialize form with proper default values
   const initialValues = {
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
-    status: 'inactive', // Default to inactive
-    description: '',
+    isPrimaryContact: false,
+    active: false,
+    account: null,
+    location: null
   };
 
-  // Merge with currentAccount.data if available
-  if (isEditMode && currentAccount?.data && !loading) {
-    initialValues.name = currentAccount.data.name || '';
-    initialValues.email = currentAccount.data.email || '';
-    initialValues.phone = currentAccount.data.phone || '';
-    initialValues.status = currentAccount.data.status || 'inactive'; // Default to inactive if empty
-    initialValues.description = currentAccount.data.description || '';
+  // Merge with currentContact.data if available
+  if (isEditMode && currentContact?.data && !loading) {
+    const contactData = currentContact.data;
+    initialValues.firstName = contactData.firstName || '';
+    initialValues.lastName = contactData.lastName || '';
+    initialValues.email = contactData.email || '';
+    initialValues.phone = contactData.phone || '';
+    initialValues.isPrimaryContact = contactData.isPrimaryContact || false;
+    initialValues.active = contactData.active || false;
+    initialValues.account = contactData.account || null;
+    initialValues.location = contactData.location || null;
   }
 
   const formik = useFormik({
@@ -72,33 +78,25 @@ function AccountFormPage() {
     enableReinitialize: true,
   });
 
-  const handleCancel = () => navigate('/dashboard/account');
+  const handleCancel = () => navigate('/dashboard/contact');
 
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      await dispatch(deleteAccount(id)).unwrap();
+      await dispatch(deleteContact(id)).unwrap();
       notification.success({
-        message: 'Account Deleted',
-        description: 'Account has been deleted successfully',
+        message: 'Contact Deleted',
+        description: 'Contact has been deleted successfully',
       });
-      navigate('/dashboard/account');
+      navigate('/dashboard/contact');
     } catch (error) {
       notification.error({
         message: 'Deletion Failed',
-        description: error.message || 'Failed to delete account',
+        description: error.message || 'Failed to delete contact',
       });
     } finally {
       setDeleting(false);
     }
-  };
-
-  const handleContactClick = (id) => {
-    console.log('Edit contact:', id);
-  };
-
-  const handleLocationClick = (id) => {
-    console.log('Edit location:', id);
   };
 
   // Tab items configuration
@@ -107,59 +105,50 @@ function AccountFormPage() {
       key: '1',
       label: (
         <span className="flex items-center">
-          <i className="ri-contacts-line text-lg mr-2"></i>
-          Contacts
+          <i className="ri-building-line text-lg mr-2"></i>
+          Account
         </span>
       ),
       children: (
         <div className="p-4">
-          <Table
-            columns={[
-              {
-                title: 'First Name',
-                dataIndex: 'firstName',
-                key: 'firstName',
-              },
-              {
-                title: 'Last Name',
-                dataIndex: 'lastName',
-                key: 'lastName',
-              },
-              {
-                title: 'Email',
-                dataIndex: 'email',
-                key: 'email',
-              },
-              {
-                title: 'Phone',
-                dataIndex: 'phone',
-                key: 'phone',
-              },
-              {
-                title: 'Primary',
-                dataIndex: 'isPrimaryContact',
-                key: 'isPrimaryContact',
-                render: (isPrimary) => (
-                  <span className={`px-2 py-1 rounded ${
-                    isPrimary ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'
-                  }`}>
-                    {isPrimary ? 'Yes' : 'No'}
-                  </span>
-                ),
-              },
-            ]}
-            dataSource={currentAccount?.data?.contacts || []}
-            pagination={{ pageSize: 5 }}
-            rowKey="_id"
-            locale={{
-              emptyText: (
-                <div className="py-8 text-center">
-                  <i className="ri-information-line mx-auto text-3xl text-gray-400 mb-3"></i>
-                  <p className="text-gray-500">No contacts associated with this account.</p>
-                </div>
-              )
-            }}
-          />
+          {formik.values.account ? (
+            <Table
+              columns={[
+                {
+                  title: 'Name',
+                  dataIndex: 'name',
+                  key: 'name',
+                  render: (text) => (
+                    <span className="text-cyan-600 font-medium">{text}</span>
+                  ),
+                },
+                {
+                  title: 'Email',
+                  dataIndex: 'email',
+                  key: 'email',
+                },
+                {
+                  title: 'Phone',
+                  dataIndex: 'phone',
+                  key: 'phone',
+                },
+                {
+                  title: 'Status',
+                  dataIndex: 'status',
+                  key: 'status',
+                  render: (status) => <StatusCell status={status} />,
+                },
+              ]}
+              dataSource={[formik.values.account]}
+              pagination={false}
+              rowKey="_id"
+            />
+          ) : (
+            <div className="py-8 text-center">
+              <i className="ri-information-line mx-auto text-3xl text-gray-400 mb-3"></i>
+              <p className="text-gray-500">No account associated with this contact.</p>
+            </div>
+          )}
         </div>
       ),
     },
@@ -168,58 +157,62 @@ function AccountFormPage() {
       label: (
         <span className="flex items-center">
           <i className="ri-map-pin-line text-lg mr-2"></i>
-          Locations
+          Location
         </span>
       ),
       children: (
         <div className="p-4">
-          <Table
-            columns={[
-              {
-                title: 'Name',
-                dataIndex: 'name',
-                key: 'name',
-              },
-              {
-                title: 'City',
-                dataIndex: 'city',
-                key: 'city',
-              },
-              {
-                title: 'State',
-                dataIndex: 'state',
-                key: 'state',
-              },
-              {
-                title: 'Country',
-                dataIndex: 'country',
-                key: 'country',
-              },
-            ]}
-            dataSource={currentAccount?.data?.locations || []}
-            pagination={{ pageSize: 5 }}
-            rowKey="_id"
-            locale={{
-              emptyText: (
-                <div className="py-8 text-center">
-                  <i className="ri-information-line mx-auto text-3xl text-gray-400 mb-3"></i>
-                  <p className="text-gray-500">No locations associated with this account.</p>
-                </div>
-              )
-            }}
-          />
+          {formik.values.location ? (
+            <Table
+              columns={[
+                {
+                  title: 'Name',
+                  dataIndex: 'name',
+                  key: 'name',
+                },
+                {
+                  title: 'Street',
+                  dataIndex: 'street',
+                  key: 'street',
+                },
+                {
+                  title: 'City',
+                  dataIndex: 'city',
+                  key: 'city',
+                },
+                {
+                  title: 'State',
+                  dataIndex: 'state',
+                  key: 'state',
+                },
+                {
+                  title: 'Country',
+                  dataIndex: 'country',
+                  key: 'country',
+                },
+              ]}
+              dataSource={[formik.values.location]}
+              pagination={false}
+              rowKey="_id"
+            />
+          ) : (
+            <div className="py-8 text-center">
+              <i className="ri-information-line mx-auto text-3xl text-gray-400 mb-3"></i>
+              <p className="text-gray-500">No location associated with this contact.</p>
+            </div>
+          )}
         </div>
       ),
     },
   ];
 
   // Show spinner while loading
-  if ((isEditMode && (loadingAccount || !currentAccount?.data)) || !initialized) {
+  if ((isEditMode && (loadingContact || !currentContact?.data)) || !initialized) {
     return (
       <div className="flex justify-center items-center h-64">
         <Spin
           size="large"
-          tip="Loading account details..."
+          tip="Loading contact details..."
           indicator={<i className="ri-refresh-line animate-spin text-2xl"></i>}
         />
       </div>
@@ -239,10 +232,10 @@ function AccountFormPage() {
               <i className="ri-arrow-left-s-line text-2xl"></i>
             </button>
             <div>
-              <h1 className="text-xl font-semibold text-gray-800">Account</h1>
+              <h1 className="text-xl font-semibold text-gray-800">Contact</h1>
               <p className="text-gray-600 text-md flex items-center gap-2">
-                {isEditMode ? currentAccount?.data?.name : 'New record'}
-                <StatusCell status={formik.values.status} />
+                {isEditMode ? `${formik.values.firstName} ${formik.values.lastName}` : 'New contact'}
+                <StatusCell status={formik.values.active ? 'active' : 'inactive'} />
               </p>
             </div>
           </div>
@@ -252,10 +245,10 @@ function AccountFormPage() {
               <Tooltip placement="top">
                 <div>
                   <Popconfirm
-                    title="Delete Account"
+                    title="Delete Contact"
                     description={
                       <div>
-                        <p className="font-medium">Are you sure you want to delete this account?</p>
+                        <p className="font-medium">Are you sure you want to delete this contact?</p>
                         <p className="text-gray-600 mt-2">
                           This action cannot be undone. All associated information will be removed.
                         </p>
@@ -291,15 +284,28 @@ function AccountFormPage() {
           <div className="p-6">
             <form className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Name */}
+                {/* First Name */}
                 <div>
                   <label className="block font-medium mb-1 text-gray-700">
-                    Name <span className="text-red-500">*</span>
+                    First Name <span className="text-red-500">*</span>
                   </label>
                   <input
-                    name="name"
-                    value={formik.values.name}
-                    disabled={true}
+                    name="firstName"
+                    value={formik.values.firstName}
+                    readOnly
+                    className="w-full border border-gray-300 rounded px-3 py-2 bg-gray-100"
+                  />
+                </div>
+
+                {/* Last Name */}
+                <div>
+                  <label className="block font-medium mb-1 text-gray-700">
+                    Last Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    name="lastName"
+                    value={formik.values.lastName}
+                    readOnly
                     className="w-full border border-gray-300 rounded px-3 py-2 bg-gray-100"
                   />
                 </div>
@@ -312,7 +318,7 @@ function AccountFormPage() {
                   <input
                     name="email"
                     value={formik.values.email}
-                    disabled={true}
+                    readOnly
                     className="w-full border border-gray-300 rounded px-3 py-2 bg-gray-100"
                   />
                 </div>
@@ -323,56 +329,69 @@ function AccountFormPage() {
                   <input
                     name="phone"
                     value={formik.values.phone}
-                    disabled={true}
+                    readOnly
                     className="w-full border border-gray-300 rounded px-3 py-2 bg-gray-100"
                   />
                 </div>
 
-                {/* Status */}
+                {/* Primary Contact */}
                 <div>
-                  <label className="block font-medium mb-1 text-gray-700">Status</label>
+                  <label className="block font-medium mb-1 text-gray-700">Primary Contact</label>
                   <div className="flex space-x-4">
-                    {['active', 'inactive'].map(status => (
+                    {[true, false].map(value => (
                       <label
-                        key={status}
+                        key={value.toString()}
                         className={`flex items-center px-4 py-2 border rounded-md cursor-not-allowed ${
-                          formik.values.status === status
+                          formik.values.isPrimaryContact === value
                             ? 'border-blue-500 bg-blue-50'
                             : 'border-gray-300 bg-gray-100'
                         }`}
                       >
                         <input
                           type="radio"
-                          name="status"
-                          value={status}
-                          checked={formik.values.status === status}
-                          disabled={true}
+                          name="isPrimaryContact"
+                          checked={formik.values.isPrimaryContact === value}
+                          disabled
                           className="mr-2"
                         />
-                        <span className="capitalize">{status}</span>
+                        <span>{value ? 'Yes' : 'No'}</span>
                       </label>
                     ))}
                   </div>
                 </div>
-              </div>
 
-              {/* Description */}
-              <div>
-                <label className="block font-medium mb-1 text-gray-700">Description</label>
-                <textarea
-                  name="description"
-                  value={formik.values.description}
-                  rows="4"
-                  disabled={true}
-                  className="w-full border border-gray-300 rounded px-3 py-2 bg-gray-100"
-                />
+                {/* Status */}
+                {/* <div>
+                  <label className="block font-medium mb-1 text-gray-700">Status</label>
+                  <div className="flex space-x-4">
+                    {[true, false].map(value => (
+                      <label
+                        key={value.toString()}
+                        className={`flex items-center px-4 py-2 border rounded-md cursor-not-allowed ${
+                          formik.values.active === value
+                            ? 'border-blue-500 bg-blue-50'
+                            : 'border-gray-300 bg-gray-100'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="active"
+                          checked={formik.values.active === value}
+                          disabled
+                          className="mr-2"
+                        />
+                        <span>{value ? 'Active' : 'Inactive'}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div> */}
               </div>
             </form>
           </div>
         </div>
 
         {/* Tabs Section */}
-        {isEditMode && currentAccount?.data && (
+        {isEditMode && (
           <div className='bg-white max-w-7xl mx-auto my-4'>
             <div className="p-3">
               <Tabs
@@ -390,4 +409,4 @@ function AccountFormPage() {
   );
 }
 
-export default AccountFormPage;
+export default ContactFormPage;
