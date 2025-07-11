@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   getAccount,
@@ -13,7 +13,8 @@ import {
   Pagination,
   Spin,
   Tooltip,
-  Badge
+  Badge,
+  message
 } from 'antd';
 import { debounce } from 'lodash';
 import { useNavigate } from 'react-router-dom';
@@ -29,7 +30,9 @@ const AccountImport = () => {
     totalPages,
     totalItems,
     loading,
-    error
+    error,
+    deleteLoading,
+    deleteSuccess
   } = useSelector(state => state.account);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -41,8 +44,6 @@ const AccountImport = () => {
   });
   const headerRef = useRef(null);
   const [headerHeight, setHeaderHeight] = useState(0);
-
-  // Row selection state
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
   // Measure header height for sticky offset
@@ -53,7 +54,7 @@ const AccountImport = () => {
   }, [loading, error, selectedRowKeys]);
 
   // Fetch data with debounced search
-  const fetchData = debounce((page, size, query) => {
+  const fetchData = useCallback(debounce((page, size, query) => {
     dispatch(getAccount({
       page,
       limit: size,
@@ -61,16 +62,26 @@ const AccountImport = () => {
       sortField: sortConfig.field,
       sortOrder: sortConfig.direction
     }));
-  }, 500);
+  }, 500), [sortConfig.field, sortConfig.direction]);
 
+  // Fetch data when parameters change
   useEffect(() => {
     fetchData(current, pageSize, searchTerm);
     return () => fetchData.cancel();
-  }, [current, pageSize, searchTerm, sortConfig]);
+  }, [current, pageSize, searchTerm, sortConfig, fetchData]);
 
+  // Sync current page with Redux state
   useEffect(() => {
     if (currentPage) setCurrent(currentPage);
   }, [currentPage]);
+
+  // Handle delete success
+  useEffect(() => {
+    if (deleteSuccess) {
+      message.success('Account(s) deleted successfully');
+      fetchData(current, pageSize, searchTerm);
+    }
+  }, [deleteSuccess, current, pageSize, searchTerm, fetchData]);
 
   // Navigate to create form
   const navigateToCreate = () => {
@@ -83,10 +94,14 @@ const AccountImport = () => {
   };
 
   // Handle bulk delete action
-  const handleBulkDelete = () => {
-    selectedRowKeys.forEach(id => dispatch(deleteAccount(id)));
-    setSelectedRowKeys([]);
-    fetchData();
+  const handleBulkDelete = async () => {
+    try {
+      await Promise.all(selectedRowKeys.map(id => dispatch(deleteAccount(id))));
+      setSelectedRowKeys([]);
+    } catch (error) {
+      message.error('Failed to delete accounts');
+      console.error("Delete error:", error);
+    }
   };
 
   // Custom row selection configuration
@@ -95,11 +110,9 @@ const AccountImport = () => {
     onChange: (selectedKeys) => {
       setSelectedRowKeys(selectedKeys);
     },
-    getCheckboxProps: (record) => {
-      return {
-        // Add any selection restrictions here if needed
-      };
-    },
+    getCheckboxProps: (record) => ({
+      disabled: false,
+    }),
   };
 
   // Table columns configuration
@@ -243,12 +256,13 @@ const AccountImport = () => {
                     onConfirm={handleBulkDelete}
                     okText="Delete"
                     cancelText="Cancel"
-                    okButtonProps={{ danger: true }}
+                    okButtonProps={{ danger: true, loading: deleteLoading }}
                   >
                     <Button
                       danger
                       icon={<i className="ri-delete-bin-line"></i>}
                       className="flex items-center"
+                      loading={deleteLoading}
                     >
                       Delete
                     </Button>
@@ -291,6 +305,7 @@ const AccountImport = () => {
           </div>
         ) : (
           <Table
+            key={data.length}
             rowSelection={rowSelection}
             columns={columns}
             dataSource={data.map(item => ({ ...item, key: item._id }))}
