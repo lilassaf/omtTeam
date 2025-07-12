@@ -61,9 +61,7 @@ const Chatbot = () => {
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const response = await axios.get(`${backendUrl}/api/product-offering-category`,{
-  withCredentials: true
-});
+        const response = await axios.get(`${backendUrl}/api/product-offering-category`, getAuthHeaders());
         setCategories(response.data.data || []); // Accéder à response.data.data
         initializeChat();
       } catch (error) {
@@ -185,9 +183,7 @@ const Chatbot = () => {
 };
 const handleViewCases = async () => {
   try {
-    const response = await axios.get(`${backendUrl}/api/chatbot/cases`, {
-  withCredentials: true
-});
+    const response = await axios.get(`${backendUrl}/api/chatbot/cases`, getAuthHeaders());
     const cases = response.data.cases || []; 
     console.log("📂 Cases reçus :", cases);
     return {
@@ -256,9 +252,7 @@ const handleViewCases = async () => {
   
   const handleViewQuotes = async () => {
     try {
-      const response = await axios.get(`${backendUrl}/api/quote`, {
-  withCredentials: true
-});
+      const response = await axios.get(`${backendUrl}/api/quote`, getAuthHeaders());
       const quotes = response.data.data || [];
       console.log("📄 Devis reçus :", quotes);
       return {
@@ -274,9 +268,7 @@ const handleViewCases = async () => {
   // Fonctions de gestion des intentions
   const handleSearchProducts = async () => {
     try {
-      const response = await axios.get(`${backendUrl}/api/product-offering-catalog-publish`, {
-  withCredentials: true
-});
+      const response = await axios.get(`${backendUrl}/api/product-offering-catalog-publish`, getAuthHeaders());
       console.log("🧪 Réponse brute du backend :", response.data);
       
       const products = response.data.data;
@@ -324,9 +316,7 @@ const handleViewCases = async () => {
 
   const handleCheckPrice = async () => {
     try {
-      const response = await axios.get(`${backendUrl}/api/price-list`, {
-  withCredentials: true
-});
+      const response = await axios.get(`${backendUrl}/api/price-list`, getAuthHeaders());
       console.log("✅ Prix reçus du backend :", response.data); // déjà un tableau
       return {
         text: "Voici la liste des prix:",
@@ -344,9 +334,7 @@ const handleViewCases = async () => {
       const response = await axios.post(
         `${backendUrl}/api/nlp`,
         { message: text },
-       {
-  withCredentials: true
-}// ✅ Ajoute les headers ici !
+        getAuthHeaders() // ✅ Ajoute les headers ici !
       );
 
       console.log("📡 NLP API response:", response.data);
@@ -367,9 +355,7 @@ const handleViewCases = async () => {
 
   const handleCheckOpportunity = async () => {
     try {
-      const response = await axios.get(`${backendUrl}/api/opportunity`, {
-  withCredentials: true
-});
+      const response = await axios.get(`${backendUrl}/api/opportunity`, getAuthHeaders());
       return {
         text: "Voici les opportunités disponibles:",
         data: response.data, // Ici response.data est déjà le tableau
@@ -382,9 +368,7 @@ const handleViewCases = async () => {
 
   const handleGetChannelInfo = async () => {
     try {
-      const response = await axios.get(`${backendUrl}/api/channel`,{
-  withCredentials: true
-});
+      const response = await axios.get(`${backendUrl}/api/channel`, getAuthHeaders());
       return {
         text: "Voici les informations sur les canaux:",
         data: response.data,
@@ -417,9 +401,7 @@ const handleViewCases = async () => {
   try {
     const response = await axios.get(
       `${backendUrl}/api/chatbot/kb?q=${encodeURIComponent(query)}`,
-      {
-  withCredentials: true
-}
+      getAuthHeaders()
     );
 
     return response.data.articles || [];
@@ -549,9 +531,7 @@ const processStepResponse = async (input) => {
       break;
     case 'create_product_offering_select_category':
       try {
-        const res = await axios.get(`${backendUrl}/api/product-offering-category`, {
-  withCredentials: true
-});
+        const res = await axios.get(`${backendUrl}/api/product-offering-category`, getAuthHeaders());
 
         if (!res.data || !res.data.data || !Array.isArray(res.data.data)) {
           throw new Error("Structure de données invalide");
@@ -710,9 +690,7 @@ const processStepResponse = async (input) => {
     const res = await axios.post(
     `${backendUrl}/api/product-offering2`,
     payload,
-    {
-  withCredentials: true
-} // ou juste {} si pas d’auth requise ici
+    getAuthHeaders() // ou juste {} si pas d’auth requise ici
   )
 
     addBotMessage(`✅ Offre créée avec succès !!`);
@@ -738,9 +716,7 @@ const processStepResponse = async (input) => {
   const processQuoteProductSelection = async (productName) => {
     try {
       // Trouver le produit correspondant
-      const productsResponse = await axios.get(`${backendUrl}/api/product-offering-catalog-publish`, {
-  withCredentials: true
-});
+      const productsResponse = await axios.get(`${backendUrl}/api/product-offering-catalog-publish`, getAuthHeaders());
       const product = productsResponse.data.find(p => 
         p.name.toLowerCase().includes(productName.toLowerCase())
       );
@@ -760,9 +736,7 @@ const processStepResponse = async (input) => {
           productId: product.id,
           productName: product.name
         },
-        {
-  withCredentials: true
-}
+        getAuthHeaders()
       );
 
       setCurrentStep(null);
@@ -779,9 +753,7 @@ const processStepResponse = async (input) => {
   const processSpecInput = async (spec) => {
     try {
       // Rechercher les produits correspondant à la spécification
-      const response = await axios.get(`${backendUrl}/api/product-offering-catalog-publish?spec=${encodeURIComponent(spec)}`, {
-  withCredentials: true
-});
+      const response = await axios.get(`${backendUrl}/api/product-offering-catalog-publish?spec=${encodeURIComponent(spec)}`, getAuthHeaders());
       setCurrentStep(null);
       if (response.data.length > 0) {
         addBotMessage(`Voici les produits correspondant à la spécification "${spec}":`);
