@@ -23,11 +23,6 @@ const ProductSpecCharacteristics = ({ characteristics, onChange, onToggle }) => 
       render: (text) => <span className="font-medium">{text}</span>,
     },
     {
-      title: 'Description',
-      dataIndex: 'description',
-      key: 'description',
-    },
-    {
       title: 'Value',
       key: 'value',
       render: (_, record) => (
@@ -45,8 +40,8 @@ const ProductSpecCharacteristics = ({ characteristics, onChange, onToggle }) => 
   ];
 
   return (
-    <div className="mt-6">
-      <h3 className="text-lg font-medium mb-4">Product Characteristics</h3>
+    <div className="mt-6 mb-10">
+      {/* <h3 className="text-lg font-medium mb-4">Product Characteristics</h3> */}
       <Table
         columns={columns}
         dataSource={characteristics}

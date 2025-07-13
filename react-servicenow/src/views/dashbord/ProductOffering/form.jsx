@@ -788,6 +788,15 @@ function ProductOfferingFormPage() {
                 </div>
               </div>
 
+              {!isEditMode && formik.values.p_spec && (
+                <ProductSpecCharacteristics
+                  characteristics={specifications?.find(s => s._id === formik.values.p_spec)?.productSpecCharacteristic || []}
+                  onChange={handleCharacteristicChange}
+                  onToggle={handleToggleCharacteristic}
+                  selectedValues={selectedCharacteristics}
+                />
+              )}
+
               {/* Pricing Fields */}
               <div className="grid grid-cols-8 gap-3">
                 <div className="col-span-2">
@@ -926,14 +935,7 @@ function ProductOfferingFormPage() {
                   <p className="text-red-500 text-sm mt-1">{formik.errors.description}</p>
                 )}
               </div>
-              {!isEditMode && formik.values.p_spec && (
-                <ProductSpecCharacteristics
-                  characteristics={specifications?.find(s => s._id === formik.values.p_spec)?.productSpecCharacteristic || []}
-                  onChange={handleCharacteristicChange}
-                  onToggle={handleToggleCharacteristic}
-                  selectedValues={selectedCharacteristics}
-                />
-              )}
+              
             </form>
           </div>
         </div>
