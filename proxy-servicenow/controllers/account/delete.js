@@ -2,12 +2,14 @@ const axios = require('axios');
 const snConnection = require('../../utils/servicenowConnection');
 const handleMongoError = require('../../utils/handleMongoError');
 const Account = require('../../models/account');
-const Contact = require('../../models/Contact');  // Add this import
-const Location = require('../../models/location');  // Add this import
+const Contact = require('../../models/Contact');
+const Location = require('../../models/location');
 const config = require('../../utils/configCreateAccount');
 
 module.exports = async (req, res) => {
   try {
+    console.log('ServiceNow token:', req.user.sn_access_token);
+
     const mongoId = req.params.id;
     const account = await Account.findById(mongoId);
 
@@ -53,7 +55,11 @@ module.exports = async (req, res) => {
     // Step 4: Delete the account from ServiceNow if sys_id exists
     if (account.sys_id) {
       try {
-        const connection = snConnection.getConnection(req.session.snAccessToken);
+        if (!req.user?.sn_access_token) {
+          return res.status(401).json({ error: 'Missing ServiceNow access token' });
+        }
+
+        const connection = snConnection.getConnection(req.user.sn_access_token);
         await axios.delete(
           `${connection.baseURL}/api/now/table/customer_account/${account.sys_id}`,
           { headers: connection.headers }
@@ -74,19 +80,19 @@ module.exports = async (req, res) => {
 
   } catch (error) {
     console.error('Account deletion failed:', error);
-    
+
     if (error.name === 'CastError') {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Invalid MongoDB ID format',
         mongoId: req.params.id
       });
     }
-    
+
     if (error.name?.includes('Mongo')) {
       const mongoError = handleMongoError(error);
       return res.status(mongoError.status).json({ error: mongoError.message });
     }
-    
+
     const status = error.response?.status || 500;
     const message = error.response?.data?.error?.message || error.message;
     return res.status(status).json({ error: message });
