@@ -6,6 +6,8 @@ const rateLimit = require('express-rate-limit');
 const authjwt = require('./middleware/auth');
 const connectDB = require('./utils/connectionMongodb');
 const morgan = require('morgan'); // Optional: for request logging
+const crypto = require('crypto');
+const exec = require('child_process').exec;
 
 
 // Route imports
@@ -56,7 +58,7 @@ const limiter = rateLimit({
 
 // connection Kafka
 // const producer = require('./utils/connectionKafka');
-//app.set('trust proxy', 1);
+app.set('trust proxy', 1);
 
 // Configuration
 
@@ -141,6 +143,27 @@ app.use('/api', authjwt, [
 ]);
 
 
+//GitHub Webhook
+app.post('/webhook', (req, res) => {
+  const sig = req.headers['x-hub-signature-256'];
+  const hmac = crypto.createHmac('sha256', process.env.GITHUB_WEBHOOK_SECRET);
+  const digest = Buffer.from('sha256=' + hmac.update(JSON.stringify(req.body)).digest('hex'), 'utf8');
+  const checksum = Buffer.from(sig, 'utf8');
+  
+  if (checksum.length !== digest.length || !crypto.timingSafeEqual(digest, checksum)) {
+    return res.status(403).send('Forbidden');
+  }
+
+  exec('git pull && npm install && pm2 restart all', (error, stdout, stderr) => {
+    if (error) {
+      console.error(`exec error: ${error}`);
+      return res.status(500).send('Error during deployment');
+    }
+    console.log(`stdout: ${stdout}`);
+    console.error(`stderr: ${stderr}`);
+    res.status(200).send('Deployment successful');
+  });
+});
 
 
 
