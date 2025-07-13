@@ -15,6 +15,7 @@ import {
 import { getPublish as getCategories } from '../../../features/servicenow/product-offering/productOfferingCategorySlice';
 // import { getall as getChannels } from '../../features/servicenow/channel/channelSlice';
 import { getPublished as getSpecifications } from '../../../features/servicenow/product-specification/productSpecificationSlice';
+import ProductSpecCharacteristics from './characterstics';
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
@@ -24,7 +25,9 @@ const validationSchema = Yup.object().shape({
       if (!value) return true;
       return new Date(value) >= new Date(this.parent.start_date);
     }),
-  category: Yup.string().required('Category is required'),
+  categories: Yup.array()
+    .min(1, 'At least one category is required')
+    .required('Category is required'),
   description: Yup.string().required('Description is required'),
   p_spec: Yup.string().required('Product Specification is required'),
   recurring_price: Yup.number().min(0, 'Price must be positive'),
@@ -71,6 +74,16 @@ function ProductOfferingFormPage() {
   const [categorySearch, setCategorySearch] = useState('');
   const [specSearch, setSpecSearch] = useState('');
   const [activeTab, setActiveTab] = useState('category');
+  const [selectedCharacteristics, setSelectedCharacteristics] = useState({});
+  const [includedCharacteristics, setIncludedCharacteristics] = useState({});
+
+  
+  const handleToggleCharacteristic = (name, include) => {
+    setIncludedCharacteristics(prev => ({
+      ...prev,
+      [name]: include
+    }));
+  };
 
   const {
     currentProductOffering,
@@ -117,7 +130,7 @@ function ProductOfferingFormPage() {
       end_date: '',
       status: 'draft',
       description: '',
-      category: '',
+      categories: [],
       p_spec: '',
       pricing_type: 'recurring',
       recurring_price: '0',
@@ -140,7 +153,7 @@ function ProductOfferingFormPage() {
         : '',
       status: currentProductOffering.status || 'draft',
       description: currentProductOffering.description || '',
-      category: currentProductOffering.category[0]?._id || '',
+      categories: currentProductOffering.category?.map(cat => cat._id) || [],
       p_spec: currentProductOffering.productSpecification?._id || '',
       recurring_price: currentProductOffering.productOfferingPrice?.find(p => p.priceType === 'recurring')?.price?.taxIncludedAmount?.value || '0',
       non_recurring_price: currentProductOffering.productOfferingPrice?.find(p => p.priceType === 'nonRecurring')?.price?.taxIncludedAmount?.value || '0',
@@ -163,28 +176,32 @@ function ProductOfferingFormPage() {
           throw new Error('Selected Product Specification not found');
         }
 
-        // Transform characteristic values
-        const prodSpecCharValueUse = selectedSpec.productSpecCharacteristic?.map(specChar => {
-          const valueToUse = (specChar.productSpecCharacteristicValue &&
-            specChar.productSpecCharacteristicValue.length > 0)
-            ? [specChar.productSpecCharacteristicValue[0]]
-            : [];
+        // Transform characteristic values - only include enabled characteristics
+        const prodSpecCharValueUse = selectedSpec.productSpecCharacteristic
+          ?.filter(specChar => includedCharacteristics[specChar.name] !== false)
+          ?.map(specChar => {
+            const selectedValue = selectedCharacteristics[specChar.name];
+            const valueToUse = selectedValue 
+              ? [{ value: selectedValue }]
+              : (specChar.productSpecCharacteristicValue && specChar.productSpecCharacteristicValue.length > 0)
+                ? [specChar.productSpecCharacteristicValue[0]]
+                : [];
 
-          return {
-            name: specChar.name,
-            description: specChar.description,
-            valueType: specChar.valueType,
-            validFor: specChar.validFor,
-            productSpecCharacteristicValue: valueToUse,
-            productSpecification: {
-              id: selectedSpec.id || selectedSpec.sys_id,
-              name: selectedSpec.display_name || selectedSpec.name,
-              version: selectedSpec.version,
-              internalVersion: selectedSpec.internalVersion,
-              internalId: selectedSpec.internalId || selectedSpec.id || selectedSpec.sys_id
-            }
-          };
-        }) || [];
+            return {
+              name: specChar.name,
+              description: specChar.description,
+              valueType: specChar.valueType,
+              validFor: specChar.validFor,
+              productSpecCharacteristicValue: valueToUse,
+              productSpecification: {
+                id: selectedSpec.id || selectedSpec.sys_id,
+                name: selectedSpec.display_name || selectedSpec.name,
+                version: selectedSpec.version,
+                internalVersion: selectedSpec.internalVersion,
+                internalId: selectedSpec.internalId || selectedSpec.id || selectedSpec.sys_id
+              }
+            };
+          }) || [];
 
         // FIX 1: Remove lastUpdate completely as ServiceNow handles timestamps automatically
         // FIX 2: Remove externalId from payload
@@ -235,12 +252,12 @@ function ProductOfferingFormPage() {
               name: "Web"
             }
           ],
-          category: {
-            _id: values.category,
-            id: categories.find(c => c._id === values.category)?.id ||
-              categories.find(c => c._id === values.category)?.sys_id,
-            name: categories.find(c => c._id === values.category)?.name || ""
-          },
+          category: values.categories.map(catId => ({
+            _id: catId,
+            id: categories.find(c => c._id === catId)?.id || categories.find(c => c._id === catId)?.sys_id,
+            name: categories.find(c => c._id === catId)?.name || "",
+            externalId:catId,
+          })),
           lifecycleStatus: "Draft",
           status: "draft"
         };
@@ -256,7 +273,7 @@ function ProductOfferingFormPage() {
           : createProductOffering(productOfferingDataPayload);
 
         await dispatch(action).unwrap();
-
+        console.log(JSON.stringify(productOfferingDataPayload,null,2))
         notification.success({
           message: isEditMode ? 'Product Offering Updated' : 'Product Offering Created',
           description: isEditMode
@@ -276,6 +293,29 @@ function ProductOfferingFormPage() {
     enableReinitialize: true,
   });
 
+  useEffect(() => {
+  if (formik.values.p_spec) {
+    const spec = specifications?.find(s => s._id === formik.values.p_spec);
+    if (spec) {
+      // Initialize with default values and all characteristics included
+      const initialValues = {};
+      const initialIncluded = {};
+      
+      spec.productSpecCharacteristic?.forEach(char => {
+        if (char.productSpecCharacteristicValue?.length > 0) {
+          initialValues[char.name] = char.productSpecCharacteristicValue[0].value;
+        }
+        initialIncluded[char.name] = true; // Default to included
+      });
+      
+      setSelectedCharacteristics(initialValues);
+      setIncludedCharacteristics(initialIncluded);
+    }
+  } else {
+    setSelectedCharacteristics({});
+    setIncludedCharacteristics({});
+  }
+}, [formik.values.p_spec, specifications]);
 
 
 
@@ -307,6 +347,14 @@ function ProductOfferingFormPage() {
         description: error.payload || 'Failed to update product offering status',
       });
     }
+  };
+
+  //characterestics handler
+  const handleCharacteristicChange = (name, value) => {
+    setSelectedCharacteristics(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   // Handle delete
@@ -346,7 +394,103 @@ function ProductOfferingFormPage() {
 
   const handleRowClick = (id) => navigate(`/dashboard/product-specification/view/${id}`);
 
+
   const tabItems = [
+    {
+      key: 'characteristics',
+      label: (
+        <span className="flex items-center">
+          <i className="ri-list-settings-line text-lg mr-2"></i>
+          Characteristics
+        </span>
+      ),
+      children: (
+        <div className="p-4">
+          <Table
+            columns={[
+              {
+                title: 'Name',
+                dataIndex: 'name',
+                key: 'name'
+              },
+              {
+                title: 'Type',
+                dataIndex: 'valueType',
+                key: 'valueType',
+              },
+              {
+                title: 'Value',
+                dataIndex: ['productSpecCharacteristicValue', 0, 'value'],
+                key: 'value'
+              }
+            ]}
+            dataSource={currentProductOffering?.prodSpecCharValueUse || []}
+            pagination={{ pageSize: 5 }}
+            rowKey="_id"
+            locale={{
+              emptyText: (
+                <div className="py-8 text-center">
+                  <i className="ri-information-line mx-auto text-3xl text-gray-400 mb-3"></i>
+                  <p className="text-gray-500">No characterestics information available.</p>
+                </div>
+              )
+            }}
+          />
+        </div>
+      )
+    },
+        {
+      key: 'specification',
+      label: (
+        <span className="flex items-center">
+          <i className="ri-list-settings-line text-lg mr-2"></i>
+          Specification
+        </span>
+      ),
+      children: (
+        <div className="p-4">
+          <Table
+            columns={[
+              {
+                title: 'Name',
+                dataIndex: 'name',
+                key: 'name',
+                render: (text, record) => (
+                  <span
+                    className="text-cyan-600 font-medium hover:underline cursor-pointer"
+                    onClick={() => handleRowClick(record._id)}
+                  >
+                    {text}
+                  </span>
+                )
+              },
+              {
+                title: 'Description',
+                dataIndex: 'description',
+                key: 'description',
+              },
+              {
+                title: 'Status',
+                dataIndex: 'status',
+                key: 'status',
+                render: (status) => <StatusCell status={status} />,
+              },
+            ]}
+            dataSource={currentProductOffering?.productSpecification ? [currentProductOffering.productSpecification] : []}
+            pagination={{ pageSize: 5 }}
+            rowKey="sys_id"
+            locale={{
+              emptyText: (
+                <div className="py-8 text-center">
+                  <i className="ri-information-line mx-auto text-3xl text-gray-400 mb-3"></i>
+                  <p className="text-gray-500">No specification information available.</p>
+                </div>
+              )
+            }}
+          />
+        </div>
+      )
+    },
     {
       key: 'category',
       label: (
@@ -371,11 +515,6 @@ function ProductOfferingFormPage() {
                     {text}
                   </span>
                 )
-              },
-              {
-                title: 'Description',
-                dataIndex: 'description',
-                key: 'description',
               },
               {
                 title: 'Status',
@@ -460,58 +599,6 @@ function ProductOfferingFormPage() {
           />
         </div>
       )
-    },
-    {
-      key: 'specification',
-      label: (
-        <span className="flex items-center">
-          <i className="ri-list-settings-line text-lg mr-2"></i>
-          Specification
-        </span>
-      ),
-      children: (
-        <div className="p-4">
-          <Table
-            columns={[
-              {
-                title: 'Name',
-                dataIndex: 'name',
-                key: 'name',
-                render: (text, record) => (
-                  <span
-                    className="text-cyan-600 font-medium hover:underline cursor-pointer"
-                    onClick={() => handleRowClick(record._id)}
-                  >
-                    {text}
-                  </span>
-                )
-              },
-              {
-                title: 'Description',
-                dataIndex: 'description',
-                key: 'description',
-              },
-              {
-                title: 'Status',
-                dataIndex: 'status',
-                key: 'status',
-                render: (status) => <StatusCell status={status} />,
-              },
-            ]}
-            dataSource={currentProductOffering?.productSpecification ? [currentProductOffering.productSpecification] : []}
-            pagination={{ pageSize: 5 }}
-            rowKey="sys_id"
-            locale={{
-              emptyText: (
-                <div className="py-8 text-center">
-                  <i className="ri-information-line mx-auto text-3xl text-gray-400 mb-3"></i>
-                  <p className="text-gray-500">No specification information available.</p>
-                </div>
-              )
-            }}
-          />
-        </div>
-      )
     }
   ];
 
@@ -554,7 +641,7 @@ function ProductOfferingFormPage() {
             <button
               type="button"
               onClick={formik.handleSubmit}
-              disabled={formik.isSubmitting}
+              disabled={formik.isSubmitting || (isEditMode && currentProductOffering.status!=="draft")}
               className="overflow-hidden relative w-32 h-10 bg-white border-cyan-700 text-cyan-700 hover:bg-cyan-50 border-2 text-base font-medium cursor-pointer z-10 group disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {formik.isSubmitting ? 'Processing...' : isEditMode ? 'Update' : 'Create'}
@@ -650,28 +737,29 @@ function ProductOfferingFormPage() {
                   )}
                 </div>
 
-                {/* Category Select */}
+                {/* Categories Multi-Select */}
                 <div>
                   <label className="block font-medium mb-1 text-gray-700">
-                    Category <span className="text-red-500">*</span>
+                    Categories <span className="text-red-500">*</span>
                   </label>
                   <Select
+                    mode="multiple"
                     showSearch
-                    placeholder="Select a category"
-                    value={formik.values.category}
-                    onChange={value => formik.setFieldValue('category', value)}
+                    placeholder="Select categories"
+                    value={formik.values.categories}
+                    onChange={(values) => formik.setFieldValue('categories', values)}
                     onSearch={setCategorySearch}
                     options={categories?.map(cat => ({
                       value: cat._id,
                       label: cat.name
                     }))}
-                    className="w-full"
+                    className="w-full py-2"
                     loading={loadingCategories}
                     filterOption={false}
-                    disabled={formik.isSubmitting || isEditMode}
+                    disabled={formik.isSubmitting}
                   />
-                  {formik.touched.category && formik.errors.category && (
-                    <p className="text-red-500 text-sm mt-1">{formik.errors.category}</p>
+                  {formik.touched.categories && formik.errors.categories && (
+                    <p className="text-red-500 text-sm mt-1">{formik.errors.categories}</p>
                   )}
                 </div>
                 {/* Product Specification */}
@@ -838,6 +926,14 @@ function ProductOfferingFormPage() {
                   <p className="text-red-500 text-sm mt-1">{formik.errors.description}</p>
                 )}
               </div>
+              {!isEditMode && formik.values.p_spec && (
+                <ProductSpecCharacteristics
+                  characteristics={specifications?.find(s => s._id === formik.values.p_spec)?.productSpecCharacteristic || []}
+                  onChange={handleCharacteristicChange}
+                  onToggle={handleToggleCharacteristic}
+                  selectedValues={selectedCharacteristics}
+                />
+              )}
             </form>
           </div>
         </div>

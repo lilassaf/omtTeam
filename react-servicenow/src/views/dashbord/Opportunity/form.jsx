@@ -436,6 +436,7 @@ const OpportunityFormPage = () => {
             description: "We've updated the opportunity to the Closed-Won stage"
           });
           fetchData(current, pageSize, searchTerm);
+          modal.destroy();
         }
       },
     });
@@ -460,6 +461,7 @@ const OpportunityFormPage = () => {
             description: "We've updated the opportunity to the Closed-Lost stage"
           });
           fetchData(current, pageSize, searchTerm);
+          modal.destroy();
         }
       },
     });
