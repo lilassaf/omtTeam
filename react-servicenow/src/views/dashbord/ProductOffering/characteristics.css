@@ -1,0 +1,9 @@
+.ant-switch{
+    border-radius: 100px !important;
+}
+.ant-switch-checked{
+    background-color: #005f78 !important;
+}
+.ant-select-selector{
+    padding: 5px !important;
+}

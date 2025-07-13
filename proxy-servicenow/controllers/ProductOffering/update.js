@@ -58,9 +58,7 @@ module.exports = async (req, res) => {
             try {
                 
                 const mongoPayload = {
-                    "category": [
-                        catmongoID
-                    ],
+                    "category": catmongoID,
                     "name": snResponse.data.name,
                     "description": snResponse.data.description,
                     "lifecycleStatus":  snResponse.data.lifecycleStatus,
