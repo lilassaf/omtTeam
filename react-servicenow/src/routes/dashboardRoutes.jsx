@@ -19,10 +19,13 @@ import Opportunity from '../views/dashbord/Opportunity/index';
 import OpportunityFormPage from '../views/dashbord/Opportunity/form';
 import PriceList from '../views/dashbord/PriceList';
 import PriceListForm from '../views/dashbord/PriceList/form';
-import Account from '../views/dashbord/Account';
+import Account from '../views/dashbord/Account/index';
+import AccountForm from '../views/dashbord/Account/form';
 import ProductDetails from '../views/dashbord/productdetail';  
-import Contact from '../views/dashbord/Contact';
-import Location from '../views/dashbord/Location';
+import Contact from '../views/dashbord/Contact/index';
+import ContactForm from '../views/dashbord/Contact/form';
+import LocationForm from '../views/dashbord/Location/form';
+import Location from '../views/dashbord/Location/index';
 import AdminRoute from '../middleware/AdminRoute';
 import ContactRoute from '../middleware/isContactRoute';
 
@@ -96,8 +99,14 @@ const dashboardRoutes = {
           element: <QuoteFormPage />
         },
         { path: 'profile', element: <Profile /> },
+
+        {path: 'account/view/:id',element: <AccountForm />},
         { path: 'account', element: <Account /> },
+
+        {path: 'contact/view/:id',element: <ContactForm />},
         { path: 'contact', element: <Contact /> },
+
+        {path: 'location/view/:id',element: <LocationForm />},
         { path: 'location', element: <Location /> },
         // ... other dashboard sub-routes
   ],
