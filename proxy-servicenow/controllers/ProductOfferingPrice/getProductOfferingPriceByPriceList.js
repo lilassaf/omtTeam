@@ -5,9 +5,7 @@ const mongoose = require('mongoose');
 async function getProductOfferingPriceByPriceList(req, res = null) {
   try {
     const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new Error('Invalid ObjectId provided');
-    }
+    
     const priceListObjectId = new mongoose.Types.ObjectId(id);
 
     const product_offering_prices= await productOfferingPrice.find({

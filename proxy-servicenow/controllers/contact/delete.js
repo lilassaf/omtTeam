@@ -2,6 +2,7 @@ const config = require('../../utils/configCreateAccount');
 const axios = require('axios');
 const Contact = require('../../models/Contact');
 const handleMongoError = require('../../utils/handleMongoError');
+const snConnection = require('../../utils/servicenowConnection');
 
 async function deleteContact(req, res) {
   try {
@@ -11,12 +12,6 @@ async function deleteContact(req, res) {
     if (!contact) {
       return res.status(404).json({ error: 'Contact not found in MongoDB' });
     }
-
-    // Create basic auth configuration
-    const auth = {
-      username: config.serviceNow.user,
-      password: config.serviceNow.password
-    };
 
     // First delete the associated location if it exists
     if (contact.location) {
@@ -36,9 +31,14 @@ async function deleteContact(req, res) {
     // Delete from ServiceNow if sys_id exists
     if (contact.sys_id) {
       try {
+        if (!req.user?.sn_access_token) {
+          return res.status(401).json({ error: 'Missing ServiceNow access token' });
+        }
+
+        const connection = snConnection.getConnection(req.user.sn_access_token);
         await axios.delete(
-          `${config.serviceNow.url}/api/now/table/customer_contact/${contact.sys_id}`,
-          { auth }
+          `${connection.baseURL}/api/now/table/customer_contact/${contact.sys_id}`,
+          { headers: connection.headers }
         );
         console.log(`Deleted contact ${contact.sys_id} from ServiceNow`);
       } catch (snError) {
@@ -60,12 +60,12 @@ async function deleteContact(req, res) {
 
   } catch (error) {
     console.error('Error deleting contact:', error);
-    
+
     if (error.name?.includes('Mongo')) {
       const mongoError = handleMongoError(error);
       return res.status(mongoError.status).json({ error: mongoError.message });
     }
-    
+
     const status = error.response?.status || 500;
     const message = error.response?.data?.error?.message || error.message;
     return res.status(status).json({ error: message });

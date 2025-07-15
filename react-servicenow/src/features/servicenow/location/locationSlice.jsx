@@ -14,14 +14,14 @@ const initialState = {
   error: null,
   createLoading: false,
   createError: null,
-  updateLoading: false,
-  updateError: null,
   deleteLoading: false,
   deleteError: null,
   currentPage: 1,
   totalItems: 0,
   limit: 6,
-  searchQuery: ''
+  searchQuery: '',
+  currentLocation: null,
+  loadingLocation: false
 };
 
 // Async Thunks
@@ -46,47 +46,14 @@ export const getLocations = createAsyncThunk(
   }
 );
 
-export const createLocation = createAsyncThunk(
-  'location/create',
-  async (locationData, { rejectWithValue }) => {
+export const getOneLocation = createAsyncThunk(
+  'location/getOne',
+  async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        `${backendUrl}/api/location`,
-        locationData,
-        { headers: getHeaders() }
-      );
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
-  }
-);
-
-export const updateLocation = createAsyncThunk(
-  'location/update',
-  async ({ id, ...locationData }, { rejectWithValue }) => {
-    try {
-      const response = await axios.put(
-        `${backendUrl}/api/location/${id}`,
-        locationData,
-        { headers: getHeaders() }
-      );
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
-  }
-);
-
-export const updateLocationStatus = createAsyncThunk(
-  'location/updateStatus',
-  async ({ id, status }, { rejectWithValue }) => {
-    try {
-      const response = await axios.patch(
-        `${backendUrl}/api/location/${id}/status`,
-        { status },
-        { headers: getHeaders() }
-      );
+      const response = await axios.get(`${backendUrl}/api/location/${id}`, { 
+        headers: getHeaders(),
+      });
+      console.log(response.data)
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -143,53 +110,20 @@ const locationSlice = createSlice({
         state.error = action.payload;
       })
       
-      // Create Location
-      .addCase(createLocation.pending, (state) => {
-        state.createLoading = true;
-        state.createError = null;
+      // Get One Location
+      .addCase(getOneLocation.pending, (state) => {
+        state.loadingLocation = true;
+        state.error = null;
       })
-      .addCase(createLocation.fulfilled, (state, action) => {
-        state.createLoading = false;
-        state.data = [action.payload, ...state.data].slice(0, state.limit);
-        state.totalItems += 1;
+      .addCase(getOneLocation.fulfilled, (state, action) => {
+        state.currentLocation = action.payload;
+        state.loadingLocation = false;
       })
-      .addCase(createLocation.rejected, (state, action) => {
-        state.createLoading = false;
-        state.createError = action.payload;
+      .addCase(getOneLocation.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loadingLocation = false;
       })
-      
-      // Update Location
-      .addCase(updateLocation.pending, (state) => {
-        state.updateLoading = true;
-        state.updateError = null;
-      })
-      .addCase(updateLocation.fulfilled, (state, action) => {
-        state.updateLoading = false;
-        state.data = state.data.map(location => 
-          location._id === action.payload._id ? action.payload : location
-        );
-      })
-      .addCase(updateLocation.rejected, (state, action) => {
-        state.updateLoading = false;
-        state.updateError = action.payload;
-      })
-      
-      // Update Location Status
-      .addCase(updateLocationStatus.pending, (state) => {
-        state.updateLoading = true;
-        state.updateError = null;
-      })
-      .addCase(updateLocationStatus.fulfilled, (state, action) => {
-        state.updateLoading = false;
-        state.data = state.data.map(location => 
-          location._id === action.payload._id ? action.payload : location
-        );
-      })
-      .addCase(updateLocationStatus.rejected, (state, action) => {
-        state.updateLoading = false;
-        state.updateError = action.payload;
-      })
-      
+
       // Delete Location
       .addCase(deleteLocation.pending, (state) => {
         state.deleteLoading = true;

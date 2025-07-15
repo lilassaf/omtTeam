@@ -10,11 +10,13 @@ const create = require('../../controllers/Quote/create')
 const deleteQuote = require('../../controllers/Quote/delete')
 const updateStatus = require('../../controllers/Quote/updateState')
 const getLatestOneByOpportunity = require('../../controllers/Quote/getByOpportunityId');
+const generateCase = require('../../controllers/Quote/generateCase');
 
 router.get('/quote', getAll);
 router.get('/quote/:id', getOne);
 router.get('/quotetocase', getForCase);
 router.post('/quote/:id', create);
+router.post('/quote-to-case/:id', generateCase);
 router.delete('/quote/:id', deleteQuote);
 router.patch('/quote', update);
 router.patch('/quote-state/:id', updateStatus);
