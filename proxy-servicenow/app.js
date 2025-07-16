@@ -37,6 +37,7 @@ const contractQuote = require('./api/contractQuote')
 const knowledgeBaseRoute = require('./api/ai-search/chatboot');
 const productOfferingRoute = require('./api/ai-search/productoffering');
 const productSpecRoutes = require('./api/ProductSpecification/productSpecRoutes');
+const clientRoutes = require('./api/client/index');
 
 
 require('dotenv').config();
@@ -98,7 +99,7 @@ if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev')); // Logs requests in the 'dev' format
 }
 app.use('/', productsRouter);
-
+app.use('/api/clients', clientRoutes);
 // Routes
 app.use('/api', [
     authRoutes, // Login

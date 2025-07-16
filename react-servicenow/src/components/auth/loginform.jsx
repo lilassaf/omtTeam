@@ -25,7 +25,7 @@ const validationSchema = yup.object({
   password: yup.string().required('Password is required')
 });
 
-function LoginForm() {
+function LoginForm({ activeTab }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -37,29 +37,55 @@ function LoginForm() {
     validationSchema,
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        const result = await dispatch(userLogin(values));
+        if (activeTab === 'admin') {
+          // Admin login flow
+          const result = await dispatch(userLogin(values));
 
-        if (userLogin.fulfilled.match(result)) {
-          const token = result.payload?.id_token;
-          if (token) {
-            localStorage.setItem('access_token', `Bearer ${token}`);
-            await dispatch(fetchUserInfo());
-            message.success('Login successful');
-            navigate('/dashboard');
+          if (userLogin.fulfilled.match(result)) {
+            const token = result.payload?.id_token;
+            if (token) {
+              localStorage.setItem('access_token', `Bearer ${token}`);
+              await dispatch(fetchUserInfo());
+              message.success('Admin login successful');
+              navigate('/dashboard');
+            } else {
+              message.error('Login successful but no token received');
+            }
           } else {
-            message.error('Login successful but no token received');
+            const errorPayload = result.payload;
+            const errorMessage = typeof errorPayload === 'object'
+              ? errorPayload.message || MESSAGE_MAPPINGS[errorPayload.type] || MESSAGE_MAPPINGS.unknown_error
+              : errorPayload || MESSAGE_MAPPINGS.unknown_error;
+            message.error(errorMessage);
           }
         } else {
-          const errorPayload = result.payload;
-          const errorMessage = typeof errorPayload === 'object'
-            ? errorPayload.message || MESSAGE_MAPPINGS[errorPayload.type] || MESSAGE_MAPPINGS.unknown_error
-            : errorPayload || MESSAGE_MAPPINGS.unknown_error;
+          // Client login flow
+          setSubmitting(true);
+          const clientResponse = await fetch('http://localhost:3000/api/clients/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: values.username,
+              password: values.password
+            })
+          });
 
-          message.error(errorMessage);
+          const clientData = await clientResponse.json();
+
+          if (!clientResponse.ok) {
+            throw new Error(clientData.error || 'Client login failed');
+          }
+
+          // Successful client login
+          message.success('Client login successful!');
+          localStorage.setItem('currentUser', JSON.stringify(clientData.user));
+          navigate('/client');
         }
       } catch (error) {
         console.error('Login error:', error);
-        message.error(MESSAGE_MAPPINGS.unknown_error);
+        message.error(error.message || MESSAGE_MAPPINGS.unknown_error);
       } finally {
         setSubmitting(false);
       }
@@ -69,15 +95,18 @@ function LoginForm() {
   return (
     <div className="max-w-md mx-auto">
       <form onSubmit={formik.handleSubmit} className="mb-4 space-y-5">
-
         {/* Username Field */}
         <div>
-          <div className="shadow-lg flex gap-2 items-center bg-white p-2  rounded group duration-300">
-            <i className="ri-user-2-line group-hover:rotate-[360deg] duration-300"></i>
+          <div className={`shadow-lg flex gap-2 items-center bg-white p-2 rounded group duration-300 border ${
+            activeTab === 'admin' ? 'border-cyan-200' : 'border-amber-200'
+          }`}>
+            <i className={`group-hover:rotate-[360deg] duration-300 ${
+              activeTab === 'admin' ? 'ri-admin-line text-cyan-500' : 'ri-user-2-line text-amber-500'
+            }`}></i>
             <input
               type="text"
               name="username"
-              placeholder="Username"
+              placeholder={activeTab === 'admin' ? 'Admin username' : 'Email address'}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               value={formik.values.username}
@@ -92,8 +121,12 @@ function LoginForm() {
 
         {/* Password Field */}
         <div>
-          <div className="shadow-lg flex gap-2 items-center bg-white p-2  rounded group duration-300">
-            <i className="ri-lock-2-line group-hover:rotate-[360deg] duration-300"></i>
+          <div className={`shadow-lg flex gap-2 items-center bg-white p-2 rounded group duration-300 border ${
+            activeTab === 'admin' ? 'border-cyan-200' : 'border-amber-200'
+          }`}>
+            <i className={`group-hover:rotate-[360deg] duration-300 ${
+              activeTab === 'admin' ? 'ri-shield-keyhole-line text-cyan-500' : 'ri-lock-2-line text-amber-500'
+            }`}></i>
             <input
               type="password"
               name="password"
@@ -114,14 +147,17 @@ function LoginForm() {
         <button
           type="submit"
           disabled={formik.isSubmitting}
-          className={`w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition duration-300 ${formik.isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
+          className={`w-full text-white font-medium py-2 px-4 rounded-md transition duration-300 ${
+            formik.isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+          } ${
+            activeTab === 'admin' 
+              ? 'bg-cyan-600 hover:bg-cyan-700' 
+              : 'bg-amber-600 hover:bg-amber-700'
+          }`}
         >
           {formik.isSubmitting ? 'Signing in...' : 'Sign in'}
         </button>
       </form>
-
-
     </div>
   );
 }
