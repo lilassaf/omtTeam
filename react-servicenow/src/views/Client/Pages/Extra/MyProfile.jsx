@@ -11,7 +11,9 @@ import {
   RiPhoneLine,
   RiHomeLine,
   RiCalendarLine,
-  RiShieldUserLine
+  RiShieldUserLine,
+  RiVisaLine,
+  RiPaypalFill
 } from 'react-icons/ri';
 import { 
   IoCheckmarkCircleOutline, 
@@ -72,6 +74,13 @@ const MyProfile = () => {
     });
   };
 
+  const handlePaymentMethodChange = (method) => {
+    setFormData({
+      ...formData,
+      u_preferred_payment_method: method
+    });
+  };
+
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
     setPasswordData({
@@ -100,7 +109,6 @@ const MyProfile = () => {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     
-    // Validation checks
     if (!passwordData.currentPassword) {
       setPasswordError('Please enter your current password');
       setTimeout(() => setPasswordError(null), 3000);
@@ -120,7 +128,6 @@ const MyProfile = () => {
     }
 
     try {
-      // First verify the current password by attempting to login
       const verifyResponse = await axios.post('http://localhost:3000/api/clients/login', {
         email: user.u_email_address,
         password: passwordData.currentPassword
@@ -132,7 +139,6 @@ const MyProfile = () => {
         return;
       }
 
-      // If login was successful, proceed with password change
       await axios.put(`http://localhost:3000/api/clients/${user.sys_id}`, {
         u_password: passwordData.newPassword
       });
@@ -157,7 +163,7 @@ const MyProfile = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('currentUser');
-    navigate('/login');
+    navigate('/');
   };
 
   if (loading) return (
@@ -179,74 +185,65 @@ const MyProfile = () => {
   );
 
   return (
-    <div className="bg-amber-50 min-h-screen py-8">
+    <div className="bg-gray-50 min-h-screen py-8">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           {/* Header Section */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-amber-900">Account Management</h1>
-              <p className="text-amber-700">Manage your profile and security settings</p>
+              <h1 className="text-3xl font-bold text-amber-700 ">My Profile</h1>
+              <p className="text-gray-600">Manage your personal information and security settings</p>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setShowPasswordForm(!showPasswordForm)}
-                className={`flex items-center py-2 px-4 rounded-lg transition-colors ${showPasswordForm ? 'bg-amber-600 text-white' : 'bg-amber-100 hover:bg-amber-200 text-amber-800'}`}
-              >
-                <RiLockPasswordLine className="mr-2" />
-                {showPasswordForm ? 'Cancel Password Change' : 'Change Password'}
-              </button>
-              <button
-                onClick={handleLogout}
-                className="flex items-center bg-red-100 hover:bg-red-200 text-red-800 py-2 px-4 rounded-lg transition-colors"
-              >
-                <RiLogoutCircleLine className="mr-2" />
-                Logout
-              </button>
-            </div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors"
+            >
+              <RiLogoutCircleLine className="text-lg" />
+              <span>Logout</span>
+            </button>
           </div>
 
           {/* Alerts */}
           {updateSuccess && (
-            <div className="mb-6 p-4 bg-green-100 text-green-800 rounded-lg flex items-center">
-              <IoCheckmarkCircleOutline className="mr-2 text-xl" />
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg flex items-center">
+              <IoCheckmarkCircleOutline className="mr-2 text-xl text-green-500" />
               Profile updated successfully!
             </div>
           )}
 
           {updateError && (
-            <div className="mb-6 p-4 bg-red-100 text-red-800 rounded-lg flex items-center">
-              <IoCloseCircleOutline className="mr-2 text-xl" />
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg flex items-center">
+              <IoCloseCircleOutline className="mr-2 text-xl text-red-500" />
               {updateError}
             </div>
           )}
 
           {/* Password Change Form */}
           {showPasswordForm && (
-            <div className="bg-white rounded-xl shadow-md overflow-hidden mb-8">
-              <div className="p-6 border-b border-amber-100 bg-amber-50">
-                <h2 className="text-xl font-semibold text-amber-800 flex items-center">
-                  <IoLockClosedOutline className="mr-2" />
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-8">
+              <div className="p-5 border-b border-gray-100 bg-gray-50">
+                <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                  <IoLockClosedOutline className="text-gray-600" />
                   Change Password
                 </h2>
               </div>
-              <div className="p-6">
+              <div className="p-5">
                 {passwordError && (
-                  <div className="mb-4 p-3 bg-red-100 text-red-800 rounded-lg flex items-center">
-                    <IoCloseCircleOutline className="mr-2" />
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-800 rounded-lg flex items-center gap-2">
+                    <IoCloseCircleOutline className="text-red-500" />
                     {passwordError}
                   </div>
                 )}
                 {passwordSuccess && (
-                  <div className="mb-4 p-3 bg-green-100 text-green-800 rounded-lg flex items-center">
-                    <IoCheckmarkCircleOutline className="mr-2" />
+                  <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-800 rounded-lg flex items-center gap-2">
+                    <IoCheckmarkCircleOutline className="text-green-500" />
                     Password changed successfully!
                   </div>
                 )}
                 <form onSubmit={handlePasswordSubmit}>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-amber-600 mb-1">Current Password</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
                       <div className="relative">
                         <input
                           type={showCurrentPassword ? "text" : "password"}
@@ -254,11 +251,12 @@ const MyProfile = () => {
                           value={passwordData.currentPassword}
                           onChange={handlePasswordChange}
                           required
-                          className="w-full px-4 py-2 border border-amber-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 pr-10"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500 pr-10"
+                          placeholder="Enter current password"
                         />
                         <button
                           type="button"
-                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-amber-600"
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700"
                           onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                         >
                           {showCurrentPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
@@ -266,7 +264,7 @@ const MyProfile = () => {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-amber-600 mb-1">New Password</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
                       <div className="relative">
                         <input
                           type={showNewPassword ? "text" : "password"}
@@ -274,11 +272,12 @@ const MyProfile = () => {
                           value={passwordData.newPassword}
                           onChange={handlePasswordChange}
                           required
-                          className="w-full px-4 py-2 border border-amber-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 pr-10"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500 pr-10"
+                          placeholder="Enter new password"
                         />
                         <button
                           type="button"
-                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-amber-600"
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700"
                           onClick={() => setShowNewPassword(!showNewPassword)}
                         >
                           {showNewPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
@@ -286,7 +285,7 @@ const MyProfile = () => {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-amber-600 mb-1">Confirm New Password</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
                       <div className="relative">
                         <input
                           type={showConfirmPassword ? "text" : "password"}
@@ -294,24 +293,32 @@ const MyProfile = () => {
                           value={passwordData.confirmPassword}
                           onChange={handlePasswordChange}
                           required
-                          className="w-full px-4 py-2 border border-amber-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 pr-10"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500 pr-10"
+                          placeholder="Confirm new password"
                         />
                         <button
                           type="button"
-                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-amber-600"
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700"
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         >
                           {showConfirmPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
                         </button>
                       </div>
                     </div>
-                    <div className="pt-2">
+                    <div className="flex gap-3 pt-2">
                       <button
                         type="submit"
-                        className="w-full bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded-lg transition-colors flex items-center justify-center"
+                        className="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded-md transition-colors flex items-center justify-center gap-2"
                       >
-                        <RiSaveLine className="mr-2" />
+                        <RiSaveLine />
                         Update Password
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowPasswordForm(false)}
+                        className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-md transition-colors"
+                      >
+                        Cancel
                       </button>
                     </div>
                   </div>
@@ -319,184 +326,185 @@ const MyProfile = () => {
               </div>
             </div>
           )}
+
           {/* Profile Information */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column - Personal Info */}
-            <div className="lg:col-span-2 bg-white rounded-xl shadow-md overflow-hidden">
-              <div className="p-6 border-b border-amber-100 bg-amber-50">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-xl font-semibold text-amber-800 flex items-center">
-                    <RiUserLine className="mr-2" />
-                    Personal Information
-                  </h2>
-                  {!isEditing ? (
+            <div className="lg:col-span-2 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div className="p-5 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                  <RiUserLine className="text-gray-600" />
+                  Personal Information
+                </h2>
+                {!isEditing ? (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded-md transition-colors text-sm"
+                  >
+                    <RiEditLine />
+                    Edit Profile
+                  </button>
+                ) : (
+                  <div className="flex gap-2">
                     <button
-                      onClick={() => setIsEditing(true)}
-                      className="flex items-center bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded-lg transition-colors"
+                      onClick={() => {
+                        setIsEditing(false);
+                        setFormData(user);
+                        setUpdateError(null);
+                      }}
+                      className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-md transition-colors text-sm"
                     >
-                      <RiEditLine className="mr-2" />
-                      Edit Profile
+                      Cancel
                     </button>
-                  ) : (
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => {
-                          setIsEditing(false);
-                          setFormData(user);
-                          setUpdateError(null);
-                        }}
-                        className="flex items-center bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg transition-colors"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleSubmit}
-                        className="flex items-center bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded-lg transition-colors"
-                      >
-                        <RiSaveLine className="mr-2" />
-                        Save Changes
-                      </button>
-                    </div>
-                  )}
-                </div>
+                    <button
+                      onClick={handleSubmit}
+                      className="flex items-center gap-2 bg-amber-700 hover:bg-amber-800 text-white py-2 px-4 rounded-md transition-colors text-sm"
+                    >
+                      <RiSaveLine />
+                      Save Changes
+                    </button>
+                  </div>
+                )}
               </div>
-              <div className="p-6">
+              <div className="p-5">
                 <form>
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
-                        <label className="block text-sm font-medium text-amber-600 mb-1 flex items-center">
-                          <RiUserLine className="mr-2" />
-                          First Name
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
                         {isEditing ? (
                           <input
                             type="text"
                             name="u_first_name"
                             value={formData.u_first_name || ''}
                             onChange={handleInputChange}
-                            className="w-full px-4 py-2 border border-amber-300 rounded-lg focus:ring-amber-500 focus:border-amber-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                           />
                         ) : (
-                          <p className="text-amber-900 py-2 pl-6">{user.u_first_name || 'N/A'}</p>
+                          <p className="text-gray-900 py-2">{user.u_first_name || 'Not provided'}</p>
                         )}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-amber-600 mb-1 flex items-center">
-                          <RiUserLine className="mr-2" />
-                          Last Name
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
                         {isEditing ? (
                           <input
                             type="text"
                             name="u_last_name"
                             value={formData.u_last_name || ''}
                             onChange={handleInputChange}
-                            className="w-full px-4 py-2 border border-amber-300 rounded-lg focus:ring-amber-500 focus:border-amber-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                           />
                         ) : (
-                          <p className="text-amber-900 py-2 pl-6">{user.u_last_name || 'N/A'}</p>
+                          <p className="text-gray-900 py-2">{user.u_last_name || 'Not provided'}</p>
                         )}
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-amber-600 mb-1 flex items-center">
-                        <RiMailLine className="mr-2" />
-                        Email
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                       {isEditing ? (
                         <input
                           type="email"
                           name="u_email_address"
                           value={formData.u_email_address || ''}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2 border border-amber-300 rounded-lg focus:ring-amber-500 focus:border-amber-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                         />
                       ) : (
-                        <p className="text-amber-900 py-2 pl-6">{user.u_email_address || 'N/A'}</p>
+                        <p className="text-gray-900 py-2">{user.u_email_address || 'Not provided'}</p>
                       )}
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-amber-600 mb-1 flex items-center">
-                        <RiPhoneLine className="mr-2" />
-                        Phone Number
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
                       {isEditing ? (
                         <input
                           type="tel"
                           name="u_phone_number"
                           value={formData.u_phone_number || ''}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2 border border-amber-300 rounded-lg focus:ring-amber-500 focus:border-amber-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                         />
                       ) : (
-                        <p className="text-amber-900 py-2 pl-6">{user.u_phone_number || 'N/A'}</p>
+                        <p className="text-gray-900 py-2">{user.u_phone_number || 'Not provided'}</p>
                       )}
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-amber-600 mb-1 flex items-center">
-                        <RiHomeLine className="mr-2" />
-                        Address
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
                       {isEditing ? (
                         <textarea
                           name="u_address"
                           value={formData.u_address || ''}
                           onChange={handleInputChange}
                           rows={3}
-                          className="w-full px-4 py-2 border border-amber-300 rounded-lg focus:ring-amber-500 focus:border-amber-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                         />
                       ) : (
-                        <p className="text-amber-900 py-2 pl-6 whitespace-pre-line">{user.u_address || 'N/A'}</p>
+                        <p className="text-gray-900 py-2 whitespace-pre-line">{user.u_address || 'Not provided'}</p>
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                       <div>
-                        <label className="block text-sm font-medium text-amber-600 mb-1">City</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
                         {isEditing ? (
                           <input
                             type="text"
                             name="u_city"
                             value={formData.u_city || ''}
                             onChange={handleInputChange}
-                            className="w-full px-4 py-2 border border-amber-300 rounded-lg focus:ring-amber-500 focus:border-amber-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                           />
                         ) : (
-                          <p className="text-amber-900 py-2">{user.u_city || 'N/A'}</p>
+                          <p className="text-gray-900 py-2">{user.u_city || 'Not provided'}</p>
                         )}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-amber-600 mb-1">Province</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Province/State</label>
                         {isEditing ? (
                           <input
                             type="text"
                             name="u_province"
                             value={formData.u_province || ''}
                             onChange={handleInputChange}
-                            className="w-full px-4 py-2 border border-amber-300 rounded-lg focus:ring-amber-500 focus:border-amber-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                           />
                         ) : (
-                          <p className="text-amber-900 py-2">{user.u_province || 'N/A'}</p>
+                          <p className="text-gray-900 py-2">{user.u_province || 'Not provided'}</p>
                         )}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-amber-600 mb-1">Postal Code</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Postal/Zip Code</label>
                         {isEditing ? (
                           <input
                             type="text"
                             name="u_postal_code"
                             value={formData.u_postal_code || ''}
                             onChange={handleInputChange}
-                            className="w-full px-4 py-2 border border-amber-300 rounded-lg focus:ring-amber-500 focus:border-amber-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                           />
                         ) : (
-                          <p className="text-amber-900 py-2">{user.u_postal_code || 'N/A'}</p>
+                          <p className="text-gray-900 py-2">{user.u_postal_code || 'Not provided'}</p>
                         )}
                       </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                      {isEditing ? (
+                        <input
+                          type="date"
+                          name="u_date_of_birth"
+                          value={formData.u_date_of_birth ? formData.u_date_of_birth.split('T')[0] : ''}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                        />
+                      ) : (
+                        <p className="text-gray-900 py-2">
+                          {user.u_date_of_birth ? new Date(user.u_date_of_birth).toLocaleDateString() : 'Not provided'}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </form>
@@ -504,32 +512,29 @@ const MyProfile = () => {
             </div>
 
             {/* Right Column - Account Details */}
-            <div className="bg-white rounded-xl shadow-md overflow-hidden">
-              <div className="p-6 border-b border-amber-100 bg-amber-50">
-                <h2 className="text-xl font-semibold text-amber-800 flex items-center">
-                  <RiShieldUserLine className="mr-2" />
-                  Account Details
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div className="p-5 border-b border-gray-100 bg-gray-50">
+                <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                  <RiShieldUserLine className="text-gray-600" />
+                  Account Settings
                 </h2>
               </div>
-              <div className="p-6 space-y-6">
+              <div className="p-5 space-y-5">
                 <div>
-                  <label className="block text-sm font-medium text-amber-600 mb-1">Username</label>
-                  <p className="text-amber-900 py-2">{user.u_username || 'N/A'}</p>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                  <p className="text-gray-900 py-2">{user.u_username || 'Not provided'}</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-amber-600 mb-1">Account Status</label>
-                  <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                    {user.u_account_status || 'N/A'}
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Account Status</label>
+                  <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    {user.u_account_status || 'Unknown'}
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-amber-600 mb-1 flex items-center">
-                    <RiCalendarLine className="mr-2" />
-                    Member Since
-                  </label>
-                  <p className="text-amber-900 py-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Member Since</label>
+                  <p className="text-gray-900 py-2">
                     {new Date(user.u_account_creation_date).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
@@ -539,11 +544,10 @@ const MyProfile = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-amber-600 mb-1">Last Login</label>
-                  <p className="text-amber-900 py-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Last Login</label>
+                  <p className="text-gray-900 py-2">
                     {new Date(user.u_last_login_date).toLocaleString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
+                      month: 'short',
                       day: 'numeric',
                       hour: '2-digit',
                       minute: '2-digit'
@@ -552,20 +556,51 @@ const MyProfile = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-amber-600 mb-1">User Role</label>
-                  <p className="text-amber-900 py-2 capitalize">{user.u_user_role || 'N/A'}</p>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Preferred Payment Method</label>
+                  {isEditing ? (
+                    <div className="flex gap-4">
+                      <button
+                        type="button"
+                        onClick={() => handlePaymentMethodChange('credit card')}
+                        className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 border rounded-md transition-colors ${formData.u_preferred_payment_method === 'credit card' ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-gray-300 hover:border-amber-300'}`}
+                      >
+                        <RiVisaLine className="text-xl" />
+                        <span>Credit Card</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handlePaymentMethodChange('paypal')}
+                        className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 border rounded-md transition-colors ${formData.u_preferred_payment_method === 'paypal' ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-gray-300 hover:border-amber-300'}`}
+                      >
+                        <RiPaypalFill className="text-xl text-blue-600" />
+                        <span>PayPal</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 py-2">
+                      {user.u_preferred_payment_method === 'credit card' ? (
+                        <>
+                          <RiVisaLine className="text-xl text-gray-700" />
+                          <span className="text-gray-900">Credit Card</span>
+                        </>
+                      ) : (
+                        <>
+                          <RiPaypalFill className="text-xl text-blue-600" />
+                          <span className="text-gray-900">PayPal</span>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-amber-600 mb-1">Preferred Payment</label>
-                  <p className="text-amber-900 py-2 capitalize">{user.u_preferred_payment_method || 'N/A'}</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-amber-600 mb-1">Date of Birth</label>
-                  <p className="text-amber-900 py-2">
-                    {user.u_date_of_birth ? new Date(user.u_date_of_birth).toLocaleDateString() : 'N/A'}
-                  </p>
+                <div className="pt-2">
+                  <button
+                    onClick={() => setShowPasswordForm(true)}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-300 rounded-md hover:border-amber-400 hover:bg-amber-50 text-amber-700 transition-colors"
+                  >
+                    <RiLockPasswordLine />
+                    Change Password
+                  </button>
                 </div>
               </div>
             </div>

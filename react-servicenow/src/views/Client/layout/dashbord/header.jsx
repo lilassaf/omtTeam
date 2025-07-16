@@ -94,7 +94,7 @@ function Header() {
     { label: 'Dashboard', path: '/client' },
     { label: 'Shop', path: '/client/shop' },
     { label: 'Orders', path: '/client/orders/current' },
-    { label: 'Wishlist', path: '/client/wishlist' },
+    { label: 'Wishlist', path: '/client/wishlist/saved' },
     { label: 'Support', path: '/client/support' }
   ];
 
