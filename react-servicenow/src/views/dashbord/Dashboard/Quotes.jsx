@@ -272,7 +272,7 @@ const QuotesDashboard = () => {
         loading,
         error,
         total: totalItemsRedux,
-    } = useSelector((state) => state.quotes);
+    } = useSelector((state) => state.quote) || { data: [], loading: false, error: null, total: 0 };
 
     // Local state for filters and pagination
     const [searchText, setSearchText] = useState(''); // Corresponds to numberFilter in example
@@ -311,7 +311,7 @@ const QuotesDashboard = () => {
     // Extract unique filter options (using existing data structure)
     const uniqueCurrencies = useMemo(() => {
         const currencies = new Set();
-        quotes.forEach(quote => {
+        (quotes || []).forEach(quote => {
             if (quote.currency) currencies.add(quote.currency);
         });
         return Array.from(currencies).sort();
@@ -319,7 +319,7 @@ const QuotesDashboard = () => {
 
     const uniqueStates = useMemo(() => {
         const states = new Set();
-        quotes.forEach(quote => {
+        (quotes || []).forEach(quote => {
             if (quote.state) states.add(quote.state);
         });
         return Array.from(states).sort();
@@ -328,7 +328,7 @@ const QuotesDashboard = () => {
 
     // Memoized filtered data
     const filteredData = useMemo(() => {
-        let currentFilteredData = quotes;
+        let currentFilteredData = quotes || [];
 
         if (searchText) {
             currentFilteredData = currentFilteredData.filter(item =>
@@ -466,7 +466,7 @@ const QuotesDashboard = () => {
     // Metrics calculations (adapted for your current data structure)
     const quoteMetrics = useMemo(() => {
         const metrics = {
-            total: quotes.length,
+            total: (quotes || []).length,
             approved: 0,
             draft: 0,
             pending: 0, // Using 'pending' as per your original data
@@ -477,7 +477,7 @@ const QuotesDashboard = () => {
         };
 
         const currentDate = moment(); // Use moment for date comparisons
-        quotes.forEach(item => {
+        (quotes || []).forEach(item => {
             if (item.state?.toLowerCase() === "approved") metrics.approved++;
             if (item.state?.toLowerCase() === "draft") metrics.draft++;
             if (item.state?.toLowerCase() === "pending") metrics.pending++;

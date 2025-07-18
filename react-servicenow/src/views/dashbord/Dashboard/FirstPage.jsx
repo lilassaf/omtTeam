@@ -69,7 +69,7 @@ const OpportunityDashboard = () => {
   const productsState = useSelector(state => state.productOffering) || {};
   const categoriesState = useSelector(state => state.productOfferingCategory) || {};
   const catalogsState = useSelector(state => state.productOfferingCatalog) || {};
-  const quotesState = useSelector(state => state.quotes) || {};
+  const quotesState = useSelector(state => state.quote) || {};
 
   const opportunities = opportunitiesState?.opportunities || [];
   const specs = specsState?.data || [];

@@ -27,9 +27,9 @@ function Dashboard() {
                     toggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
                 />
             </div>
-            <div className="dashboard-content w-full overflow-hidden">
+            <div className="dashboard-content w-full flex flex-col">
                 <Header />
-                <div className="bg-gray-100/50 h-[calc(100vh-104px)]">
+                <div className="bg-gray-100/50 flex-1 overflow-y-auto">
                     <Outlet />
                 </div>
             </div>
