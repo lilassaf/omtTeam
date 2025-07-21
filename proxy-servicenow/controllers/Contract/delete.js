@@ -3,7 +3,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const Contract = require("../../models/contract");
 
-export async function deleteContractById(id) {
+async function deleteContractById(id) {
   try {
     // Check if the ID is valid
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -24,8 +24,7 @@ export async function deleteContractById(id) {
         await fs.unlink(filePath);
       } catch (fileError) {
         console.error("Failed to delete PDF file:", fileError);
-        // You might want to throw here if file deletion is critical
-         throw new Error("Failed to delete associated PDF file");
+        throw new Error("Failed to delete associated PDF file");
       }
     }
 
@@ -49,3 +48,5 @@ export async function deleteContractById(id) {
     throw error;
   }
 }
+
+module.exports = { deleteContractById };

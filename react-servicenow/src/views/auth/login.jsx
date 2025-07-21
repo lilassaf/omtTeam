@@ -51,11 +51,11 @@ function Login() {
                 }`}></div>
               </div>
               <h1 className="text-2xl font-bold text-gray-800 mb-1">
-                {activeTab === 'client' ? 'Welcome to LuxeCart' : 'Admin Console'}
+                {activeTab === 'client' ? 'Welcome' : 'Admin Console'}
               </h1>
               <p className="text-sm text-gray-500 text-center max-w-xs">
                 {activeTab === 'client' 
-                  ? 'Sign in to access your shopping dashboard' 
+                  ? 'Sign in to access your dashboard' 
                   : 'System administrator access only'}
               </p>
             </div>
@@ -65,24 +65,8 @@ function Login() {
 
             {/* Footer links */}
             <div className="mt-6 text-center">
-              <div className="text-sm text-gray-500 mb-3">
-                {activeTab === 'client' ? (
-                  <>
-                    Don't have an account?{' '}
-                    <Link 
-                      to="/register" 
-                      className="font-medium text-amber-600 hover:text-amber-500 transition-colors"
-                    >
-                      Sign up
-                    </Link>
-                  </>
-                ) : (
-                  <span className="text-xs text-gray-400">
-                    Authorized personnel only
-                  </span>
-                )}
-              </div>
-              <div className="text-xs text-gray-400">
+             
+              {/* <div className="text-xs text-gray-400">
                 <Link 
                   to="/forgot-password" 
                   className={`hover:underline transition-colors ${
@@ -91,7 +75,7 @@ function Login() {
                 >
                   Forgot password?
                 </Link>
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -107,10 +91,7 @@ function Login() {
           }`}></div>
         </div>
 
-        {/* Subtle footer */}
-        <div className="mt-6 text-center text-xs text-gray-400">
-          © {new Date().getFullYear()} LuxeCart. All rights reserved.
-        </div>
+       
       </div>
 
       {/* Add these styles to your global CSS */}
