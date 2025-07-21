@@ -88,7 +88,7 @@ const Home = () => {
   // Redux state selectors
   const opportunitiesState = useSelector(state => state.opportunity) || {};
   const productsState = useSelector(state => state.productOffering) || {};
-  const quotesState = useSelector(state => state.quotes) || {};
+  const quotesState = useSelector(state => state.quote) || {};
   const categoriesState = useSelector(state => state.productOfferingCategory) || {};
   const accountsState = useSelector(state => state.account) || {};
   const contactsState = useSelector(state => state.contact) || {};

@@ -9,12 +9,8 @@ const LocationForm = ({
   location,
   setLocation,
   locationLoading,
+  getCurrentLocation,
   setLocationLoading,
-  setError,
-  setValidationErrors,
-  markLocationAsTouched,
-  API_URL,
-  getCurrentLocation
 }) => {
   return (
     <div className="flex flex-col gap-4">
@@ -22,7 +18,7 @@ const LocationForm = ({
         (Click on the map or use "Use My Location")
       </Typography>
 
-      <div className="h-96 w-full rounded-lg overflow-hidden border border-gray-300">
+      <div className="h-96 w-full rounded-lg overflow-hidden border border-gray-300 relative">
         <MapContainer
           center={[35.6895, -0.6]}
           zoom={6}
@@ -37,30 +33,34 @@ const LocationForm = ({
             location={location}
             setLocation={setLocation}
             setLocationLoading={setLocationLoading}
-            setError={setError}
-            setValidationErrors={setValidationErrors}
-            markLocationAsTouched={markLocationAsTouched}
-            API_URL={API_URL}
           />
           <LocationControl
             position="topright"
-            onButtonClick={getCurrentLocation}
+            onButtonClick={() => {
+              setLocationLoading(true);
+              getCurrentLocation().finally(() => {
+                setLocationLoading(false);
+              });
+            }}
             loading={locationLoading}
           />
         </MapContainer>
+        {locationLoading && (
+          <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+            <div className="text-white">Loading location...</div>
+          </div>
+        )}
       </div>
 
-      {location?.latitude && location?.longitude && (
+      {location && (
         <div className="text-sm text-gray-600 mt-2">
-          Selected Location:
-          {location.address && <span> {location.address},</span>}
-          {location.city && <span> {location.city},</span>}
-          {location.state && <span> {location.state},</span>}
-          {location.country && <span> {location.country}</span>}
-          {location.postalCode && <span> {location.postalCode}</span>}
-          {!(location.address || location.city || location.state || location.country || location.postalCode) && (
-            <span> Latitude: {location.latitude.toFixed(4)}, Longitude: {location.longitude.toFixed(4)}</span>
-          )}
+          <strong>Selected Location:</strong> {[
+            location.road,
+            location.city,
+            location.state,
+            location.country,
+            location.postcode
+          ].filter(Boolean).join(", ")}
         </div>
       )}
     </div>

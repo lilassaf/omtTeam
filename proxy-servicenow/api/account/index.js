@@ -17,7 +17,7 @@ const sendMailInfo = require('../../controllers/account/sendMailInfo');
 //routes
 router.post('/account',authjwt, create)
 router.get('/account',authjwt, getAll);
-router.get('/account/:id', getOne);
+router.get('/account/:id',authjwt, getOne);
 router.delete('/account/:id', authjwt, deleteAccount);
 router.patch('/account/:id',update);
 
