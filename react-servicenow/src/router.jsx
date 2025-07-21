@@ -1,10 +1,10 @@
 // src/router.jsx
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import authRoutes from './routes/authRoutes';
-import dashboardRoutes from './routes/dashboardRoutes';
+import authRoutes from './routes/Admin/authRoutes';
+import dashboardRoutes from './routes/Admin/dashboardRoutes';
 import ErrorPage from './views/error'
-import clientauthRoutes from './views/Client/routes/authRoutes';
-import clientdashboardRoutes from './views/Client/routes/dashboardRoutes';
+import clientauthRoutes from './routes/Client/authRoutes';
+import clientdashboardRoutes from './routes/Client/dashboardRoutes';
 
 const router = createBrowserRouter([
   ...authRoutes,
