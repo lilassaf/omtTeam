@@ -206,43 +206,64 @@ const CreateAcc = () => {
     }
   }, [handleContactChange]);
 
-  const handleSubmit = useCallback(async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    setSuccess("");
+ const handleSubmit = useCallback(async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setError(null); // Reset error state
+  setSuccess("");
 
-    if (!validateAllFormFields()) {
-      setLoading(false);
-      return;
-    }
+  if (!validateAllFormFields()) {
+    setLoading(false);
+    return;
+  }
 
-    const payload = {
-      ...formData,
-      contacts: contacts.map(contact => ({
-        ...contact,
-        location: contact.location ? {
-          latitude: contact.location.latitude,
-          longitude: contact.location.longitude,
-          address: contact.location.road,
-          city: contact.location.city,
-          state: contact.location.state,
-          country: contact.location.country,
-          postalCode: contact.location.postcode,
-        } : null
-      })),
-      token: token || null
-    };
+  const payload = {
+    ...formData,
+    contacts: contacts.map(contact => ({
+      ...contact,
+      location: contact.location ? {
+        latitude: contact.location.latitude,
+        longitude: contact.location.longitude,
+        address: contact.location.road,
+        city: contact.location.city,
+        state: contact.location.state,
+        country: contact.location.country,
+        postalCode: contact.location.postcode,
+      } : null
+    })),
+    token: token || null
+  };
 
-    try {
-      await dispatch(createAccount(payload)).unwrap();
+  try {
+    const result = await dispatch(createAccount(payload));
+    
+    if (createAccount.fulfilled.match(result)) {
       setSuccess("Please check your email to confirm the creation of your account");
-    } catch (err) {
-      setError(err.message || "Registration failed. Please try again.");
-    } finally {
-      setLoading(false);
+    } else if (createAccount.rejected.match(result)) {
+      const errorData = result.payload || result.error;
+      
+      // Format the error consistently
+      setError({
+        type: errorData.error || 'registration_error',
+        title: errorData.error === 'duplicate_contacts' 
+          ? 'Duplicate Emails Found' 
+          : 'Registration Error',
+        message: errorData.message,
+        duplicates: errorData.duplicates || [],
+        details: errorData.details
+      });
     }
-  }, [formData, contacts, validateAllFormFields, dispatch, token]);
+  } catch (err) {
+    setError({
+      type: 'submission_error',
+      title: 'Submission Error',
+      message: 'Failed to submit the form',
+      details: err.message
+    });
+  } finally {
+    setLoading(false);
+  }
+}, [formData, contacts, validateAllFormFields, dispatch, token]);
 
   const isFormValid = useMemo(() => {
     return Object.keys(validationErrors).length === 0 &&
@@ -286,7 +307,6 @@ const CreateAcc = () => {
 
         <form onSubmit={handleSubmit} ref={formRef}>
           <CardBody className="flex flex-col gap-6 p-8">
-            {error && <Alert color="red" className="mb-4">{error}</Alert>}
 
             <div className="mb-6 grid grid-cols-2 gap-4">
               <button
@@ -444,6 +464,36 @@ const CreateAcc = () => {
                   </Typography>
                 </div>
               )}
+              {error && (
+  <div className="mt-4 p-4 rounded-lg bg-red-50 border-l-4 border-red-500">
+    <Typography variant="small" className="font-medium text-red-800">
+      {error.title || 'Registration Error'}
+    </Typography>
+    
+    {error.type === 'duplicate_emails' ? (
+      <div className="mt-2">
+        <Typography variant="small" className="block text-red-800">
+          {error.message}
+        </Typography>
+        <ul className="list-disc pl-5 mt-1">
+          {error.duplicates?.map((dup, index) => (
+            <li key={index}>
+              <Typography variant="small" className="text-red-800">
+                {dup.email} (Contact {dup.contactPosition})
+              </Typography>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ) : (
+      <>
+        <Typography variant="small" className="block mt-2 text-red-800">
+          {error.message || 'An unexpected error occurred. Please try again.'}
+        </Typography>
+      </>
+    )}
+  </div>
+)}
             </div>
           </CardBody>
         </form>
