@@ -377,7 +377,11 @@
                         {{else}}
                         <div class="signature-line"></div>
                         {{/if}}
-                        <p>Date: {{formatDate signature.date}}</p>
+                        {{#if client_signature.date}}
+                        <p>Date: {{formatDate client_signature.date}}</p>
+                        {{else}}
+                        <p>Date: ....................</p>
+                        {{/if}}
                     </td>
                     <td>
                         <strong>OM Telecom</strong><br>

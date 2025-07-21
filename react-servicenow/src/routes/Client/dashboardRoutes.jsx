@@ -2,7 +2,7 @@
 import DashboardLayout from '../../layout/Client/dashbord.jsx';
 
 // Dashboard Pages
-import Overview from '../../views/Client/Pages/Dashboard/OverviewPage.jsx';
+import Overview from '../../views/Client/Dashboard/OverviewPage.jsx';
 import SavedItems from '../../views/Client/Pages/Wishlist/SavedItemsPage.jsx';
 import MyOrders from '../../views/Client/Pages/MyOrders/CurrentOrdersPage.jsx';
 import ProductDetails from '../../views/Client/Pages/Extra/ProductDetails.jsx';
