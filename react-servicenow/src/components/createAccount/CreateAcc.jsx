@@ -1,30 +1,27 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useRef } from "react";
 import { useDispatch } from "react-redux";
-import { useSearchParams } from 'react-router-dom'; // Corrected import to 'react-router-dom'
-import { createAccount } from "../../features/auth/authActions"; // Assuming this path is correct
+import { useSearchParams } from 'react-router-dom';
+import { createAccount } from "../../features/auth/authActions";
 import {
   Card,
   CardHeader,
   CardBody,
   Typography,
-  Tabs,
-  TabsHeader,
-  Tab,
-  Tooltip,
   Button,
   Checkbox,
-  Alert
+  Alert,
+  Tooltip
 } from "@material-tailwind/react";
-import AccountForm from "./AccountForm"; // Assuming this path is correct
-import ContactForm from "./ContactForm"; // Assuming this path is correct
-import { validateField, validateAllFields } from "./validation"; // Assuming this path is correct
+import AccountForm from "./AccountForm";
+import ContactForm from "./ContactForm";
+import { validateField, validateAllFields } from "./validation";
 
-// API URL from environment variables
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 
 const CreateAcc = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
+  const formRef = useRef();
 
   const [activeTab, setActiveTab] = useState("account");
   const [agreed, setAgreed] = useState(false);
@@ -34,10 +31,9 @@ const CreateAcc = () => {
   const [locationLoading, setLocationLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
   const [touchedFields, setTouchedFields] = useState({});
-  const [submitted, setSubmitted] = useState(false);
 
   const [formData, setFormData] = useState({
-    name: "", // Changed from first_name, last_name
+    name: "",
     email: "",
     mobile_phone: "",
   });
@@ -58,14 +54,9 @@ const CreateAcc = () => {
   }, []);
 
   const validateCurrentField = useCallback((name, value, contactIndex = null) => {
-    const context = {
-      formData,
-      agreed,
-      location: contacts[0]?.location || null,
-      contacts
-    };
+    const context = { formData, agreed, contacts };
     const fieldErrors = validateField(name, value, context, contactIndex);
-
+    
     setValidationErrors(prev => {
       const newErrors = { ...prev };
       if (Object.keys(fieldErrors).length === 0) {
@@ -75,61 +66,72 @@ const CreateAcc = () => {
       }
       return newErrors;
     });
+    
     return fieldErrors;
   }, [formData, agreed, contacts]);
 
   const validateAllFormFields = useCallback(() => {
-    const context = {
-      formData,
-      agreed,
-      location: contacts[0]?.location || null,
-      contacts
-    };
+    const context = { formData, agreed, contacts };
     const errors = validateAllFields(context);
     setValidationErrors(errors);
+
+    const allTouched = {};
+    Object.keys(formData).forEach(field => allTouched[field] = true);
+    contacts.forEach((_, index) => {
+      ['firstName', 'lastName', 'email', 'phone', 'password', 'location'].forEach(field => {
+        allTouched[`contacts[${index}].${field}`] = true;
+      });
+    });
+    allTouched.agreed = true;
+    setTouchedFields(allTouched);
+
     return Object.keys(errors).length === 0;
+  }, [formData, agreed, contacts]);
+
+  const getMissingRequirements = useMemo(() => {
+    const missing = [];
+    
+    if (!formData.name.trim()) missing.push("Full Name");
+    if (!formData.email.trim()) missing.push("Email");
+    if (!formData.mobile_phone.trim()) missing.push("Mobile Phone");
+    if (!agreed) missing.push("Agreement to Terms");
+    
+    contacts.forEach((contact, index) => {
+      const contactPrefix = index === 0 ? "Primary Contact" : `Contact ${index + 1}`;
+      if (!contact.firstName.trim()) missing.push(`${contactPrefix} First Name`);
+      if (!contact.lastName.trim()) missing.push(`${contactPrefix} Last Name`);
+      if (!contact.email.trim()) missing.push(`${contactPrefix} Email`);
+      if (!contact.phone.trim()) missing.push(`${contactPrefix} Phone`);
+      if (!contact.password.trim()) missing.push(`${contactPrefix} Password`);
+      if (!contact.location) missing.push(`${contactPrefix} Location`);
+    });
+
+    return missing;
   }, [formData, agreed, contacts]);
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
-    setFormData(prev => {
-      const newData = { ...prev, [name]: value };
-      markFieldAsTouched(name);
-      validateCurrentField(name, value);
-      return newData;
-    });
+    setFormData(prev => ({ ...prev, [name]: value }));
+    markFieldAsTouched(name);
+    validateCurrentField(name, value);
   }, [markFieldAsTouched, validateCurrentField]);
 
   const handleContactChange = useCallback((index, e) => {
     const { name, value } = e.target;
-    setContacts(prevContacts => {
-      const newContacts = [...prevContacts];
+    setContacts(prev => {
+      const newContacts = [...prev];
       newContacts[index] = { ...newContacts[index], [name]: value };
-      markFieldAsTouched(`contacts[${index}].${name}`);
-      validateCurrentField(`contacts[${index}].${name}`, value, index);
       return newContacts;
     });
+    markFieldAsTouched(`contacts[${index}].${name}`);
+    validateCurrentField(`contacts[${index}].${name}`, value, index);
   }, [markFieldAsTouched, validateCurrentField]);
 
-  const handleBlur = useCallback((e, fieldName) => {
-    markFieldAsTouched(fieldName);
-
-    setTimeout(() => {
-      const domValue = e.target.value;
-
-      if (fieldName.startsWith('contacts[')) {
-        const match = fieldName.match(/contacts\[(\d+)\]\.(.+)/);
-        if (match) {
-          const contactIndex = parseInt(match[1]);
-          const fieldKey = match[2];
-          handleContactChange(contactIndex, { target: { name: fieldKey, value: domValue } });
-        }
-      } else {
-        handleChange({ target: { name: fieldName, value: domValue } });
-      }
-    }, 100);
-  }, [markFieldAsTouched, handleChange, handleContactChange]);
-
+  const handleBlur = useCallback((e) => {
+    const { name, value } = e.target;
+    markFieldAsTouched(name);
+    validateCurrentField(name, value);
+  }, [markFieldAsTouched, validateCurrentField]);
 
   const handleAgreedChange = useCallback((e) => {
     const checked = e.target.checked;
@@ -147,18 +149,6 @@ const CreateAcc = () => {
       return newErrors;
     });
 
-    if (!navigator.geolocation) {
-      const errorMessage = "Geolocation is not supported by this browser.";
-      setError(errorMessage);
-      setValidationErrors(prev => ({
-        ...prev,
-        [`contacts[${contactIndex}].location`]: errorMessage,
-      }));
-      markFieldAsTouched(`contacts[${contactIndex}].location`);
-      setLocationLoading(false);
-      return;
-    }
-
     try {
       const position = await new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject, {
@@ -169,209 +159,139 @@ const CreateAcc = () => {
       });
 
       const response = await fetch(
-        `${API_URL}/api/reverse-geocode?lat=${position.coords.latitude}&lng=${position.coords.longitude}`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}`
       );
-
+      
       if (!response.ok) {
-        const errorBody = await response.json().catch(() => ({ message: 'Unknown error fetching address' }));
-        throw new Error(`Geocoding failed: ${errorBody.message || response.statusText}`);
+        throw new Error('Failed to fetch location data');
       }
-
-      const addressData = await response.json();
+      
+      const data = await response.json();
 
       const newLocation = {
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
-        address: addressData.address || '',
-        city: addressData.city || '',
-        state: addressData.state || '',
-        country: addressData.country || '',
-        postalCode: addressData.postalCode || '',
+        road: data.address?.road || '',
+        city: data.address?.city || data.address?.town || data.address?.village || '',
+        state: data.address?.state || '',
+        country: data.address?.country || '',
+        postcode: data.address?.postcode || '',
       };
 
-      setContacts(prevContacts => {
-        const updatedContacts = [...prevContacts];
-        if (updatedContacts[contactIndex]) {
-          updatedContacts[contactIndex].location = newLocation;
-        } else {
-          updatedContacts[contactIndex] = {
-            firstName: "", lastName: "", email: "", phone: "", password: "", location: newLocation
-          };
-        }
-        return updatedContacts;
+      setContacts(prev => {
+        const updated = [...prev];
+        updated[contactIndex] = { 
+          ...updated[contactIndex], 
+          location: newLocation 
+        };
+        return updated;
       });
 
-      markFieldAsTouched(`contacts[${contactIndex}].location`);
-      validateCurrentField(`contacts[${contactIndex}].location`, newLocation, contactIndex);
-    } catch (error) {
-      let errorMessage = "Could not get your location.";
-      if (error.code === error.PERMISSION_DENIED) {
-        errorMessage = "Geolocation permission denied. Please enable location services in your browser settings.";
-      } else if (error.code === error.POSITION_UNAVAILABLE) {
-        errorMessage = "Location information is unavailable.";
-      } else if (error.code === error.TIMEOUT) {
-        errorMessage = "The request to get your location timed out.";
-      } else if (error.message.includes("Geocoding failed")) {
-        errorMessage = `Failed to get address details: ${error.message.replace("Geocoding failed:", "").trim()}`;
-      } else {
-        console.error("Geolocation or Geocoding error:", error);
-        errorMessage = `An unexpected error occurred while getting location: ${error.message || ''}`;
-      }
+      handleContactChange(contactIndex, { 
+        target: { 
+          name: 'location', 
+          value: newLocation 
+        } 
+      });
 
-      setError(errorMessage);
+    } catch (error) {
+      console.error("Location error:", error);
+      const errorMessage = "Could not get your location. Please select manually.";
       setValidationErrors(prev => ({
         ...prev,
         [`contacts[${contactIndex}].location`]: errorMessage,
       }));
-      markFieldAsTouched(`contacts[${contactIndex}].location`);
     } finally {
       setLocationLoading(false);
     }
-  }, [API_URL, markFieldAsTouched, validateCurrentField]);
+  }, [handleContactChange]);
 
+ const handleSubmit = useCallback(async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setError(null); // Reset error state
+  setSuccess("");
 
-  const handleSubmit = useCallback(async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setSubmitted(true);
-    setError("");
-    setSuccess("");
+  if (!validateAllFormFields()) {
+    setLoading(false);
+    return;
+  }
 
-    if (!validateAllFormFields()) {
-      setLoading(false);
-      const errorFields = Object.keys(validationErrors);
-      if (errorFields.length > 0) {
-        if (errorFields.some(field =>
-          ['name', 'email', 'mobile_phone'].includes(field) // Updated field check
-        )) {
-          setActiveTab("account");
-        } else if (errorFields.some(field => field.startsWith('contacts['))) {
-          setActiveTab("contacts");
-        }
-      }
-      return;
+  const payload = {
+    ...formData,
+    contacts: contacts.map(contact => ({
+      ...contact,
+      location: contact.location ? {
+        latitude: contact.location.latitude,
+        longitude: contact.location.longitude,
+        address: contact.location.road,
+        city: contact.location.city,
+        state: contact.location.state,
+        country: contact.location.country,
+        postalCode: contact.location.postcode,
+      } : null
+    })),
+    token: token || null
+  };
+
+  try {
+    const result = await dispatch(createAccount(payload));
+    
+    if (createAccount.fulfilled.match(result)) {
+      setSuccess("Please check your email to confirm the creation of your account");
+    } else if (createAccount.rejected.match(result)) {
+      const errorData = result.payload || result.error;
+      
+      // Format the error consistently
+      setError({
+        type: errorData.error || 'registration_error',
+        title: errorData.error === 'duplicate_contacts' 
+          ? 'Duplicate Emails Found' 
+          : 'Registration Error',
+        message: errorData.message,
+        duplicates: errorData.duplicates || [],
+        details: errorData.details
+      });
     }
-
-    const payload = {
-      ...formData,
-      // formData.name now contains the full name
-      contacts: contacts.map(contact => ({
-        firstName: contact.firstName,
-        lastName: contact.lastName,
-        email: contact.email,
-        phone: contact.phone,
-        password: contact.password,
-        location: contact.location ? {
-          latitude: contact.location.latitude,
-          longitude: contact.location.longitude,
-          address: contact.location.address || '',
-          city: contact.location.city || '',
-          state: contact.location.state || '',
-          country: contact.location.country || '',
-          postalCode: contact.location.postalCode || '',
-        } : null
-      })),
-      token: token || null
-    };
-
-    try {
-      await dispatch(createAccount(payload)).unwrap();
-      setSuccess("Please check your inbox for confirmation");
-    } catch (err) {
-      console.error("Registration failed:", err);
-      let displayError = "Registration failed. Please try again.";
-
-      if (err && typeof err === 'object') {
-        if (err.message) {
-          displayError = err.message;
-        } else if (err.errors && typeof err.errors === 'object') {
-          setValidationErrors(prev => ({
-            ...prev,
-            ...err.errors
-          }));
-          displayError = "Please fix the errors indicated below.";
-        } else if (typeof err === 'string') {
-          if (err === 'email_exists') {
-            displayError = "This email is already registered.";
-            setValidationErrors(prev => ({ ...prev, email: displayError }));
-            setActiveTab("account");
-          } else {
-            displayError = err;
-          }
-        } else {
-          displayError = "An unexpected error occurred during registration.";
-        }
-      } else if (typeof err === 'string') {
-        displayError = err;
-      }
-
-      setError(displayError);
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    formData,
-    agreed,
-    contacts,
-    validateAllFormFields,
-    validationErrors,
-    dispatch,
-    token
-  ]);
+  } catch (err) {
+    setError({
+      type: 'submission_error',
+      title: 'Submission Error',
+      message: 'Failed to submit the form',
+      details: err.message
+    });
+  } finally {
+    setLoading(false);
+  }
+}, [formData, contacts, validateAllFormFields, dispatch, token]);
 
   const isFormValid = useMemo(() => {
-    const areAccountFieldsFilled =
-      formData.name.trim() !== '' && // Updated check
-      formData.email.trim() !== '' &&
-      formData.mobile_phone.trim() !== '' &&
-      agreed;
-
-    const areContactsValid = contacts.every(contact =>
-      contact.firstName.trim() !== '' &&
-      contact.lastName.trim() !== '' &&
-      contact.email.trim() !== '' &&
-      contact.phone.trim() !== '' &&
-      contact.password.trim() !== '' &&
-      contact.location !== null
-    );
-
     return Object.keys(validationErrors).length === 0 &&
-      areAccountFieldsFilled &&
-      areContactsValid;
+      formData.name.trim() &&
+      formData.email.trim() &&
+      formData.mobile_phone.trim() &&
+      agreed &&
+      contacts.every(contact =>
+        contact.firstName.trim() &&
+        contact.lastName.trim() &&
+        contact.email.trim() &&
+        contact.phone.trim() &&
+        contact.password.trim() &&
+        contact.location
+      );
   }, [formData, agreed, contacts, validationErrors]);
 
-  const getButtonTooltip = useMemo(() => {
-    if (loading) return "Processing...";
-    if (isFormValid) return "";
+  // Separate account errors from contact errors
+  const accountErrors = {
+    name: validationErrors.name,
+    email: validationErrors.email,
+    mobile_phone: validationErrors.mobile_phone
+  };
 
-    const errorMessages = new Set();
-
-    Object.values(validationErrors).forEach(msg => {
-      if (typeof msg === 'string' && msg.trim() !== '') {
-        errorMessages.add(msg);
-      }
-    });
-
-    if (!formData.name.trim()) errorMessages.add("Name is required."); // Updated tooltip message
-    if (!formData.email.trim()) errorMessages.add("Email is required.");
-    if (!formData.mobile_phone.trim()) errorMessages.add("Mobile phone is required.");
-    if (!agreed) errorMessages.add("Agreement to terms is required.");
-
-    contacts.forEach((contact, index) => {
-      if (!contact.firstName.trim()) errorMessages.add(`Contact ${index + 1} first name is required.`);
-      if (!contact.lastName.trim()) errorMessages.add(`Contact ${index + 1} last name is required.`);
-      if (!contact.email.trim()) errorMessages.add(`Contact ${index + 1} email is required.`);
-      if (!contact.phone.trim()) errorMessages.add(`Contact ${index + 1} phone is required.`);
-      if (!contact.password.trim()) errorMessages.add(`Contact ${index + 1} password is required.`);
-      if (!contact.location) errorMessages.add(`Contact ${index + 1} location is required.`);
-    });
-
-    const uniqueErrorMessages = [...errorMessages];
-
-    return uniqueErrorMessages.length === 0
-      ? "Please fill out all required fields."
-      : `Please fix the following issues: ${uniqueErrorMessages.join(", ")}`;
-  }, [loading, isFormValid, validationErrors, formData, agreed, contacts]);
+  const contactErrors = Object.fromEntries(
+    Object.entries(validationErrors)
+      .filter(([key]) => key.startsWith('contacts['))
+  );
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4 bg-gray-50">
@@ -385,38 +305,36 @@ const CreateAcc = () => {
           </Typography>
         </CardHeader>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} ref={formRef}>
           <CardBody className="flex flex-col gap-6 p-8">
-            {error && (
-              <Alert color="red" className="mb-4 text-red-800 bg-red-50 border-l-4 border-red-500">
-                {error}
-              </Alert>
-            )}
-            {success && (
-              <Alert color="green" className="mb-4 text-green-800 bg-green-50 border-l-4 border-green-500">
-                {success}
-              </Alert>
-            )}
 
-            <div className="mb-6">
-              <Tabs value={activeTab} className="overflow-visible">
-                <TabsHeader className="relative z-0 bg-blue-gray-50 p-0">
-                  <Tab
-                    value="account"
-                    onClick={() => setActiveTab("account")}
-                    className={`py-3 ${activeTab === "account" ? "text-white bg-blue-500" : ""}`}
-                  >
-                    Account Info
-                  </Tab>
-                  <Tab
-                    value="contacts"
-                    onClick={() => setActiveTab("contacts")}
-                    className={`py-3 ${activeTab === "contacts" ? "text-white bg-blue-500" : ""}`}
-                  >
-                    Contacts
-                  </Tab>
-                </TabsHeader>
-              </Tabs>
+            <div className="mb-6 grid grid-cols-2 gap-4">
+              <button
+                type="button"
+                onClick={() => setActiveTab("account")}
+                className={`p-4 rounded-lg transition-all ${
+                  activeTab === "account" 
+                    ? "bg-blue-500 text-white shadow-md" 
+                    : "bg-blue-50 text-blue-600 hover:bg-blue-100"
+                }`}
+              >
+                <Typography variant="h6" className="font-medium">
+                  Account Info
+                </Typography>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("contacts")}
+                className={`p-4 rounded-lg transition-all ${
+                  activeTab === "contacts" 
+                    ? "bg-blue-500 text-white shadow-md" 
+                    : "bg-blue-50 text-blue-600 hover:bg-blue-100"
+                }`}
+              >
+                <Typography variant="h6" className="font-medium">
+                  Contacts
+                </Typography>
+              </button>
             </div>
 
             {activeTab === "account" && (
@@ -424,9 +342,8 @@ const CreateAcc = () => {
                 formData={formData}
                 handleChange={handleChange}
                 handleBlur={handleBlur}
-                validationErrors={validationErrors}
+                validationErrors={accountErrors}
                 touchedFields={touchedFields}
-                submitted={submitted}
               />
             )}
 
@@ -434,65 +351,150 @@ const CreateAcc = () => {
               <ContactForm
                 contacts={contacts}
                 setContacts={setContacts}
-                validationErrors={validationErrors}
+                validationErrors={contactErrors}
                 touchedFields={touchedFields}
-                API_URL={API_URL}
                 getCurrentLocation={getCurrentLocation}
                 locationLoading={locationLoading}
-                setError={setError}
-                setValidationErrors={setValidationErrors}
-                markFieldAsTouched={markFieldAsTouched}
+                setLocationLoading={setLocationLoading}
                 handleContactChange={handleContactChange}
                 handleBlur={handleBlur}
-                submitted={submitted}
               />
             )}
 
-            {/* Agreement Checkbox with conditional error display */}
-            <div className="flex items-start gap-2 mt-4">
-              <Checkbox
-                checked={agreed}
-                onChange={handleAgreedChange}
-                ripple={false}
-                containerProps={{ className: "p-0" }}
-                className={`hover:before:content-none ${submitted && validationErrors.agreed ? 'border-red-500' : ''}`}
-                label={
-                  <Typography
-                    variant="small"
-                    className={submitted && validationErrors.agreed ? "text-red-500 font-normal" : "font-normal text-gray-700"}
-                  >
-                    I agree to the terms and conditions
-                  </Typography>
-                }
-              />
-            </div>
-            {/* Agreement Checkbox Error - only show if submitted AND error exists */}
-            {submitted && validationErrors.agreed && (
-              <Typography variant="small" color="red" className="mt-1 pl-6">
-                {validationErrors.agreed}
-              </Typography>
-            )}
-
-            <Tooltip
-              content={getButtonTooltip}
-              placement="top"
-              open={!isFormValid && !loading ? undefined : false}
-              className="bg-gray-800 text-white text-xs px-3 py-2 rounded-md shadow-lg z-50 max-w-xs"
-            >
-              <div className="w-full">
-                <Button
-                  type="submit"
-                  color="blue"
-                  disabled={!isFormValid || loading}
-                  fullWidth
-                  className={`relative z-10 transition-opacity ${(!isFormValid || loading) ?
-                    'cursor-not-allowed opacity-60' :
-                    'cursor-pointer hover:opacity-90'}`}
-                >
-                  {loading ? "Registering..." : "Register"}
-                </Button>
+            {/* Show account errors when on account tab */}
+            {activeTab === "account" && Object.values(accountErrors).some(Boolean) && (
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+                <Typography variant="h6" color="red" className="font-medium mb-2">
+                  Please fix the following errors:
+                </Typography>
+                <ul className="list-disc pl-5 space-y-1">
+                  {Object.entries(accountErrors).map(([field, error]) => (
+                    error && (
+                      <li key={field}>
+                        <Typography variant="small" color="red">
+                          {error}
+                        </Typography>
+                      </li>
+                    )
+                  ))}
+                </ul>
               </div>
-            </Tooltip>
+            )}
+
+            {/* Show contact errors when on contacts tab */}
+            {activeTab === "contacts" && Object.values(contactErrors).some(Boolean) && (
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+                <Typography variant="h6" color="red" className="font-medium mb-2">
+                  Please fix the following errors:
+                </Typography>
+                <ul className="list-disc pl-5 space-y-1">
+                  {Object.entries(contactErrors).map(([field, error]) => (
+                    error && (
+                      <li key={field}>
+                        <Typography variant="small" color="red">
+                          {error}
+                        </Typography>
+                      </li>
+                    )
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-1 mt-4">
+              <div className="flex items-start gap-2">
+                <Checkbox
+                  checked={agreed}
+                  onChange={handleAgreedChange}
+                  ripple={false}
+                  containerProps={{ className: "mt-1" }}
+                  className={validationErrors.agreed ? 'border-red-500' : ''}
+                  label={
+                    <Typography variant="small" className="font-normal">
+                      I agree to the terms and conditions
+                    </Typography>
+                  }
+                />
+              </div>
+              {validationErrors.agreed && (
+                <Typography variant="small" color="red" className="ml-8 mt-1">
+                  {validationErrors.agreed}
+                </Typography>
+              )}
+            </div>
+
+            <div className="mt-4">
+              <Tooltip
+                content={
+                  <div className="p-2">
+                    <Typography variant="small" color="white" className="font-medium">
+                      Missing Requirements:
+                    </Typography>
+                    <ul className="list-disc pl-5 mt-1">
+                      {getMissingRequirements.map((req, index) => (
+                        <li key={index}>
+                          <Typography variant="small" color="white">
+                            {req}
+                          </Typography>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                }
+                placement="top"
+                open={!isFormValid ? undefined : false}
+              >
+                <div className="w-full">
+                  <Button
+                    type="submit"
+                    color="blue"
+                    disabled={!isFormValid || loading}
+                    fullWidth
+                  >
+                    {loading ? "Registering..." : "Register"}
+                  </Button>
+                </div>
+              </Tooltip>
+
+              {/* Success message with green styling */}
+              {success && (
+                <div className="mt-4 p-4 rounded-lg bg-green-50 border-l-4 border-green-500">
+                  <Typography variant="small" className="font-medium text-green-800">
+                    {success}
+                  </Typography>
+                </div>
+              )}
+              {error && (
+  <div className="mt-4 p-4 rounded-lg bg-red-50 border-l-4 border-red-500">
+    <Typography variant="small" className="font-medium text-red-800">
+      {error.title || 'Registration Error'}
+    </Typography>
+    
+    {error.type === 'duplicate_emails' ? (
+      <div className="mt-2">
+        <Typography variant="small" className="block text-red-800">
+          {error.message}
+        </Typography>
+        <ul className="list-disc pl-5 mt-1">
+          {error.duplicates?.map((dup, index) => (
+            <li key={index}>
+              <Typography variant="small" className="text-red-800">
+                {dup.email} (Contact {dup.contactPosition})
+              </Typography>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ) : (
+      <>
+        <Typography variant="small" className="block mt-2 text-red-800">
+          {error.message || 'An unexpected error occurred. Please try again.'}
+        </Typography>
+      </>
+    )}
+  </div>
+)}
+            </div>
           </CardBody>
         </form>
       </Card>

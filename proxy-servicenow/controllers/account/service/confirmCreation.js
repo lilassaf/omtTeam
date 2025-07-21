@@ -21,7 +21,6 @@ const confirmCreation = async (req, res) => {
     const { userData } = registration;
     let accountId;
     let accountSysId;
-    console.log("1",accountSysId);
 
     // Use either system token or ServiceNow credentials
     const authConfig = {
@@ -52,7 +51,6 @@ const confirmCreation = async (req, res) => {
 
       // Split to extract the accountSysId and GUID
       [accountSysId, guid] = decoded.split(':');
-      console.log("2",accountSysId);
 
       if (!accountSysId) {
         throw new Error('Invalid token structure');
@@ -90,7 +88,6 @@ const confirmCreation = async (req, res) => {
       accountId = newAccount._id;
       accountSysId = newAccount.sys_id;
     }
-    console.log("4",accountSysId);
     // Arrays to store created contact and location IDs
     const contactIds = [];
     const locationIds = [];

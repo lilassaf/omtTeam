@@ -5,15 +5,16 @@ import LocationForm from "./LocationForm";
 const ContactForm = ({
   contacts,
   setContacts,
-  API_URL,
+  validationErrors,
+  touchedFields,
   getCurrentLocation,
   locationLoading,
-  setError,
-  setValidationErrors,
-  markFieldAsTouched,
+  setLocationLoading,
   handleContactChange,
-  handleBlur, // Now expects (e, fieldName)
+  handleBlur,
 }) => {
+  const showError = (field) => touchedFields[field] && validationErrors[field];
+
   const addContact = () => {
     setContacts([...contacts, {
       firstName: "",
@@ -26,43 +27,33 @@ const ContactForm = ({
   };
 
   const removeContact = (index) => {
-    if (contacts.length <= 1) {
-      setError("At least one contact is required.");
-      return;
-    }
-    setError("");
-
-    const newContacts = [...contacts];
-    newContacts.splice(index, 1);
-    setContacts(newContacts);
-
-    setValidationErrors(prevErrors => {
-      const updatedErrors = { ...prevErrors };
-      for (const key in updatedErrors) {
-        if (key.startsWith(`contacts[${index}]`)) {
-          delete updatedErrors[key];
-        }
-      }
-      return updatedErrors;
-    });
+    if (contacts.length <= 1) return;
+    setContacts(prev => prev.filter((_, i) => i !== index));
   };
-
-  // shouldShowError local helper is removed, as requested.
-  // The 'error' prop on Input components and Typography error messages are also removed.
 
   return (
     <div className="space-y-6">
       {contacts.map((contact, index) => (
-        <div key={index} className="border p-4 rounded-lg shadow-sm bg-white">
+        <div 
+          key={index} 
+          className={`border p-6 rounded-lg relative ${index === 0 ? 'bg-blue-50 border-blue-200' : 'bg-white'}`}
+        >
+          {index === 0 && (
+            <div className="absolute -mt-6 -ml-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-md">
+              Primary Contact
+            </div>
+          )}
+          
           <div className="flex justify-between items-center mb-4">
-            <Typography variant="h6" className="text-gray-800">Contact #{index + 1}</Typography>
+            <Typography variant="h6" className={index === 0 ? 'text-blue-700' : 'text-gray-800'}>
+              {index === 0 ? 'Primary Contact' : `Contact ${index + 1}`}
+            </Typography>
             {contacts.length > 1 && (
               <Button
                 variant="text"
                 color="red"
                 size="sm"
                 onClick={() => removeContact(index)}
-                className="hover:bg-red-50 hover:text-red-700"
               >
                 Remove
               </Button>
@@ -70,103 +61,142 @@ const ContactForm = ({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            {/* First Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+              <div className="mb-1">
+                <Typography variant="small" className="font-medium text-gray-700">
+                  First Name <span className="text-red-500">*</span>
+                </Typography>
+              </div>
               <Input
                 name="firstName"
                 value={contact.firstName}
                 onChange={(e) => handleContactChange(index, e)}
-                onBlur={(e) => handleBlur(e, `contacts[${index}].firstName`)} // Pass event object 'e'
-                // 'error' prop removed from Input
-                labelProps={{ className: "hidden" }}
-                placeholder="Contact first name"
+                onBlur={handleBlur}
+                error={showError(`contacts[${index}].firstName`)}
+                placeholder="First name"
               />
-              {/* Typography error message removed */}
+              {showError(`contacts[${index}].firstName`) && (
+                <Typography variant="small" color="red" className="mt-1">
+                  {validationErrors[`contacts[${index}].firstName`]}
+                </Typography>
+              )}
             </div>
 
-            {/* Last Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+              <div className="mb-1">
+                <Typography variant="small" className="font-medium text-gray-700">
+                  Last Name <span className="text-red-500">*</span>
+                </Typography>
+              </div>
               <Input
                 name="lastName"
                 value={contact.lastName}
                 onChange={(e) => handleContactChange(index, e)}
-                onBlur={(e) => handleBlur(e, `contacts[${index}].lastName`)} // Pass event object 'e'
-                // 'error' prop removed from Input
-                labelProps={{ className: "hidden" }}
-                placeholder="Contact last name"
+                onBlur={handleBlur}
+                error={showError(`contacts[${index}].lastName`)}
+                placeholder="Last name"
               />
-              {/* Typography error message removed */}
+              {showError(`contacts[${index}].lastName`) && (
+                <Typography variant="small" color="red" className="mt-1">
+                  {validationErrors[`contacts[${index}].lastName`]}
+                </Typography>
+              )}
             </div>
 
-            {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <div className="mb-1">
+                <Typography variant="small" className="font-medium text-gray-700">
+                  Email <span className="text-red-500">*</span>
+                </Typography>
+              </div>
               <Input
                 type="email"
                 name="email"
                 value={contact.email}
                 onChange={(e) => handleContactChange(index, e)}
-                onBlur={(e) => handleBlur(e, `contacts[${index}].email`)} // Pass event object 'e'
-                // 'error' prop removed from Input
-                labelProps={{ className: "hidden" }}
-                placeholder="Contact email address"
+                onBlur={handleBlur}
+                error={showError(`contacts[${index}].email`)}
+                placeholder="Email address"
               />
-              {/* Typography error message removed */}
+              {showError(`contacts[${index}].email`) && (
+                <Typography variant="small" color="red" className="mt-1">
+                  {validationErrors[`contacts[${index}].email`]}
+                </Typography>
+              )}
             </div>
 
-            {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <div className="mb-1">
+                <Typography variant="small" className="font-medium text-gray-700">
+                  Password <span className="text-red-500">*</span>
+                </Typography>
+              </div>
               <Input
                 type="password"
                 name="password"
                 value={contact.password}
                 onChange={(e) => handleContactChange(index, e)}
-                onBlur={(e) => handleBlur(e, `contacts[${index}].password`)} // Pass event object 'e'
-                // 'error' prop removed from Input
-                labelProps={{ className: "hidden" }}
-                placeholder="Contact password"
+                onBlur={handleBlur}
+                error={showError(`contacts[${index}].password`)}
+                placeholder="Password"
               />
-              {/* Typography error message removed */}
+              {showError(`contacts[${index}].password`) && (
+                <Typography variant="small" color="red" className="mt-1">
+                  {validationErrors[`contacts[${index}].password`]}
+                </Typography>
+              )}
             </div>
 
-            {/* Phone */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+              <div className="mb-1">
+                <Typography variant="small" className="font-medium text-gray-700">
+                  Phone <span className="text-red-500">*</span>
+                </Typography>
+              </div>
               <Input
                 type="tel"
                 name="phone"
                 value={contact.phone}
                 onChange={(e) => handleContactChange(index, e)}
-                onBlur={(e) => handleBlur(e, `contacts[${index}].phone`)} // Pass event object 'e'
-                // 'error' prop removed from Input
-                labelProps={{ className: "hidden" }}
-                placeholder="Contact phone number"
+                onBlur={handleBlur}
+                error={showError(`contacts[${index}].phone`)}
+                placeholder="Phone number"
               />
-              {/* Typography error message removed */}
+              {showError(`contacts[${index}].phone`) && (
+                <Typography variant="small" color="red" className="mt-1">
+                  {validationErrors[`contacts[${index}].phone`]}
+                </Typography>
+              )}
             </div>
           </div>
 
-          <Typography variant="h6" className="mb-2 text-gray-800">Contact Location</Typography>
-          <LocationForm
-            location={contact.location}
-            setLocation={(loc) => {
-              const newContacts = [...contacts];
-              newContacts[index].location = loc;
-              setContacts(newContacts);
-              markFieldAsTouched(`contacts[${index}].location`);
-            }}
-            locationLoading={locationLoading}
-            setLocationLoading={() => {}}
-            setError={setError}
-            setValidationErrors={setValidationErrors}
-            markLocationAsTouched={() => markFieldAsTouched(`contacts[${index}].location`)}
-            API_URL={API_URL}
-            getCurrentLocation={() => getCurrentLocation(index)}
-          />
-          {/* Typography error message removed */}
+          <div className="mt-4">
+            <Typography variant="h6" className="mb-2">
+              Contact Location <span className="text-red-500">*</span>
+            </Typography>
+            <LocationForm
+              location={contact.location}
+              setLocation={(loc) => {
+                const newContacts = [...contacts];
+                newContacts[index] = { ...newContacts[index], location: loc };
+                setContacts(newContacts);
+                handleContactChange(index, { 
+                  target: { 
+                    name: 'location', 
+                    value: loc 
+                  } 
+                });
+              }}
+              locationLoading={locationLoading}
+              getCurrentLocation={() => getCurrentLocation(index)}
+              setLocationLoading={setLocationLoading}
+            />
+            {showError(`contacts[${index}].location`) && (
+              <Typography variant="small" color="red" className="mt-1">
+                {validationErrors[`contacts[${index}].location`]}
+              </Typography>
+            )}
+          </div>
         </div>
       ))}
 
@@ -174,7 +204,7 @@ const ContactForm = ({
         variant="outlined"
         color="blue"
         onClick={addContact}
-        className="mt-4 border-blue-500 text-blue-500 hover:bg-blue-50"
+        className="mt-4"
       >
         Add Another Contact
       </Button>

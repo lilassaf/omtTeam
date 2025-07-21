@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
-import L from "leaflet"; // for using Leaflet directly (e.g., L.Control, L.DomUtil)
-import { useMap } from "react-leaflet"; // for the React hook
+import L from "leaflet";
+import { useMap } from "react-leaflet";
 import { Button } from "@material-tailwind/react";
 
 const ReactControlPortal = ({ children, container }) => {
@@ -14,7 +14,7 @@ const LocationControl = React.memo(({ position, onButtonClick, loading }) => {
   const controlContainerRef = useRef(null);
 
   useEffect(() => {
-    const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+    const div = L.DomUtil.create("div", "leaflet-bar leaflet-control leaflet-control-custom");
     controlContainerRef.current = div;
 
     L.DomEvent.disableClickPropagation(div);
@@ -23,21 +23,13 @@ const LocationControl = React.memo(({ position, onButtonClick, loading }) => {
     const CustomControl = L.Control.extend({
       options: { position },
       onAdd: () => div,
-      onRemove: () => {
-        if (div?.parentNode) {
-          div.parentNode.removeChild(div);
-        }
-      }
+      onRemove: () => div.parentNode?.removeChild(div),
     });
 
     const control = new CustomControl();
     map.addControl(control);
 
-    return () => {
-      if (map?.removeControl && control) {
-        map.removeControl(control);
-      }
-    };
+    return () => map.removeControl(control);
   }, [map, position]);
 
   return (
@@ -47,7 +39,6 @@ const LocationControl = React.memo(({ position, onButtonClick, loading }) => {
         variant="filled"
         color="blue"
         size="sm"
-        className="shadow-md text-xs px-2 py-1"
         disabled={loading}
       >
         {loading ? "Getting Location..." : "Use My Location"}
