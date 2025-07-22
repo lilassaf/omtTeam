@@ -38,6 +38,7 @@ const knowledgeBaseRoute = require('./api/ai-search/chatboot');
 const productOfferingRoute = require('./api/ai-search/productoffering');
 const productSpecRoutes = require('./api/ProductSpecification/productSpecRoutes');
 const clientRoutes = require('./api/client/index');
+const authClient = require('./api/authClient/index');
 
 
 require('dotenv').config();
@@ -113,7 +114,8 @@ app.use('/api', [
     productOfferingRoute,
     knowledgeBaseRoute,
     ProductSpecification,
-    productSpecRoutes
+    productSpecRoutes,
+    authClient
 
 
 ]);
