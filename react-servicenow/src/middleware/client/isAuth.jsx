@@ -1,8 +1,16 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { selectAuthToken, selectIsAuthenticated } from '../../features/auth/client/auth'; // Import your selectors
 import { jwtDecode } from 'jwt-decode';
+
+const getAuthData = () => {
+  try {
+    const data = localStorage.getItem('clientData');
+    return data ? JSON.parse(data) : null;
+  } catch (e) {
+    console.error('Failed to parse auth data:', e);
+    return null;
+  }
+};
 
 const TokenValid = (token) => {
   if (!token) return false;
@@ -17,15 +25,11 @@ const TokenValid = (token) => {
 };
 
 const IsAuth = ({ children }) => {
-  // Get auth state from Redux
-  const token = useSelector(selectAuthToken);
-  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const authData = getAuthData();
+  const isTokenValid = TokenValid(authData?.token);
 
-  // Check if token exists and is valid
-  const isTokenValid = token && TokenValid(token);
-
-  // If authenticated with valid token, redirect to dashboard
-  if (!isAuthenticated && !isTokenValid) {
+  // Redirect to login if no valid token exists
+  if (!isTokenValid) {
     return <Navigate to="/login" replace />;
   }
 

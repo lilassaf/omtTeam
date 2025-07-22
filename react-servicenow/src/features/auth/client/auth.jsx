@@ -7,19 +7,19 @@ const API_URL = import.meta.env.VITE_BACKEND_URL;
 
 // Helper functions for localStorage
 const saveAuthData = (data) => {
-  localStorage.setItem('authData', JSON.stringify({
+  localStorage.setItem('clientData', JSON.stringify({
     token: data.id_token,
     role: data.role,
-    email: data.email || data.sub // Using sub (subject) from JWT if email not in response
+    email: data.email || 'ntg' // Using sub (subject) from JWT if email not in response
   }));
 };
 
 const clearAuthData = () => {
-  localStorage.removeItem('authData');
+  localStorage.removeItem('clientData');
 };
 
 const getAuthData = () => {
-  const data = localStorage.getItem('authData');
+  const data = localStorage.getItem('clientData');  
   return data ? JSON.parse(data) : null;
 };
 

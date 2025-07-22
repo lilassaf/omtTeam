@@ -75,7 +75,6 @@ function LoginForm({ activeTab }) {
           // Check if the login was successful
           if (loginUser.fulfilled.match(resultAction)) {
             message.success('Client login successful!');
-            console.log(resultAction);
             navigate('/client');
           } else if (loginUser.rejected.match(resultAction)) {
             // The error message is already handled in the auth slice, but you can add additional handling here
