@@ -1,34 +1,24 @@
-import { useLocation } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+// Sidebar.jsx
+import { useLocation, Link } from 'react-router-dom';
 import { useState } from 'react';
+import { Tooltip } from 'antd';
 
-const Sidebar = () => {
+const Sidebar = ({ toggleSidebar, open, isSidebarCollapsed }) => {
   const location = useLocation();
   const [expandedItems, setExpandedItems] = useState({});
 
-  const handleLogout = async (e) => {
-    e.preventDefault();
-    console.log('Logging out...');
-  };
-
+  
   const toggleExpand = (path) => {
-    setExpandedItems(prev => ({
-      ...prev,
-      [path]: !prev[path]
-    }));
+    setExpandedItems(prev => ({ ...prev, [path]: !prev[path] }));
   };
 
-  const isActive = (path) => {
-    return location.pathname.toLowerCase() === path.toLowerCase();
-  };
+  const isActive = (path) => location.pathname.toLowerCase() === path.toLowerCase();
 
-  const isChildActive = (children) => {
-    return children.some(child =>
-      location.pathname.toLowerCase().startsWith(child.path.toLowerCase())
-    );
-  };
+  const isChildActive = (children) => children.some(child =>
+    location.pathname.toLowerCase().startsWith(child.path.toLowerCase())
+  );
 
-  const navItems = [
+ const navItems = [
     {
       path: '/client',
       icon: 'home-line',
@@ -90,15 +80,17 @@ const Sidebar = () => {
 
   return (
     <>
-      <aside className="z-30 h-screen fixed bg-[#9C4221] inset-y-0 py-4 px-4 shadow-lg overflow-hidden w-64 border-r border-[#B45309] flex flex-col">
-        {/* Header Section */}
-        <div className="mb-8 mt-2 h-12 flex items-center px-2 text-white font-bold text-xl">
-          <i className="ri-user-smile-line mr-2 text-amber-300" />
-          My Account
+      <aside className={`z-50 h-screen fixed bg-[#9C4221] inset-y-0 pt-4  shadow-lg overflow-hidden ${open ? 'w-[4rem]' : 'w-64'
+        } transition-all duration-400 flex flex-col`}
+      >
+        <div className="mb-8 mt-2 h-12 flex justify-center items-center px-2 text-white font-bold text-xl truncate">
+          <i className={`ri-admin-line  text-blue-200 ${open ? '' : 'mr-2'}  `} />
+          <span className={`${open ? 'hidden ' : 'inline'}`}>
+        My Account
+          </span>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+        <nav className={`flex-1 overflow-y-auto custom-scrollbar ${open ? 'px-2' : 'px-4'}`}>
           <ul className="space-y-1">
             {navItems.map((item) => {
               const hasChildren = item.children?.length > 0;
@@ -107,7 +99,8 @@ const Sidebar = () => {
 
               return (
                 <li key={item.path}>
-                  <div className="flex flex-col overflow-hidden rounded-lg">
+                  {/* Removed overflow-hidden from this div */}
+                  <div className="flex flex-col rounded-lg">
                     <Link
                       to={item.path}
                       onClick={(e) => {
@@ -116,35 +109,37 @@ const Sidebar = () => {
                           toggleExpand(item.path);
                         }
                       }}
-                      className={`flex items-center px-3 py-2.5 transition-all duration-200 ${
-                        isItemActive 
-                          ? 'bg-[#B45309] text-white shadow-md' 
-                          : 'text-white hover:bg-[#B45309] hover:text-white'
-                      }`}
+                      className={`flex items-center px-3 py-2.5 transition-all duration-200 ${isItemActive
+                        ? 'bg-[#B45309] text-white shadow-md'
+                        : 'text-white hover:bg-[#B45309] hover:text-white'
+                        }`}
                     >
-                      <i className={`ri-${item.icon} mr-3 text-lg`} />
-                      <span className="font-medium flex-1">{item.text}</span>
+                      <i className={`ri-${item.icon} text-2xl ${open ? '' : 'mr-3'}`} />
+                      <span className={`font-medium flex-1 ${open ? 'hidden ' : 'inline'
+                        }`}>
+                        {item.text}
+                      </span>
                       {hasChildren && (
-                        <i className={`ri-arrow-right-s-line transition-transform duration-200 ${
-                          isExpanded ? 'transform rotate-90' : ''
-                        }`} />
+                        <i className={`ri-arrow-right-s-line transition-transform duration-200 ${isExpanded ? 'transform rotate-90' : ''
+                          } ${open ? 'hidden ' : 'inline'}`} />
                       )}
                     </Link>
 
-                    {hasChildren && isExpanded && (
+                    {hasChildren && isExpanded && !open && (
                       <ul className="ml-8 mt-1 space-y-1 py-1 animate-fadeIn">
                         {item.children.map((child) => (
                           <li key={child.path}>
                             <Link
                               to={child.path}
-                              className={`flex items-center px-3 py-2 text-sm rounded transition-all duration-200 ${
-                                isActive(child.path) 
-                                  ? 'bg-[#FEEBC8] text-[#9C4221] font-medium' 
-                                  : 'text-white hover:bg-[#B45309] hover:text-white'
-                              }`}
+                              className={`flex items-center px-3 py-2 text-sm rounded transition-all duration-200 ${isActive(child.path)
+                                ? 'bg-[#e6f4ff] text-[#007B98] font-medium'
+                                : 'text-white hover:bg-[#B45309] hover:text-white'
+                                }`}
                             >
                               <i className={`ri-${child.icon} mr-3 text-base`} />
-                              <span>{child.text}</span>
+                              <span className={`${open ? 'hidden ' : 'inline'}`}>
+                                {child.text}
+                              </span>
                             </Link>
                           </li>
                         ))}
@@ -157,50 +152,36 @@ const Sidebar = () => {
           </ul>
         </nav>
 
-        {/* Logout Section */}
-        <div className="border-t border-[#B45309] pt-2 pb-4">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center px-4 py-3 text-white hover:bg-[#B45309] transition-colors duration-200 group rounded-lg"
-          >
-            <i className="ri-logout-circle-r-line mr-3 text-lg group-hover:animate-pulse" />
-            <span className="font-medium">Logout</span>
-          </button>
+        <div className="flex justify-center items-center   ">
+          <Tooltip title={!isSidebarCollapsed ? "open" : "close"}>
+            <button
+              onClick={toggleSidebar}
+              className="text-white py-4 bg-[#B45309] w-full"
+            >
+              <i className={`ri-${!isSidebarCollapsed ? 'arrow-right-s-line' : 'arrow-left-s-line'} text-2xl `} />
+            </button>
+          </Tooltip>
         </div>
       </aside>
 
-      {/* Spacer for main content */}
-      <div className="ml-64" />
-      
-      {/* Custom scrollbar styles */}
-      <style jsx>{`
+      <div className={`transition-all duration-400  ${open ? 'ml-15' : 'ml-64'}`} />
+
+      <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 4px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
           background: rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #B45309;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #9C4221;
+          background: #006080;
         }
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(-10px); }
           to { opacity: 1; transform: translateY(0); }
         }
         .animate-fadeIn {
-          animation: fadeIn 0.2s ease-out forwards;
-        }
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.1); }
-        }
-        .group-hover\:animate-pulse:hover {
-          animation: pulse 1s infinite;
+          animation: fadeIn 0.2s ease-out;
         }
       `}</style>
     </>

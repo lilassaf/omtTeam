@@ -2,7 +2,7 @@ const express = require('express');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const Contact = require('../../models/Contact'); // Your Mongoose contact model
+const Contact = require('../../../models/Contact'); // Your Mongoose contact model
 require('dotenv').config();
 
 const ERROR_MESSAGES = {
@@ -12,6 +12,7 @@ const ERROR_MESSAGES = {
 };
 
 async function Login(req, res) {
+  
   const { email = '', password = '' } = req.body;
 
   if (!email.trim() || !password.trim()) {

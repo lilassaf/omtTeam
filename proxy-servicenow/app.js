@@ -33,12 +33,13 @@ const productsRouter = require('./controllers/ProductOffering/servicenowproducts
 const emailroutes = require('./email/router');
 const contract = require('./api/contract');
 const contractQuote = require('./api/contractQuote')
-    // const createAccount = require('./api/createAccount/index')
+// const createAccount = require('./api/createAccount/index')
 const knowledgeBaseRoute = require('./api/ai-search/chatboot');
 const productOfferingRoute = require('./api/ai-search/productoffering');
 const productSpecRoutes = require('./api/ProductSpecification/productSpecRoutes');
 const clientRoutes = require('./api/client/index');
-const authClient = require('./api/authClient/index');
+// Client
+const authClient = require('./api/client/authClient');
 
 
 require('dotenv').config();
@@ -140,7 +141,6 @@ app.use('/api', authjwt, [
     contract,
     Quote,
     contractQuote
-
 ]);
 
 

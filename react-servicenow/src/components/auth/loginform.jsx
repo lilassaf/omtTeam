@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { userLogin, fetchUserInfo } from '../../features/auth/authActions';
+import { loginUser } from '../../features/auth/client/auth'
 import { message } from 'antd';
 
 const MESSAGE_MAPPINGS = {
@@ -59,29 +60,27 @@ function LoginForm({ activeTab }) {
             message.error(errorMessage);
           }
         } else {
-          // Client login flow
           setSubmitting(true);
-          const clientResponse = await fetch('http://localhost:3000/api/clients/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
+
+          // Dispatch the loginUser action
+          const resultAction = await dispatch(
+            loginUser({
               email: values.username,
               password: values.password
             })
-          });
+          );
 
-          const clientData = await clientResponse.json();
 
-          if (!clientResponse.ok) {
-            throw new Error(clientData.error || 'Client login failed');
+
+          // Check if the login was successful
+          if (loginUser.fulfilled.match(resultAction)) {
+            message.success('Client login successful!');
+            console.log(resultAction);
+            navigate('/client');
+          } else if (loginUser.rejected.match(resultAction)) {
+            // The error message is already handled in the auth slice, but you can add additional handling here
+            throw new Error(resultAction.payload || 'Client login failed');
           }
-
-          // Successful client login
-          message.success('Client login successful!');
-          localStorage.setItem('currentUser', JSON.stringify(clientData.user));
-          navigate('/client');
         }
       } catch (error) {
         console.error('Login error:', error);
@@ -97,12 +96,10 @@ function LoginForm({ activeTab }) {
       <form onSubmit={formik.handleSubmit} className="mb-4 space-y-5">
         {/* Username Field */}
         <div>
-          <div className={`shadow-sm flex gap-2 items-center bg-white p-3 rounded-lg group duration-300 border ${
-            formik.touched.username && formik.errors.username ? 'border-red-300' : 'border-gray-200 hover:border-[#00c6fb]'
-          }`}>
-            <i className={`group-hover:text-[#00c6fb] duration-300 ${
-              activeTab === 'admin' ? 'ri-admin-line text-[#005baa]' : 'ri-user-2-line text-[#005baa]'
-            }`}></i>
+          <div className={`shadow-sm flex gap-2 items-center bg-white p-3 rounded-lg group duration-300 border ${formik.touched.username && formik.errors.username ? 'border-red-300' : 'border-gray-200 hover:border-[#00c6fb]'
+            }`}>
+            <i className={`group-hover:text-[#00c6fb] duration-300 ${activeTab === 'admin' ? 'ri-admin-line text-[#005baa]' : 'ri-user-2-line text-[#005baa]'
+              }`}></i>
             <input
               type="text"
               name="username"
@@ -121,12 +118,10 @@ function LoginForm({ activeTab }) {
 
         {/* Password Field */}
         <div>
-          <div className={`shadow-sm flex gap-2 items-center bg-white p-3 rounded-lg group duration-300 border ${
-            formik.touched.password && formik.errors.password ? 'border-red-300' : 'border-gray-200 hover:border-[#00c6fb]'
-          }`}>
-            <i className={`group-hover:text-[#00c6fb] duration-300 ${
-              activeTab === 'admin' ? 'ri-shield-keyhole-line text-[#005baa]' : 'ri-lock-2-line text-[#005baa]'
-            }`}></i>
+          <div className={`shadow-sm flex gap-2 items-center bg-white p-3 rounded-lg group duration-300 border ${formik.touched.password && formik.errors.password ? 'border-red-300' : 'border-gray-200 hover:border-[#00c6fb]'
+            }`}>
+            <i className={`group-hover:text-[#00c6fb] duration-300 ${activeTab === 'admin' ? 'ri-shield-keyhole-line text-[#005baa]' : 'ri-lock-2-line text-[#005baa]'
+              }`}></i>
             <input
               type="password"
               name="password"
@@ -147,10 +142,9 @@ function LoginForm({ activeTab }) {
         <button
           type="submit"
           disabled={formik.isSubmitting}
-          className={`w-full text-white font-medium py-3 px-4 rounded-lg transition duration-300 ${
-            formik.isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-90'
-          }`}
-          style={{ 
+          className={`w-full text-white font-medium py-3 px-4 rounded-lg transition duration-300 ${formik.isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-90'
+            }`}
+          style={{
             backgroundColor: activeTab === 'admin' ? '#003e7d' : '#005baa',
             border: activeTab === 'admin' ? '1px solid #002b57' : '1px solid #004b8f'
           }}
