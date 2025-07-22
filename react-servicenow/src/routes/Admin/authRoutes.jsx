@@ -6,13 +6,18 @@ import IsAuth from '../../middleware/IsAuth.jsx';
 import CreateAcc from '../../components/createAccount/CreateAcc.jsx';
 import VerifyToken from '../../middleware/VerifyToken.jsx';
 import VerificationErrorPage from '../../views/error/VerificationErrorPage.jsx';
-
+import Home from '../../views/auth/Home.jsx';
 
 const authRoutes = [
   // { path: '/', element: <Login /> },
   // { path: '/register', element: <Register /> },
+  
   {
     path: '/',
+    element: <Home />,  // Home should not be wrapped with IsAuth
+  },
+  {
+    path: '/login',
     element: (
       <IsAuth>
         <Login />

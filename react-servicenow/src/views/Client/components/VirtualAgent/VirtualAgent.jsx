@@ -241,9 +241,9 @@ export default function VirtualAgent({ onClose }) {
   const emojis = ['😀', '😊', '👍', '👋', '🎉', '🛍️', '📦', '💳', '❓', '✅'];
 
   return (
-    <div className="fixed bottom-15 right-4 w-96 h-[580px] rounded-xl overflow-hidden shadow-2xl z-50 flex flex-col font-sans border border-[#B45309] bg-[#9C4221]">
+    <div className="fixed bottom-15 right-4 w-96 h-[580px] rounded-xl overflow-hidden shadow-2xl z-50 flex flex-col font-sans border border-[#00c6fb] bg-[#005baa]">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#9C4221] to-[#B45309] text-white px-5 py-3 flex justify-between items-center border-b border-[#B45309]">
+      <div className="bg-gradient-to-r from-[#005baa] to-[#00c6fb] text-white px-5 py-3 flex justify-between items-center border-b border-[#00c6fb]">
         <div className="flex items-center gap-2">
           <RiRobot2Line className="text-xl" />
           <h2 className="text-lg font-semibold">Client Support</h2>
@@ -267,14 +267,14 @@ export default function VirtualAgent({ onClose }) {
       </div>
 
       {/* Chat Body */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-[#FEEBC8]">
+      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-[#f6f8fa]">
         {messages.map((msg, idx) => (
           <div key={idx}>
             <div
               className={`max-w-[80%] px-4 py-2 text-sm rounded-lg mb-2 ${
                 msg.from === 'agent'
-                  ? 'bg-[#B45309] border border-[#B45309] text-white self-start'
-                  : 'bg-[#78350F] text-white self-end ml-auto'
+                  ? 'bg-[#00c6fb] border border-[#00c6fb] text-white self-start'
+                  : 'bg-[#005baa] text-white self-end ml-auto'
               }`}
             >
               {msg.attachment?.type === 'image' ? (
@@ -282,7 +282,7 @@ export default function VirtualAgent({ onClose }) {
                   <img 
                     src={msg.attachment.url} 
                     alt="User attachment" 
-                    className="max-w-full h-auto rounded mb-2 border border-[#92400E]"
+                    className="max-w-full h-auto rounded mb-2 border border-[#0077cc]"
                   />
                   {msg.text && <div>{msg.text}</div>}
                 </div>
@@ -298,7 +298,7 @@ export default function VirtualAgent({ onClose }) {
                   <button
                     key={i}
                     onClick={() => handleOptionSelect(option.value)}
-                    className="px-3 py-1 bg-[#B45309] hover:bg-[#D97706] rounded-md text-sm border border-[#D97706] text-white"
+                    className="px-3 py-1 bg-[#00c6fb] hover:bg-[#0077cc] rounded-md text-sm border border-[#0077cc] text-white"
                     disabled={isLoading}
                   >
                     {option.text}
@@ -314,10 +314,10 @@ export default function VirtualAgent({ onClose }) {
                   <div 
                     key={i}
                     onClick={() => handleOptionSelect(item.id)}
-                    className="p-3 bg-[#B45309] border border-[#D97706] rounded-lg cursor-pointer hover:bg-[#D97706] text-white"
+                    className="p-3 bg-[#00c6fb] border border-[#0077cc] rounded-lg cursor-pointer hover:bg-[#0077cc] text-white"
                   >
                     <div className="font-medium">{item.name}</div>
-                    <div className="text-xs text-amber-200">{item.description}</div>
+                    <div className="text-xs text-[#b3e0fc]">{item.description}</div>
                   </div>
                 ))}
               </div>
@@ -326,7 +326,7 @@ export default function VirtualAgent({ onClose }) {
         ))}
         
         {isLoading && (
-          <div className="max-w-[80%] px-4 py-2 text-sm rounded-lg bg-[#B45309] border border-[#D97706] text-white self-start">
+          <div className="max-w-[80%] px-4 py-2 text-sm rounded-lg bg-[#00c6fb] border border-[#0077cc] text-white self-start">
             <div className="flex space-x-2">
               <div className="w-2 h-2 rounded-full bg-white animate-bounce"></div>
               <div className="w-2 h-2 rounded-full bg-white animate-bounce" style={{ animationDelay: '0.2s' }}></div>
@@ -345,12 +345,12 @@ export default function VirtualAgent({ onClose }) {
 
       {/* Attachment Preview */}
       {attachment && (
-        <div className="px-4 py-2 border-t border-[#B45309] bg-[#B45309]">
+        <div className="px-4 py-2 border-t border-[#00c6fb] bg-[#00c6fb]">
           <div className="relative">
             <img 
               src={attachment.url} 
               alt="Preview" 
-              className="max-h-32 w-auto rounded border border-[#D97706]"
+              className="max-h-32 w-auto rounded border border-[#0077cc]"
             />
             <button
               onClick={() => setAttachment(null)}
@@ -363,19 +363,19 @@ export default function VirtualAgent({ onClose }) {
       )}
 
       {/* Input Area */}
-      <div className="p-3 bg-[#B45309] border-t border-[#D97706]">
+      <div className="p-3 bg-[#00c6fb] border-t border-[#0077cc]">
         <div className="flex items-center gap-2">
           {/* Emoji Picker Button */}
           <div className="relative">
             <button
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className="text-amber-200 hover:text-white p-2 rounded-full hover:bg-[#9C4221] transition"
+              className="text-[#005baa] hover:text-white p-2 rounded-full hover:bg-[#0077cc] transition"
             >
               <RiEmotionLine />
             </button>
             
             {showEmojiPicker && (
-              <div className="absolute bottom-12 left-0 bg-[#9C4221] border border-[#B45309] rounded-lg shadow-lg p-2 z-10 w-48 grid grid-cols-5 gap-1">
+              <div className="absolute bottom-12 left-0 bg-[#005baa] border border-[#00c6fb] rounded-lg shadow-lg p-2 z-10 w-48 grid grid-cols-5 gap-1">
                 {emojis.map((emoji, index) => (
                   <button
                     key={index}
@@ -383,7 +383,7 @@ export default function VirtualAgent({ onClose }) {
                       addEmoji(emoji);
                       setShowEmojiPicker(false);
                     }}
-                    className="text-xl p-1 hover:bg-[#B45309] rounded"
+                    className="text-xl p-1 hover:bg-[#00c6fb] rounded"
                   >
                     {emoji}
                   </button>
@@ -395,7 +395,7 @@ export default function VirtualAgent({ onClose }) {
           {/* Image Upload Button */}
           <button
             onClick={() => fileInputRef.current.click()}
-            className="text-amber-200 hover:text-white p-2 rounded-full hover:bg-[#9C4221] transition"
+            className="text-[#005baa] hover:text-white p-2 rounded-full hover:bg-[#0077cc] transition"
           >
             <RiImageLine />
           </button>
@@ -410,7 +410,7 @@ export default function VirtualAgent({ onClose }) {
           {/* Text Input */}
           <input
             type="text"
-            className="flex-1 border border-[#B45309] rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-300 bg-[#9C4221] text-white placeholder-amber-200 transition"
+            className="flex-1 border border-[#00c6fb] rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#b3e0fc] bg-white text-[#222] placeholder-[#005baa] transition"
             placeholder="Type your message..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -422,8 +422,8 @@ export default function VirtualAgent({ onClose }) {
           <button
             onClick={sendMessage}
             disabled={isLoading || (!input.trim() && !attachment)}
-            className={`bg-[#78350F] text-white p-2 rounded-lg transition transform ${
-              isLoading || (!input.trim() && !attachment) ? 'opacity-50' : 'hover:bg-[#92400E]'
+            className={`bg-[#005baa] text-white p-2 rounded-lg transition transform ${
+              isLoading || (!input.trim() && !attachment) ? 'opacity-50' : 'hover:bg-[#003e7d]'
             }`}
           >
             <RiSendPlaneLine />

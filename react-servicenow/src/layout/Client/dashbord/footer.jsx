@@ -1,48 +1,101 @@
 import React from 'react';
+import logo from '../../../assets/logo.png';
+import { RiFacebookFill, RiTwitterFill, RiInstagramFill, RiArrowRightLine } from 'react-icons/ri';
 
-const Footer = () => {
+const Footer = ({ categories = [], setSelectedCategory = () => {} }) => {
   return (
-    <footer className="fixed bottom-0 left-0 right-0 bg-[#9C4221] border-t border-[#B45309] py-1 px-6 shadow-sm z-20 ml-64">
-      <div className="flex items-center justify-between h-8">
-        {/* Left side - Copyright and links */}
-        <div className="flex items-center space-x-2">
-          <span className="text-[0.7rem] text-amber-100 font-medium tracking-tight">
-            © {new Date().getFullYear()} LuxeCart • Premium Client Portal
-          </span>
-          <span className="text-amber-300 opacity-30 text-xs">|</span>
-          <a href="#" className="text-[0.7rem] text-amber-200 hover:text-amber-300 hover:underline transition-colors duration-150">
-            Privacy
-          </a>
-          <a href="#" className="text-[0.7rem] text-amber-200 hover:text-amber-300 hover:underline transition-colors duration-150">
-            Terms
-          </a>
-          <a href="#" className="text-[0.7rem] text-amber-200 hover:text-amber-300 hover:underline transition-colors duration-150">
-            Support
-          </a>
+    <footer className="bg-[#005baa] text-white pt-16 pb-8 px-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+              {/* Corrected: Use 'logo' (lowercase) as imported */}
+              <img src={logo} alt="Logo" className="h-8" />
+              <span className="text-2xl font-bold text-white">OMT</span>
+            </div>
+            <p className="text-[#b3e0fc] mb-6">
+              Your trusted destination for premium products and exceptional service.
+            </p>
+            <div className="flex gap-4">
+              <a href="#" className="text-[#b3e0fc] hover:text-white transition-colors" aria-label="Facebook">
+                <RiFacebookFill className="text-xl" />
+              </a>
+              <a href="#" className="text-[#b3e0fc] hover:text-white transition-colors" aria-label="Twitter">
+                <RiTwitterFill className="text-xl" />
+              </a>
+              <a href="#" className="text-[#b3e0fc] hover:text-white transition-colors" aria-label="Instagram">
+                <RiInstagramFill className="text-xl" />
+              </a>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold mb-6 text-white">Shop</h3>
+            <ul className="space-y-3">
+              {/* Ensure categories is defined and passed as a prop */}
+              {categories.slice(0, 5).map((category) => (
+                <li key={category.value}>
+                  <a
+                    href="#"
+                    className="text-[#b3e0fc] hover:text-white transition-colors flex items-center gap-2"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      // Ensure setSelectedCategory is defined and passed as a prop
+                      setSelectedCategory(category.value);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                  >
+                    <RiArrowRightLine className="text-xs" /> {category.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold mb-6 text-white">Company</h3>
+            <ul className="space-y-3">
+              {['About Us', 'Careers', 'Blog', 'Press', 'Sustainability'].map((item) => (
+                <li key={item}>
+                  <a
+                    href="#"
+                    className="text-[#b3e0fc] hover:text-white transition-colors flex items-center gap-2"
+                  >
+                    <RiArrowRightLine className="text-xs" /> {item}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold mb-6 text-white">Contact</h3>
+            <address className="not-italic text-[#b3e0fc] space-y-3">
+              <p>123 Commerce Street</p>
+              <p>San Francisco, CA 94103</p>
+              <p>Email: info@omt.com</p>
+              <p>Phone: (555) 123-4567</p>
+            </address>
+          </div>
         </div>
-        
-        {/* Right side - Status and version */}
-        <div className="flex items-center space-x-3">
-          {/* System status indicator */}
-          <div className="flex items-center space-x-1">
-            <span className="w-2 h-2 rounded-full bg-amber-300 animate-pulse"></span>
-            <span className="text-[0.7rem] text-amber-100">System Operational</span>
+
+        <div className="border-t border-[#003e7d] pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-[#b3e0fc] text-sm">
+              &copy; {new Date().getFullYear()} OMT Platform. All rights reserved.
+            </p>
+            <div className="flex gap-6">
+              <a href="#" className="text-[#b3e0fc] hover:text-white text-sm transition-colors">
+                Privacy Policy
+              </a>
+              <a href="#" className="text-[#b3e0fc] hover:text-white text-sm transition-colors">
+                Terms of Service
+              </a>
+              <a href="#" className="text-[#b3e0fc] hover:text-white text-sm transition-colors">
+                Cookies
+              </a>
+            </div>
           </div>
-          
-          {/* Version badge */}
-          <div className="flex items-center space-x-1">
-            <span className="px-1.5 py-0.5 rounded text-[0.6rem] bg-[#B45309] text-amber-50 border border-amber-300/20 font-mono">
-              v1.2.0
-            </span>
-          </div>
-          
-          {/* Settings button */}
-          <button className="text-amber-100 hover:text-amber-300 transition-colors p-0.5">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3"></circle>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-            </svg>
-          </button>
         </div>
       </div>
     </footer>

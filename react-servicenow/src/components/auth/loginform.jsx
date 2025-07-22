@@ -97,11 +97,11 @@ function LoginForm({ activeTab }) {
       <form onSubmit={formik.handleSubmit} className="mb-4 space-y-5">
         {/* Username Field */}
         <div>
-          <div className={`shadow-lg flex gap-2 items-center bg-white p-2 rounded group duration-300 border ${
-            activeTab === 'admin' ? 'border-cyan-200' : 'border-amber-200'
+          <div className={`shadow-sm flex gap-2 items-center bg-white p-3 rounded-lg group duration-300 border ${
+            formik.touched.username && formik.errors.username ? 'border-red-300' : 'border-gray-200 hover:border-[#00c6fb]'
           }`}>
-            <i className={`group-hover:rotate-[360deg] duration-300 ${
-              activeTab === 'admin' ? 'ri-admin-line text-cyan-500' : 'ri-user-2-line text-amber-500'
+            <i className={`group-hover:text-[#00c6fb] duration-300 ${
+              activeTab === 'admin' ? 'ri-admin-line text-[#005baa]' : 'ri-user-2-line text-[#005baa]'
             }`}></i>
             <input
               type="text"
@@ -110,22 +110,22 @@ function LoginForm({ activeTab }) {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               value={formik.values.username}
-              className="flex-1 focus:outline-none"
+              className="flex-1 focus:outline-none text-[#222] placeholder-gray-400"
               autoComplete="username"
             />
           </div>
           {formik.touched.username && formik.errors.username && (
-            <p className="text-red-500 text-sm ml-1">{formik.errors.username}</p>
+            <p className="text-red-500 text-sm ml-1 mt-1">{formik.errors.username}</p>
           )}
         </div>
 
         {/* Password Field */}
         <div>
-          <div className={`shadow-lg flex gap-2 items-center bg-white p-2 rounded group duration-300 border ${
-            activeTab === 'admin' ? 'border-cyan-200' : 'border-amber-200'
+          <div className={`shadow-sm flex gap-2 items-center bg-white p-3 rounded-lg group duration-300 border ${
+            formik.touched.password && formik.errors.password ? 'border-red-300' : 'border-gray-200 hover:border-[#00c6fb]'
           }`}>
-            <i className={`group-hover:rotate-[360deg] duration-300 ${
-              activeTab === 'admin' ? 'ri-shield-keyhole-line text-cyan-500' : 'ri-lock-2-line text-amber-500'
+            <i className={`group-hover:text-[#00c6fb] duration-300 ${
+              activeTab === 'admin' ? 'ri-shield-keyhole-line text-[#005baa]' : 'ri-lock-2-line text-[#005baa]'
             }`}></i>
             <input
               type="password"
@@ -134,12 +134,12 @@ function LoginForm({ activeTab }) {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               value={formik.values.password}
-              className="flex-1 focus:outline-none"
+              className="flex-1 focus:outline-none text-[#222] placeholder-gray-400"
               autoComplete="current-password"
             />
           </div>
           {formik.touched.password && formik.errors.password && (
-            <p className="text-red-500 text-sm ml-1">{formik.errors.password}</p>
+            <p className="text-red-500 text-sm ml-1 mt-1">{formik.errors.password}</p>
           )}
         </div>
 
@@ -147,15 +147,25 @@ function LoginForm({ activeTab }) {
         <button
           type="submit"
           disabled={formik.isSubmitting}
-          className={`w-full text-white font-medium py-2 px-4 rounded-md transition duration-300 ${
-            formik.isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-          } ${
-            activeTab === 'admin' 
-              ? 'bg-cyan-600 hover:bg-cyan-700' 
-              : 'bg-amber-600 hover:bg-amber-700'
+          className={`w-full text-white font-medium py-3 px-4 rounded-lg transition duration-300 ${
+            formik.isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-90'
           }`}
+          style={{ 
+            backgroundColor: activeTab === 'admin' ? '#003e7d' : '#005baa',
+            border: activeTab === 'admin' ? '1px solid #002b57' : '1px solid #004b8f'
+          }}
         >
-          {formik.isSubmitting ? 'Signing in...' : 'Sign in'}
+          {formik.isSubmitting ? (
+            <span className="flex items-center justify-center">
+              <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Signing in...
+            </span>
+          ) : (
+            'Sign in'
+          )}
         </button>
       </form>
     </div>

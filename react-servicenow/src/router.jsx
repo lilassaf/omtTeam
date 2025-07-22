@@ -5,8 +5,13 @@ import dashboardRoutes from './routes/Admin/dashboardRoutes';
 import ErrorPage from './views/error'
 import clientauthRoutes from './routes/Client/authRoutes';
 import clientdashboardRoutes from './routes/Client/dashboardRoutes';
+import Home from './views/auth/Home';
 
 const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Home />,
+  },
   ...authRoutes,
  dashboardRoutes,
   ...clientauthRoutes,

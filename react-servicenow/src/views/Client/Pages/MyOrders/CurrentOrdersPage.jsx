@@ -39,31 +39,31 @@ const OrdersList = () => {
   const [editMode, setEditMode] = useState(false);
 
   // Original color scheme
-  const colors = {
-    primary: '#B45309',
-    primaryLight: '#FB923C',
-    primaryDark: '#7C2D12',
-    background: '#FFF7ED',
-    cardBg: '#FFFFFF',
-    textDark: '#1E293B',
-    textLight: '#64748B',
-    success: '#10B981',
-    error: '#EF4444',
-    border: '#E5E7EB'
-  };
+const colors = {
+  primary: '#005baa',
+  primaryLight: '#00c6fb',
+  primaryDark: '#003e7d',
+  background: '#f8fafc',
+  cardBg: '#FFFFFF',
+  textDark: '#1e293b',
+  textLight: '#64748b',
+  success: '#10b981',
+  error: '#ef4444',
+  border: '#e2e8f0'
+};
 
-  // Status colors
-  const statusColors = {
-    pending: '#F59E0B',
-    quoted: '#3B82F6',
-    confirmed: '#10B981',
-    cancelled: '#EF4444',
-    shipped: '#8B5CF6',
-    delivered: '#10B981',
-    returned: '#F97316',
-    refunded: '#64748B',
-    completed: '#10B981'
-  };
+// Status colors
+const statusColors = {
+  pending: '#f59e0b',
+  quoted: '#3b82f6',
+  confirmed: '#10b981',
+  cancelled: '#ef4444',
+  shipped: '#8b5cf6',
+  delivered: '#10b981',
+  returned: '#f97316',
+  refunded: '#64748b',
+  completed: '#10b981'
+};
 
   const getCurrentUser = () => {
     try {

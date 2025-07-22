@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { 
-  RiEditLine, 
-  RiSaveLine, 
-  RiLockPasswordLine, 
+import {
+  RiEditLine,
+  RiSaveLine,
+  RiLockPasswordLine,
   RiLogoutCircleLine,
   RiUserLine,
   RiMailLine,
@@ -15,8 +15,8 @@ import {
   RiVisaLine,
   RiPaypalFill
 } from 'react-icons/ri';
-import { 
-  IoCheckmarkCircleOutline, 
+import {
+  IoCheckmarkCircleOutline,
   IoCloseCircleOutline,
   IoLockClosedOutline,
   IoEyeOutline,
@@ -108,19 +108,19 @@ const MyProfile = () => {
 
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!passwordData.currentPassword) {
       setPasswordError('Please enter your current password');
       setTimeout(() => setPasswordError(null), 3000);
       return;
     }
-    
+
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       setPasswordError('New passwords do not match');
       setTimeout(() => setPasswordError(null), 3000);
       return;
     }
-    
+
     if (passwordData.newPassword.length < 8) {
       setPasswordError('Password must be at least 8 characters');
       setTimeout(() => setPasswordError(null), 3000);
@@ -142,7 +142,7 @@ const MyProfile = () => {
       await axios.put(`http://localhost:3000/api/clients/${user.sys_id}`, {
         u_password: passwordData.newPassword
       });
-      
+
       setPasswordSuccess(true);
       setPasswordError(null);
       setPasswordData({
@@ -168,7 +168,7 @@ const MyProfile = () => {
 
   if (loading) return (
     <div className="flex justify-center items-center h-screen">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500"></div>
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#005baa]"></div>
     </div>
   );
 
@@ -185,13 +185,13 @@ const MyProfile = () => {
   );
 
   return (
-    <div className="bg-gray-50 min-h-screen py-8">
-      <div className="container mx-auto px-4">
-        <div className="max-w-6xl mx-auto">
+    <div className="bg-gray-50 min-h-screen py-12">
+      <div className="container mx-auto ">
+        <div className="max-w-10xl mx-auto">
           {/* Header Section */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-amber-700 ">My Profile</h1>
+              <h1 className="text-3xl font-bold text-[#005baa]">My Profile</h1>
               <p className="text-gray-600">Manage your personal information and security settings</p>
             </div>
             <button
@@ -251,7 +251,7 @@ const MyProfile = () => {
                           value={passwordData.currentPassword}
                           onChange={handlePasswordChange}
                           required
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500 pr-10"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#00c6fb] focus:border-[#00c6fb] pr-10"
                           placeholder="Enter current password"
                         />
                         <button
@@ -272,7 +272,7 @@ const MyProfile = () => {
                           value={passwordData.newPassword}
                           onChange={handlePasswordChange}
                           required
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500 pr-10"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#00c6fb] focus:border-[#00c6fb] pr-10"
                           placeholder="Enter new password"
                         />
                         <button
@@ -293,7 +293,7 @@ const MyProfile = () => {
                           value={passwordData.confirmPassword}
                           onChange={handlePasswordChange}
                           required
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500 pr-10"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#00c6fb] focus:border-[#00c6fb] pr-10"
                           placeholder="Confirm new password"
                         />
                         <button
@@ -308,7 +308,7 @@ const MyProfile = () => {
                     <div className="flex gap-3 pt-2">
                       <button
                         type="submit"
-                        className="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded-md transition-colors flex items-center justify-center gap-2"
+                        className="flex-1 bg-[#005baa] hover:bg-[#003e7d] text-white py-2 px-4 rounded-md transition-colors flex items-center justify-center gap-2"
                       >
                         <RiSaveLine />
                         Update Password
@@ -339,7 +339,7 @@ const MyProfile = () => {
                 {!isEditing ? (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded-md transition-colors text-sm"
+                    className="flex items-center gap-2 bg-[#005baa] hover:bg-[#003e7d] text-white py-2 px-4 rounded-md transition-colors text-sm"
                   >
                     <RiEditLine />
                     Edit Profile
@@ -358,7 +358,7 @@ const MyProfile = () => {
                     </button>
                     <button
                       onClick={handleSubmit}
-                      className="flex items-center gap-2 bg-amber-700 hover:bg-amber-800 text-white py-2 px-4 rounded-md transition-colors text-sm"
+                      className="flex items-center gap-2 bg-[#00c6fb] hover:bg-[#003e7d] text-white py-2 px-4 rounded-md transition-colors text-sm"
                     >
                       <RiSaveLine />
                       Save Changes
@@ -378,7 +378,7 @@ const MyProfile = () => {
                             name="u_first_name"
                             value={formData.u_first_name || ''}
                             onChange={handleInputChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#00c6fb] focus:border-[#00c6fb]"
                           />
                         ) : (
                           <p className="text-gray-900 py-2">{user.u_first_name || 'Not provided'}</p>
@@ -392,7 +392,7 @@ const MyProfile = () => {
                             name="u_last_name"
                             value={formData.u_last_name || ''}
                             onChange={handleInputChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#00c6fb] focus:border-[#00c6fb]"
                           />
                         ) : (
                           <p className="text-gray-900 py-2">{user.u_last_name || 'Not provided'}</p>
@@ -408,7 +408,7 @@ const MyProfile = () => {
                           name="u_email_address"
                           value={formData.u_email_address || ''}
                           onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#00c6fb] focus:border-[#00c6fb]"
                         />
                       ) : (
                         <p className="text-gray-900 py-2">{user.u_email_address || 'Not provided'}</p>
@@ -423,7 +423,7 @@ const MyProfile = () => {
                           name="u_phone_number"
                           value={formData.u_phone_number || ''}
                           onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#00c6fb] focus:border-[#00c6fb]"
                         />
                       ) : (
                         <p className="text-gray-900 py-2">{user.u_phone_number || 'Not provided'}</p>
@@ -438,7 +438,7 @@ const MyProfile = () => {
                           value={formData.u_address || ''}
                           onChange={handleInputChange}
                           rows={3}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#00c6fb] focus:border-[#00c6fb]"
                         />
                       ) : (
                         <p className="text-gray-900 py-2 whitespace-pre-line">{user.u_address || 'Not provided'}</p>
@@ -454,7 +454,7 @@ const MyProfile = () => {
                             name="u_city"
                             value={formData.u_city || ''}
                             onChange={handleInputChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#00c6fb] focus:border-[#00c6fb]"
                           />
                         ) : (
                           <p className="text-gray-900 py-2">{user.u_city || 'Not provided'}</p>
@@ -468,7 +468,7 @@ const MyProfile = () => {
                             name="u_province"
                             value={formData.u_province || ''}
                             onChange={handleInputChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#00c6fb] focus:border-[#00c6fb]"
                           />
                         ) : (
                           <p className="text-gray-900 py-2">{user.u_province || 'Not provided'}</p>
@@ -482,7 +482,7 @@ const MyProfile = () => {
                             name="u_postal_code"
                             value={formData.u_postal_code || ''}
                             onChange={handleInputChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#00c6fb] focus:border-[#00c6fb]"
                           />
                         ) : (
                           <p className="text-gray-900 py-2">{user.u_postal_code || 'Not provided'}</p>
@@ -498,7 +498,7 @@ const MyProfile = () => {
                           name="u_date_of_birth"
                           value={formData.u_date_of_birth ? formData.u_date_of_birth.split('T')[0] : ''}
                           onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#00c6fb] focus:border-[#00c6fb]"
                         />
                       ) : (
                         <p className="text-gray-900 py-2">
@@ -562,7 +562,7 @@ const MyProfile = () => {
                       <button
                         type="button"
                         onClick={() => handlePaymentMethodChange('credit card')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 border rounded-md transition-colors ${formData.u_preferred_payment_method === 'credit card' ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-gray-300 hover:border-amber-300'}`}
+                        className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 border rounded-md transition-colors ${formData.u_preferred_payment_method === 'credit card' ? 'border-[#00c6fb] bg-[#e0f7fa] text-[#005baa]' : 'border-gray-300 hover:border-[#00c6fb]'}`}
                       >
                         <RiVisaLine className="text-xl" />
                         <span>Credit Card</span>
@@ -570,7 +570,7 @@ const MyProfile = () => {
                       <button
                         type="button"
                         onClick={() => handlePaymentMethodChange('paypal')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 border rounded-md transition-colors ${formData.u_preferred_payment_method === 'paypal' ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-gray-300 hover:border-amber-300'}`}
+                        className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 border rounded-md transition-colors ${formData.u_preferred_payment_method === 'paypal' ? 'border-[#00c6fb] bg-[#e0f7fa] text-[#005baa]' : 'border-gray-300 hover:border-[#00c6fb]'}`}
                       >
                         <RiPaypalFill className="text-xl text-blue-600" />
                         <span>PayPal</span>
@@ -596,7 +596,7 @@ const MyProfile = () => {
                 <div className="pt-2">
                   <button
                     onClick={() => setShowPasswordForm(true)}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-300 rounded-md hover:border-amber-400 hover:bg-amber-50 text-amber-700 transition-colors"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-300 rounded-md hover:border-[#00c6fb] hover:bg-[#e0f7fa] text-[#005baa] transition-colors"
                   >
                     <RiLockPasswordLine />
                     Change Password
@@ -608,6 +608,7 @@ const MyProfile = () => {
         </div>
       </div>
     </div>
+
   );
 };
 

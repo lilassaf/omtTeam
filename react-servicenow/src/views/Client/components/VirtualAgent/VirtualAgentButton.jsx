@@ -20,8 +20,8 @@ export default function VirtualAgentButton() {
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             className={`relative w-14 h-14 rounded-full shadow-lg transition-all duration-300 flex items-center justify-center group
-              bg-gradient-to-br from-[#9C4221] to-[#B45309] hover:from-[#D97706] hover:to-[#B45309]
-              ${isHovered ? 'scale-110 shadow-xl' : 'scale-100'} border border-amber-400/30`}
+              bg-gradient-to-br from-[#005baa] to-[#00c6fb] hover:from-[#0077cc] hover:to-[#00c6fb]
+              ${isHovered ? 'scale-110 shadow-xl' : 'scale-100'} border border-[#b3e0fc]/30`}
             title="Client Support"
             aria-label="Open Client Support"
           >
@@ -29,10 +29,10 @@ export default function VirtualAgentButton() {
             
             {/* Animated speech bubble on hover */}
             {isHovered && (
-              <div className="absolute -top-12 -right-2 bg-[#9C4221] text-amber-100 text-xs font-medium px-3 py-1.5 rounded-md shadow-md whitespace-nowrap
-                animate-fade-in border border-[#B45309]">
+              <div className="absolute -top-12 -right-2 bg-[#005baa] text-[#b3e0fc] text-xs font-medium px-3 py-1.5 rounded-md shadow-md whitespace-nowrap
+                animate-fade-in border border-[#00c6fb]">
                 Client Support
-                <div className="absolute -bottom-1 right-4 w-3 h-3 bg-[#9C4221] transform rotate-45 border-r border-b border-[#B45309]"></div>
+                <div className="absolute -bottom-1 right-4 w-3 h-3 bg-[#005baa] transform rotate-45 border-r border-b border-[#00c6fb]"></div>
               </div>
             )}
           </button>
@@ -40,8 +40,8 @@ export default function VirtualAgentButton() {
           <button
             onClick={toggleVirtualAgent}
             className="w-14 h-14 rounded-full shadow-lg transition-all duration-300 flex items-center justify-center
-              bg-gradient-to-br from-[#9C4221] to-[#B45309] hover:from-[#D97706] hover:to-[#B45309]
-              hover:scale-110 hover:shadow-xl border border-amber-400/30"
+              bg-gradient-to-br from-[#005baa] to-[#00c6fb] hover:from-[#0077cc] hover:to-[#00c6fb]
+              hover:scale-110 hover:shadow-xl border border-[#b3e0fc]/30"
             title="Close Client Support"
             aria-label="Close Client Support"
           >

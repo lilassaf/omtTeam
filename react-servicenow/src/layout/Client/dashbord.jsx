@@ -37,23 +37,22 @@ function Dashboard() {
 
   return (
     <div className="bg-[#FFF7ED] dashboard-layout flex">
-      {/* Pass user data to Sidebar for role-based menu items */}
-      <Sidebar user={currentUser} />
+
 
       <div className="dashboard-content w-full">
         {/* Pass user data to Header (e.g., display name, avatar) */}
         <Header user={currentUser} />
 
         {/* Main content area with role-based background (using user's roleColors) */}
-        <div className="min-h-[calc(100vh-64px)] p-4" >
-          <Outlet /> {/* Child routes render here */}
-        </div>
+      
+          <Outlet user={currentUser} /> {/* Child routes render here */}
+    
 
         <VirtualAgentButton />
+        <Footer />
+         {/* Pass user role to Footer for conditional rendering */}
       </div>
 
-      {/* Pass user role to Footer for conditional rendering */}
-      <Footer role={currentUser.u_role} />
     </div>
   );
 }
