@@ -1,16 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-
 const API_URL = import.meta.env.VITE_BACKEND_URL;
-
 
 // Helper functions for localStorage
 const saveAuthData = (data) => {
   localStorage.setItem('clientData', JSON.stringify({
     token: data.id_token,
     role: data.role,
-    email: data.email || 'ntg' // Using sub (subject) from JWT if email not in response
   }));
 };
 
@@ -24,32 +21,30 @@ const getAuthData = () => {
 };
 
 // Async Thunks
-export const loginUser = createAsyncThunk(
-  'auth/login',
+export const loginClient = createAsyncThunk(
+  'authClient/login',
   async ({ email, password }, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${API_URL}/api/client-login`, { email, password });
       saveAuthData(response.data);
       return response.data;
-      
-      
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.error_description || 
         error.response?.data?.message || 
-        'Login failed'
+        'Client login failed'
       );
     }
   }
 );
 
-export const logoutUser = createAsyncThunk(
-  'auth/logout',
+export const logoutClient = createAsyncThunk(
+  'authClient/logout',
   async (_, { getState, rejectWithValue }) => {
     try {
-      const token = getState().auth.token;
+      const token = getState().authClient.token;
       if (token) {
-        await axios.post(`${API_URL}/api/logout`, {}, {
+        await axios.post(`${API_URL}/api/client-logout`, {}, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -59,7 +54,6 @@ export const logoutUser = createAsyncThunk(
       clearAuthData();
       return true;
     } catch (error) {
-      // Even if logout API fails, we still want to clear local data
       clearAuthData();
       return rejectWithValue(error.message);
     }
@@ -67,56 +61,60 @@ export const logoutUser = createAsyncThunk(
 );
 
 // Slice
-const authSlice = createSlice({
-  name: 'auth',
+const authClientSlice = createSlice({
+  name: 'authClient',
   initialState: () => {
     const savedAuth = getAuthData();
     return {
       token: savedAuth?.token || null,
       role: savedAuth?.role || null,
       email: savedAuth?.email || null,
+      name: savedAuth?.name || null,
       isLoading: false,
       error: null
     };
   },
   reducers: {
-    clearAuthError: (state) => {
+    clearClientAuthError: (state) => {
       state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(loginUser.pending, (state) => {
+      .addCase(loginClient.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(loginUser.fulfilled, (state, action) => {
-        console.log(action);
+      .addCase(loginClient.fulfilled, (state, action) => {      
         state.token = action.payload.id_token;
         state.role = action.payload.role;
+        state.email = action.payload.email || null;
+        state.name = action.payload.name || null;
         state.isLoading = false;
         state.error = null;
       })
-      .addCase(loginUser.rejected, (state, action) => {
+      .addCase(loginClient.rejected, (state, action) => {
         state.isLoading = false;
         state.token = null;
         state.role = null;
         state.email = null;
+        state.name = null;
         state.error = action.payload;
         clearAuthData();
       })
-      .addCase(logoutUser.fulfilled, (state) => {
+      .addCase(logoutClient.fulfilled, (state) => {
         state.token = null;
         state.role = null;
         state.email = null;
+        state.name = null;
         state.isLoading = false;
         state.error = null;
       })
-      .addCase(logoutUser.rejected, (state) => {
-        // Even if API logout failed, we still clear the local state
+      .addCase(logoutClient.rejected, (state) => {
         state.token = null;
         state.role = null;
         state.email = null;
+        state.name = null;
         state.isLoading = false;
         state.error = null;
       });
@@ -124,12 +122,13 @@ const authSlice = createSlice({
 });
 
 // Selectors
-export const selectAuthToken = (state) => state.auth.token;
-export const selectAuthRole = (state) => state.auth.role;
-export const selectAuthEmail = (state) => state.auth.email;
-export const selectAuthLoading = (state) => state.auth.isLoading;
-export const selectAuthError = (state) => state.auth.error;
-export const selectIsAuthenticated = (state) => !!state.auth.token;
+export const selectClientAuthToken = (state) => state.authClient.token;
+export const selectClientAuthRole = (state) => state.authClient.role;
+export const selectClientAuthEmail = (state) => state.authClient.email;
+export const selectClientAuthName = (state) => state.authClient.name;
+export const selectClientAuthLoading = (state) => state.authClient.isLoading;
+export const selectClientAuthError = (state) => state.authClient.error;
+export const selectIsClientAuthenticated = (state) => !!state.authClient.token;
 
-export const { clearAuthError } = authSlice.actions;
-export default authSlice.reducer;
+export const { clearClientAuthError } = authClientSlice.actions;
+export default authClientSlice.reducer;

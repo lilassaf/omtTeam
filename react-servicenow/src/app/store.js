@@ -15,6 +15,8 @@ import contactReducer from '../features/servicenow/contact/contactSlice';
 import locationReducer from '../features/servicenow/location/locationSlice';
 import contractQReducer from '../features/servicenow/contract-q/contractQSlice';
 import contractModelReducer from '../features/servicenow/contract-model/contractModelSlice';
+// Client 
+import authClientReducer from '../features/auth/client/auth'; 
 
 const store = configureStore({
   reducer: {
@@ -34,6 +36,8 @@ const store = configureStore({
     productOfferingPrice: productOfferingPriceReducer,
     contractQ: contractQReducer,
     contractModel: contractModelReducer,
+    // Client
+    authClient:authClientReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
