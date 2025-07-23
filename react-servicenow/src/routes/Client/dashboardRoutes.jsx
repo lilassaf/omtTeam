@@ -2,7 +2,7 @@ import React from 'react';
 import DashboardLayout from '../../layout/Client/dashbord';
 
 // Middleware
-import IsAuth from '../../middleware/client/isAuth';
+import IsAuth from '../../middleware/client/ProtectedRoute';
 
 // Dashboard Pages
 import Dashboard from '../../views/Client/Dashboard/index.jsx';
