@@ -12,7 +12,7 @@ const ERROR_MESSAGES = {
 };
 
 async function Login(req, res) {
-  
+
   const { email = '', password = '' } = req.body;
 
   if (!email.trim() || !password.trim()) {
@@ -75,6 +75,7 @@ async function Login(req, res) {
       sub: email,
       sn_access_token: data.access_token,
       scope: data.scope,
+      id: contact._id,
       iss: process.env.JWT_ISSUER || 'your-app',
       iat: Math.floor(Date.now() / 1000),
       role: contact.isPrimaryContact ? 'primaryContact' : 'contact'
@@ -103,9 +104,9 @@ async function Login(req, res) {
       expires_in: data.expires_in,
       scope: data.scope,
       issued_at: new Date().toISOString(),
-      role: contact.isPrimaryContact ? 'primaryContact' : 'contact',
+      role: contact.isPrimaryContact ? ' Account' : 'Contact',
       email: contact.email,
-      id: contact._id
+      name: contact.firstName+' '+contact.lastName
     });
 
   } catch (err) {
@@ -121,8 +122,8 @@ async function Login(req, res) {
       error: errorResponse?.error || 'authentication_failed',
       error_description: errorResponse?.error_description || ERROR_MESSAGES.AUTH_FAILED
     });
-}
-  
+  }
+
 }
 
 module.exports = Login;

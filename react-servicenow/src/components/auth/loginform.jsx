@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { userLogin, fetchUserInfo } from '../../features/auth/authActions';
-import { loginUser } from '../../features/auth/client/auth'
+import { loginClient } from '../../features/auth/client/auth'
 import { message } from 'antd';
 
 const MESSAGE_MAPPINGS = {
@@ -29,6 +29,24 @@ const validationSchema = yup.object({
 function LoginForm({ activeTab }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  // Color configurations based on activeTab
+  const colorConfig = {
+    admin: {
+      primary: '#007595',
+      icon: '#007595',
+      hoverBorder: '#00c6fb',
+      hoverIcon: '#00c6fb'
+    },
+    client: {
+      primary: '#c76824',
+      icon: '#c76824',
+      hoverBorder: '#ff8c00',
+      hoverIcon: '#ff8c00'
+    }
+  };
+
+  const currentColors = colorConfig[activeTab] || colorConfig.client;
 
   const formik = useFormik({
     initialValues: {
@@ -62,22 +80,19 @@ function LoginForm({ activeTab }) {
         } else {
           setSubmitting(true);
 
-          // Dispatch the loginUser action
+          // Dispatch the loginClient action
           const resultAction = await dispatch(
-            loginUser({
+            loginClient({
               email: values.username,
               password: values.password
             })
           );
 
-
-
           // Check if the login was successful
-          if (loginUser.fulfilled.match(resultAction)) {
+          if (loginClient.fulfilled.match(resultAction)) {
             message.success('Client login successful!');
-            console.log(resultAction);
             navigate('/client');
-          } else if (loginUser.rejected.match(resultAction)) {
+          } else if (loginClient.rejected.match(resultAction)) {
             // The error message is already handled in the auth slice, but you can add additional handling here
             throw new Error(resultAction.payload || 'Client login failed');
           }
@@ -96,10 +111,18 @@ function LoginForm({ activeTab }) {
       <form onSubmit={formik.handleSubmit} className="mb-4 space-y-5">
         {/* Username Field */}
         <div>
-          <div className={`shadow-sm flex gap-2 items-center bg-white p-3 rounded-lg group duration-300 border ${formik.touched.username && formik.errors.username ? 'border-red-300' : 'border-gray-200 hover:border-[#00c6fb]'
+          <div className={`shadow-sm flex gap-2 items-center bg-white p-3 rounded-lg group duration-300 border ${
+            formik.touched.username && formik.errors.username 
+              ? 'border-red-300' 
+              : `border-gray-200 hover:border-[${currentColors.hoverBorder}]`
             }`}>
-            <i className={`group-hover:text-[#00c6fb] duration-300 ${activeTab === 'admin' ? 'ri-admin-line text-[#005baa]' : 'ri-user-2-line text-[#005baa]'
-              }`}></i>
+            <i className={`group-hover:text-[${currentColors.hoverIcon}] duration-300 ${
+              activeTab === 'admin' 
+                ? 'ri-admin-line' 
+                : 'ri-user-2-line'
+              }`} 
+              style={{ color: currentColors.icon }}
+            ></i>
             <input
               type="text"
               name="username"
@@ -118,10 +141,18 @@ function LoginForm({ activeTab }) {
 
         {/* Password Field */}
         <div>
-          <div className={`shadow-sm flex gap-2 items-center bg-white p-3 rounded-lg group duration-300 border ${formik.touched.password && formik.errors.password ? 'border-red-300' : 'border-gray-200 hover:border-[#00c6fb]'
+          <div className={`shadow-sm flex gap-2 items-center bg-white p-3 rounded-lg group duration-300 border ${
+            formik.touched.password && formik.errors.password 
+              ? 'border-red-300' 
+              : `border-gray-200 hover:border-[${currentColors.hoverBorder}]`
             }`}>
-            <i className={`group-hover:text-[#00c6fb] duration-300 ${activeTab === 'admin' ? 'ri-shield-keyhole-line text-[#005baa]' : 'ri-lock-2-line text-[#005baa]'
-              }`}></i>
+            <i className={`group-hover:text-[${currentColors.hoverIcon}] duration-300 ${
+              activeTab === 'admin' 
+                ? 'ri-shield-keyhole-line' 
+                : 'ri-lock-2-line'
+              }`}
+              style={{ color: currentColors.icon }}
+            ></i>
             <input
               type="password"
               name="password"
@@ -142,11 +173,12 @@ function LoginForm({ activeTab }) {
         <button
           type="submit"
           disabled={formik.isSubmitting}
-          className={`w-full text-white font-medium py-3 px-4 rounded-lg transition duration-300 ${formik.isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-90'
+          className={`w-full text-white font-medium py-3 px-4 rounded-lg transition duration-300 ${
+            formik.isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-90'
             }`}
           style={{
-            backgroundColor: activeTab === 'admin' ? '#003e7d' : '#005baa',
-            border: activeTab === 'admin' ? '1px solid #002b57' : '1px solid #004b8f'
+            backgroundColor: currentColors.primary,
+            border: `1px solid ${currentColors.primary}`
           }}
         >
           {formik.isSubmitting ? (

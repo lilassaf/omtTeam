@@ -19,72 +19,16 @@ const Sidebar = ({ toggleSidebar, open, isSidebarCollapsed }) => {
   );
 
  const navItems = [
-    {
-      path: '/client',
-      icon: 'home-line',
-      text: 'Dashboard',
-      children: [
-        { path: '/client/overview', icon: 'bar-chart-line', text: 'Overview' },
-        { path: '#', icon: 'pulse-line', text: 'Recent Activity' }
-      ]
-    },
-    {
-      path: '/client/shop',
-      icon: 'shopping-bag-line',
-      text: 'Shop',
-      children: [
-        { path: '/client/shop/all-products', icon: 'archive-line', text: 'All Products' },
-        { path: '#', icon: 'flashlight-line', text: 'Special Deals' }
-      ]
-    },
-    {
-      path: '/client/orders',
-      icon: 'shopping-cart-line',
-      text: 'My Orders',
-      children: [
-        { path: '/client/orders/current', icon: 'file-list-3-line', text: 'Current Orders' },
-        { path: '/client/orders/history', icon: 'price-tag-line', text: 'Orders Tracking' },
-        { path: '#', icon: 'arrow-go-back-line', text: 'Returns' }
-      ]
-    },
-    {
-      path: '/client/wishlist',
-      icon: 'heart-line',
-      text: 'Wishlist',
-      children: [
-        { path: '/client/wishlist/saved', icon: 'bookmark-line', text: 'Saved Items' },
-        { path: '#', icon: 'magic-line', text: 'Recommendations' }
-      ]
-    },
-    {
-      path: '/client/account',
-      icon: 'user-line',
-      text: 'My Account',
-      children: [
-        { path: '#', icon: 'user-settings-line', text: 'Profile' },
-        { path: '#', icon: 'map-pin-line', text: 'Addresses' },
-        { path: '#', icon: 'bank-card-line', text: 'Payment Methods' }
-      ]
-    },
-    {
-      path: '/client/support',
-      icon: 'customer-service-line',
-      text: 'Support',
-      children: [
-        { path: '#', icon: 'questionnaire-line', text: 'My Tickets' },
-        { path: '#', icon: 'question-line', text: 'FAQs' },
-        { path: '#', icon: 'contacts-line', text: 'Contact Us' }
-      ]
-    }
+  
   ];
 
   return (
     <>
-      <aside className={`z-50 h-screen fixed bg-[#9C4221] inset-y-0 pt-4  shadow-lg overflow-hidden ${open ? 'w-[4rem]' : 'w-64'
+      <aside className={`z-50 h-screen fixed bg-[#a7541d] inset-y-0 pt-4  shadow-lg overflow-hidden ${open ? 'w-[4rem]' : 'w-64'
         } transition-all duration-400 flex flex-col`}
       >
         <div className="mb-8 mt-2 h-12 flex justify-center items-center px-2 text-white font-bold text-xl truncate">
-          <i className={`ri-admin-line  text-blue-200 ${open ? '' : 'mr-2'}  `} />
+          <i className={`ri-user-2-line  text-[#fbb073] ${open ? '' : 'mr-2'}  `} />
           <span className={`${open ? 'hidden ' : 'inline'}`}>
         My Account
           </span>
@@ -110,8 +54,8 @@ const Sidebar = ({ toggleSidebar, open, isSidebarCollapsed }) => {
                         }
                       }}
                       className={`flex items-center px-3 py-2.5 transition-all duration-200 ${isItemActive
-                        ? 'bg-[#B45309] text-white shadow-md'
-                        : 'text-white hover:bg-[#B45309] hover:text-white'
+                        ? 'bg-[#c76824] text-white shadow-md'
+                        : 'text-white hover:bg-[#c76824] hover:text-white'
                         }`}
                     >
                       <i className={`ri-${item.icon} text-2xl ${open ? '' : 'mr-3'}`} />
@@ -133,7 +77,7 @@ const Sidebar = ({ toggleSidebar, open, isSidebarCollapsed }) => {
                               to={child.path}
                               className={`flex items-center px-3 py-2 text-sm rounded transition-all duration-200 ${isActive(child.path)
                                 ? 'bg-[#e6f4ff] text-[#007B98] font-medium'
-                                : 'text-white hover:bg-[#B45309] hover:text-white'
+                                : 'text-white hover:bg-[#c76824] hover:text-white'
                                 }`}
                             >
                               <i className={`ri-${child.icon} mr-3 text-base`} />
@@ -156,7 +100,7 @@ const Sidebar = ({ toggleSidebar, open, isSidebarCollapsed }) => {
           <Tooltip title={!isSidebarCollapsed ? "open" : "close"}>
             <button
               onClick={toggleSidebar}
-              className="text-white py-4 bg-[#B45309] w-full"
+              className="text-white py-4 bg-[#c76824] w-full"
             >
               <i className={`ri-${!isSidebarCollapsed ? 'arrow-right-s-line' : 'arrow-left-s-line'} text-2xl `} />
             </button>
