@@ -11,6 +11,9 @@ const deleteQuote = require('../../controllers/Quote/delete')
 const updateStatus = require('../../controllers/Quote/updateState')
 const getLatestOneByOpportunity = require('../../controllers/Quote/getByOpportunityId');
 const generateCase = require('../../controllers/Quote/generateCase');
+const getQuoteByContact = require('../../controllers/Quote/getByContact');
+
+router.get('/quote-contact/:id', getQuoteByContact);
 
 router.get('/quote', getAll);
 router.get('/quote/:id', getOne);
