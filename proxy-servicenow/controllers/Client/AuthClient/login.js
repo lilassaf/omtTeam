@@ -103,7 +103,9 @@ async function Login(req, res) {
       expires_in: data.expires_in,
       scope: data.scope,
       issued_at: new Date().toISOString(),
-      role: contact.isPrimaryContact ? 'primaryContact' : 'contact'
+      role: contact.isPrimaryContact ? 'primaryContact' : 'contact',
+      email: contact.email,
+      id: contact._id
     });
 
   } catch (err) {
