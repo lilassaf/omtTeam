@@ -40,6 +40,7 @@ const productSpecRoutes = require('./api/ProductSpecification/productSpecRoutes'
 const clientRoutes = require('./api/client/index');
 // Client
 const authClient = require('./api/client/authClient');
+const order = require('./api/client/order/index');
 
 
 require('dotenv').config();
@@ -59,7 +60,7 @@ const limiter = rateLimit({
 
 // connection Kafka
 // const producer = require('./utils/connectionKafka');
-//app.set('trust proxy', 1);
+app.set('trust proxy', 1);
 
 // Configuration
 
@@ -116,7 +117,8 @@ app.use('/api', [
     knowledgeBaseRoute,
     ProductSpecification,
     productSpecRoutes,
-    authClient
+    authClient,
+    order
 
 
 ]);
