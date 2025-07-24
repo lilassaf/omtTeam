@@ -1,100 +1,39 @@
 import React from 'react';
-import logo from '../../../assets/logo.png';
-import { RiFacebookFill, RiTwitterFill, RiInstagramFill, RiArrowRightLine } from 'react-icons/ri';
+import logo from '../../../assets/logo.png'; // Make sure this path is correct
+import { RiFacebookFill, RiTwitterFill, RiInstagramFill } from 'react-icons/ri';
 
-const Footer = ({ categories = [], setSelectedCategory = () => {} }) => {
+const Footer = () => {
   return (
-    <footer className="bg-[#005baa] text-white pt-16 pb-8 px-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-          <div>
-            <div className="flex items-center gap-3 mb-6">
-              {/* Corrected: Use 'logo' (lowercase) as imported */}
-              <img src={logo} alt="Logo" className="h-8" />
-              <span className="text-2xl font-bold text-white">OMT</span>
-            </div>
-            <p className="text-[#b3e0fc] mb-6">
-              Your trusted destination for premium products and exceptional service.
-            </p>
-            <div className="flex gap-4">
-              <a href="#" className="text-[#b3e0fc] hover:text-white transition-colors" aria-label="Facebook">
-                <RiFacebookFill className="text-xl" />
-              </a>
-              <a href="#" className="text-[#b3e0fc] hover:text-white transition-colors" aria-label="Twitter">
-                <RiTwitterFill className="text-xl" />
-              </a>
-              <a href="#" className="text-[#b3e0fc] hover:text-white transition-colors" aria-label="Instagram">
-                <RiInstagramFill className="text-xl" />
-              </a>
-            </div>
+    <footer className="bg-white border-t border-gray-200 ">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+        <div className="flex flex-col md:flex-row justify-between items-center">
+          
+          {/* Left side: Logo and copyright */}
+          <div className="flex items-center space-x-4">
+            <img src={logo} alt="Logo" className="h-10 w-auto object-contain" />
+            <p className="text-gray-600">© {new Date().getFullYear()} DXC Technology. All rights reserved.</p>
           </div>
 
-          <div>
-            <h3 className="text-lg font-bold mb-6 text-white">Shop</h3>
-            <ul className="space-y-3">
-              {/* Ensure categories is defined and passed as a prop */}
-              {categories.slice(0, 5).map((category) => (
-                <li key={category.value}>
-                  <a
-                    href="#"
-                    className="text-[#b3e0fc] hover:text-white transition-colors flex items-center gap-2"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      // Ensure setSelectedCategory is defined and passed as a prop
-                      setSelectedCategory(category.value);
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                  >
-                    <RiArrowRightLine className="text-xs" /> {category.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-bold mb-6 text-white">Company</h3>
-            <ul className="space-y-3">
-              {['About Us', 'Careers', 'Blog', 'Press', 'Sustainability'].map((item) => (
-                <li key={item}>
-                  <a
-                    href="#"
-                    className="text-[#b3e0fc] hover:text-white transition-colors flex items-center gap-2"
-                  >
-                    <RiArrowRightLine className="text-xs" /> {item}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-bold mb-6 text-white">Contact</h3>
-            <address className="not-italic text-[#b3e0fc] space-y-3">
-              <p>123 Commerce Street</p>
-              <p>San Francisco, CA 94103</p>
-              <p>Email: info@omt.com</p>
-              <p>Phone: (555) 123-4567</p>
-            </address>
-          </div>
-        </div>
-
-        <div className="border-t border-[#003e7d] pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-[#b3e0fc] text-sm">
-              &copy; {new Date().getFullYear()} OMT Platform. All rights reserved.
-            </p>
-            <div className="flex gap-6">
-              <a href="#" className="text-[#b3e0fc] hover:text-white text-sm transition-colors">
-                Privacy Policy
-              </a>
-              <a href="#" className="text-[#b3e0fc] hover:text-white text-sm transition-colors">
-                Terms of Service
-              </a>
-              <a href="#" className="text-[#b3e0fc] hover:text-white text-sm transition-colors">
-                Cookies
-              </a>
-            </div>
+          {/* Right side: Links */}
+          <div className="mt-4 md:mt-0 flex space-x-6">
+            <a href="#" className="text-gray-500 hover:text-gray-700" title="Privacy">
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </a>
+            <a href="#" className="text-gray-500 hover:text-gray-700" title="Terms">
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </a>
+            <a href="#" className="text-gray-500 hover:text-gray-700" title="Help">
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </a>
           </div>
         </div>
       </div>

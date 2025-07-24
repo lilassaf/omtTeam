@@ -1,37 +1,32 @@
-import React from 'react';
-import DashboardLayout from '../../layout/Client/dashbord';
-
-// Middleware
-import IsAuth from '../../middleware/client/ProtectedRoute';
+// src/routes/dashboardRoutes.jsx
+import DashboardLayout from '../../layout/Client/dashbord.jsx';
 
 // Dashboard Pages
-import Dashboard from '../../views/Client/Dashboard/index.jsx';
 import Overview from '../../views/Client/Dashboard/OverviewPage.jsx';
 import SavedItems from '../../views/Client/Pages/Wishlist/SavedItemsPage.jsx';
 import MyOrders from '../../views/Client/Pages/MyOrders/CurrentOrdersPage.jsx';
 import ProductDetails from '../../views/Client/Pages/Extra/ProductDetails.jsx';
 import History from '../../views/Client/Pages/MyOrders/OrderHistoryPage.jsx';
 import AllProducts from '../../views/Client/Pages/Shop/AllProducts.jsx';
-import OrderTracking from '../../views/Client/Pages/Shop/OrderTracking.jsx';
-import MyProfile from '../../views/Client/Pages/Extra/MyProfile.jsx';
+import OrderTracking  from '../../views/Client/Pages/Shop/OrderTracking.jsx';
+import MyProfile  from '../../views/Client/Pages/Extra/MyProfile.jsx';
+import CreatContact from '../../views/Client/Pages/Extra/CreateContact.jsx';
 
 const dashboardRoutes = {
   path: '/client',
-  element: (
-    <IsAuth>
-      <DashboardLayout />
-    </IsAuth>
-  ),
+  element: <DashboardLayout />, 
   children: [
-    { index: true, element: <Dashboard /> },
+    { index: true, element: <Overview /> },
     { path: 'overview', element: <Overview /> },
     { path: 'wishlist/saved', element: <SavedItems /> },
     { path: 'orders/current', element: <MyOrders /> },
     { path: 'orders/history', element: <History /> },
-    { path: 'ProductDetails/:id', element: <ProductDetails /> },
+    { path: 'ProductDetails/:sys_id', element: <ProductDetails /> },
     { path: 'MyProfile/:id', element: <MyProfile /> },
     { path: 'shop/all-products', element: <AllProducts /> },
     { path: 'shop/order-tracking', element: <OrderTracking /> },
+    { path: 'create', element: <CreatContact /> },
+
   ],
 };
 

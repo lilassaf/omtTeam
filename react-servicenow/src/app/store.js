@@ -16,38 +16,38 @@ import locationReducer from '../features/servicenow/location/locationSlice';
 import contractQReducer from '../features/servicenow/contract-q/contractQSlice';
 import contractModelReducer from '../features/servicenow/contract-model/contractModelSlice';
 // Client 
-import authClientReducer from '../features/auth/client/auth'; 
+import authClientReducer from '../features/auth/client/auth';
 
 const store = configureStore({
-  reducer: {
-    auth: authReducer,
-    productOfferingCatalog: productOfferingCatalogReducer,
-    productOfferingCategory: productOfferingCategoryReducer,
-    productOffering: productOfferingReducer,
-    productSpecification: productSpecificationReducer,
-    channel: channelReducer,
-    aiSearch: aiSearchReducer,
-    opportunity: opportunityReducer,
-    priceList: priceListReducer,
-    quote: quoteReducer,
-    account: accountReducer,
-    contact: contactReducer,
-    location: locationReducer,
-    productOfferingPrice: productOfferingPriceReducer,
-    contractQ: contractQReducer,
-    contractModel: contractModelReducer,
-    // Client
-    authClient:authClientReducer,
-  },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: {
-        // Ignore these action types
-        ignoredActions: ['opportunity/downloadContract/fulfilled'],
-        // Ignore these paths in the state
-        ignoredPaths: ['opportunity.downloadContract.file']
-      }
-    })
+    reducer: {
+        auth: authReducer,
+        productOfferingCatalog: productOfferingCatalogReducer,
+        productOfferingCategory: productOfferingCategoryReducer,
+        productOffering: productOfferingReducer,
+        productSpecification: productSpecificationReducer,
+        channel: channelReducer,
+        aiSearch: aiSearchReducer,
+        opportunity: opportunityReducer,
+        priceList: priceListReducer,
+        quote: quoteReducer,
+        account: accountReducer,
+        contact: contactReducer,
+        location: locationReducer,
+        productOfferingPrice: productOfferingPriceReducer,
+        contractQ: contractQReducer,
+        contractModel: contractModelReducer,
+        // Client
+        authClient: authClientReducer,
+    },
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            serializableCheck: {
+                // Ignore these action types
+                ignoredActions: ['opportunity/downloadContract/fulfilled'],
+                // Ignore these paths in the state
+                ignoredPaths: ['opportunity.downloadContract.file']
+            }
+        })
 });
 
 export default store;

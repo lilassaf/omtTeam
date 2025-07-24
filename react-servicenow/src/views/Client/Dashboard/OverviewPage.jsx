@@ -259,7 +259,7 @@ export default function OverviewPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col font-['Segoe_UI','Roboto',Arial,sans-serif]" style={{ backgroundColor: colors.background }}>
+    <div className="min-h-screen flex flex-col font-['Segoe_UI','Roboto',Arial,sans-serif]">
  
    
       {/* Main Content */}
@@ -273,39 +273,11 @@ export default function OverviewPage() {
                   Discover <span className="text-[#b3e0fc]">Premium</span> Products
                 </h1>
                 <p className="text-xl md:text-2xl text-[#b3e0fc] max-w-lg">
-                  Curated collection of high-quality items designed to elevate your lifestyle
+                  Curated collection of high-quality items designed 
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Link 
-                    to="/products" 
-                    className="bg-white text-[#005baa] hover:bg-[#f0f7ff] px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 flex items-center justify-center gap-2"
-                  >
-                    Shop Now <RiArrowRightLine className="text-xl" />
-                  </Link>
-                  <Link 
-                    to="/register" 
-                    className="border-2 border-white text-white hover:bg-white hover:text-[#005baa] px-8 py-4 rounded-full font-bold text-lg transition-all duration-300"
-                  >
-                    Join Free
-                  </Link>
-                </div>
+            
               </div>
-              <div className="lg:w-1/2 hidden lg:block">
-                <div className="grid grid-cols-2 gap-4">
-                  {productImages.slice(0, 4).map((img, index) => (
-                    <div 
-                      key={index} 
-                      className={`rounded-2xl overflow-hidden shadow-xl ${index === 0 ? 'rotate-3' : index === 1 ? '-rotate-3' : index === 2 ? '-rotate-2' : 'rotate-2'}`}
-                    >
-                      <img 
-                        src={img} 
-                        alt={`Product ${index + 1}`} 
-                        className="w-full h-64 object-cover hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
+            
             </div>
           </div>
           <div className="absolute inset-0 opacity-10">
@@ -314,7 +286,7 @@ export default function OverviewPage() {
         </section>
 
         {/* Featured Categories */}
-        <section className="py-16 px-6 bg-white">
+        <section className="py-16 px-6 ">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-14">
               <h2 className="text-4xl font-bold mb-4 text-[#005baa]">Shop by Category</h2>
@@ -350,7 +322,7 @@ export default function OverviewPage() {
 
         {/* Featured Products - Card Style */}
         {featuredProducts.length > 0 && (
-          <section className="py-16 px-6 bg-[#f6f8fa]">
+          <section className="py-16 px-6 ">
             <div className="max-w-7xl mx-auto">
               <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-4">
                 <div>
@@ -430,7 +402,7 @@ export default function OverviewPage() {
         )}
 
         {/* All Products Section */}
-        <section className="py-16 px-6 bg-white">
+        <section className="py-16 px-6 ">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-center mb-12">
               <div>
@@ -599,75 +571,7 @@ export default function OverviewPage() {
           </div>
         </section>
 
-        {/* Value Proposition */}
-        <section className="py-16 px-6 bg-[#005baa] text-white">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold mb-4">Why Choose Us</h2>
-              <p className="text-[#b3e0fc] max-w-2xl mx-auto">
-                We're committed to providing an exceptional shopping experience
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {[
-                {
-                  icon: <RiShieldCheckLine className="text-4xl mb-4 text-[#b3e0fc]" />,
-                  title: "Quality Assurance",
-                  description: "Every product undergoes rigorous quality checks"
-                },
-                {
-                  icon: <RiTruckLine className="text-4xl mb-4 text-[#b3e0fc]" />,
-                  title: "Fast Delivery",
-                  description: "Get your items within 2-3 business days"
-                },
-                {
-                  icon: <RiCustomerService2Line className="text-4xl mb-4 text-[#b3e0fc]" />,
-                  title: "24/7 Support",
-                  description: "Our team is always ready to assist you"
-                },
-                {
-                  icon: <RiSecurePaymentLine className="text-4xl mb-4 text-[#b3e0fc]" />,
-                  title: "Secure Payments",
-                  description: "Your transactions are always protected"
-                }
-              ].map((item, index) => (
-                <div 
-                  key={index} 
-                  className="bg-white/10 backdrop-blur-sm p-8 rounded-xl border border-white/20 hover:border-[#00c6fb]/30 transition-all duration-300"
-                >
-                  <div>{item.icon}</div>
-                  <h3 className="text-xl font-bold mb-2">{item.title}</h3>
-                  <p className="text-[#b3e0fc]">{item.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-20 px-6 bg-gradient-to-r from-[#005baa] to-[#00c6fb] text-white">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-4xl font-bold mb-6">Ready to Experience the Difference?</h2>
-            <p className="text-xl text-[#b3e0fc] mb-10 max-w-2xl mx-auto">
-              Join thousands of satisfied customers who trust us for quality products and exceptional service.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link 
-                to="/register" 
-                className="bg-white text-[#005baa] hover:bg-[#f0f7ff] px-8 py-4 rounded-full font-bold text-lg transition-all duration-300"
-              >
-                Create Free Account
-              </Link>
-              <Link 
-                to="/contact" 
-                className="border-2 border-white text-white hover:bg-white hover:text-[#005baa] px-8 py-4 rounded-full font-bold text-lg transition-all duration-300"
-              >
-                Contact Us
-              </Link>
-            </div>
-          </div>
-        </section>
+       
       </main>
 
      

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { RiSendPlaneLine, RiRobot2Line, RiCloseLine, RiAlertLine, RiEmotionLine, RiImageLine } from 'react-icons/ri';
+import { RiSendPlaneLine, RiRobot2Line, RiCloseLine, RiAlertLine, RiEmotionLine, RiImageLine, RiUserLine, RiBuildingLine, RiMapPinLine, RiFileListLine, RiBriefcaseLine, RiCalendarLine, RiSmartphoneLine, RiMailLine, RiLockLine, RiHistoryLine } from 'react-icons/ri';
 
 export default function VirtualAgent({ onClose }) {
   const [messages, setMessages] = useState([]);
@@ -10,25 +10,69 @@ export default function VirtualAgent({ onClose }) {
   const chatEndRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [userData, setUserData] = useState(null);
+  const [accountData, setAccountData] = useState(null);
+  const [locationData, setLocationData] = useState(null);
+  const [showUserInfo, setShowUserInfo] = useState(false);
+  const [orderHistory, setOrderHistory] = useState(null);
 
   // Auto-scroll on message update
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Initialize conversation
+  // Initialize conversation and fetch user data
   useEffect(() => {
+    // Initialize with welcome message
     setMessages([{ 
       from: 'agent', 
-      text: "👋 Welcome to our E-Commerce Support! How can we help you today?",
+      text: "👋 Welcome to our Client Support! How can we help you today?",
       options: [
         { text: '🛍️ Product Questions', value: 'products' },
         { text: '📦 Order Status', value: 'orders' },
         { text: '💳 Payment Issues', value: 'payment' },
         { text: '📝 Return Policy', value: 'returns' },
-        { text: '🚚 Shipping Info', value: 'shipping' }
+        { text: '🚚 Shipping Info', value: 'shipping' },
+        { text: '👤 My Account Info', value: 'account_info' }
       ]
     }]);
+
+    // Fetch current user data
+    const fetchUserData = async () => {
+      try {
+        const userData = localStorage.getItem('currentUser');
+        if (!userData) return;
+        
+        const parsedUser = JSON.parse(userData);
+        setUserData(parsedUser);
+
+        // Fetch account data if available
+        if (parsedUser.accountId) {
+          const accountRes = await fetch(`http://localhost:3000/api/account/${parsedUser.accountId}`);
+          const accountData = await accountRes.json();
+          setAccountData(accountData);
+        }
+
+        // Fetch location data if available
+        if (parsedUser.location) {
+          const locationRes = await fetch(`http://localhost:3000/api/location/${parsedUser.location}`);
+          const locationData = await locationRes.json();
+          setLocationData(locationData);
+        }
+
+        // Fetch order history if available
+        if (parsedUser.userId) {
+          const ordersRes = await fetch(`http://localhost:3000/api/orders?userId=${parsedUser.userId}`);
+          const ordersData = await ordersRes.json();
+          setOrderHistory(ordersData);
+        }
+      } catch (err) {
+        console.error('Error fetching user data:', err);
+        setError('Failed to load user information');
+      }
+    };
+
+    fetchUserData();
   }, []);
 
   const handleFileUpload = (e) => {
@@ -79,9 +123,9 @@ export default function VirtualAgent({ onClose }) {
           case 'orders':
             response = {
               from: 'agent',
-              text: "For order status, please provide your order number. You can also check your order history in your account dashboard.",
+              text: "For order status, please provide your order number. Here's your recent order history:",
               options: [
-                { text: '📋 View Order History', value: 'history' },
+                { text: '📋 View Full Order History', value: 'history' },
                 { text: '📞 Contact Support', value: 'support' },
                 { text: '🔙 Main Menu', value: 'menu' }
               ]
@@ -124,6 +168,33 @@ export default function VirtualAgent({ onClose }) {
             };
             break;
             
+          case 'account_info':
+            setShowUserInfo(true);
+            response = {
+              from: 'agent',
+              text: "Here's your detailed account information. What else can I help you with?",
+              options: [
+                { text: '🛍️ Products', value: 'products' },
+                { text: '📦 Orders', value: 'orders' },
+                { text: '💳 Payments', value: 'payment' },
+                { text: '🔙 Main Menu', value: 'menu' }
+              ]
+            };
+            break;
+            
+          case 'history':
+            response = {
+              from: 'agent',
+              text: "Here's your complete order history. Would you like details on any specific order?",
+              options: [
+                { text: '🛍️ Products', value: 'products' },
+                { text: '📦 Orders', value: 'orders' },
+                { text: '💳 Payments', value: 'payment' },
+                { text: '🔙 Main Menu', value: 'menu' }
+              ]
+            };
+            break;
+            
           case 'menu':
             response = {
               from: 'agent', 
@@ -133,7 +204,8 @@ export default function VirtualAgent({ onClose }) {
                 { text: '📦 Order Status', value: 'orders' },
                 { text: '💳 Payment Issues', value: 'payment' },
                 { text: '📝 Return Policy', value: 'returns' },
-                { text: '🚚 Shipping Info', value: 'shipping' }
+                { text: '🚚 Shipping Info', value: 'shipping' },
+                { text: '👤 My Account Info', value: 'account_info' }
               ]
             };
             break;
@@ -197,13 +269,25 @@ export default function VirtualAgent({ onClose }) {
 
   const emojis = ['😀', '😊', '👍', '👋', '🎉', '🛍️', '📦', '💳', '❓', '✅'];
 
+  // Format order history for display
+  const formatOrderHistory = () => {
+    if (!orderHistory || !orderHistory.data) return [];
+    return orderHistory.data.map(order => ({
+      id: order.id,
+      date: order.date,
+      status: order.status,
+      total: order.total,
+      items: order.items.map(item => `${item.name} (x${item.quantity})`).join(', ')
+    }));
+  };
+
   return (
     <div className="fixed bottom-15 right-4 w-96 h-[580px] rounded-xl overflow-hidden shadow-2xl z-50 flex flex-col font-sans border border-[#00c6fb] bg-[#005baa]">
       {/* Header */}
       <div className="bg-gradient-to-r from-[#005baa] to-[#00c6fb] text-white px-5 py-3 flex justify-between items-center border-b border-[#00c6fb]">
         <div className="flex items-center gap-2">
           <RiRobot2Line className="text-xl" />
-          <h2 className="text-lg font-semibold">E-Commerce Support</h2>
+          <h2 className="text-lg font-semibold">Client Support</h2>
         </div>
         <button
           onClick={onClose}
@@ -256,6 +340,78 @@ export default function VirtualAgent({ onClose }) {
             )}
           </div>
         ))}
+        
+        {/* Show user info if requested */}
+        {showUserInfo && (
+          <div className="bg-white border border-[#00c6fb] rounded-lg p-3 text-sm text-[#333]">
+            <h3 className="font-bold text-[#005baa] mb-2 flex items-center gap-1">
+              <RiUserLine /> User Information
+            </h3>
+            {userData && (
+              <div className="mb-2">
+                <p className="flex items-center gap-1"><RiUserLine className="text-[#00c6fb]" /> <span className="font-semibold">Name:</span> {userData.firstName} {userData.lastName}</p>
+                <p className="flex items-center gap-1"><RiMailLine className="text-[#00c6fb]" /> <span className="font-semibold">Email:</span> {userData.email}</p>
+                <p className="flex items-center gap-1"><RiSmartphoneLine className="text-[#00c6fb]" /> <span className="font-semibold">Phone:</span> {userData.phone}</p>
+                {userData.memberSince && (
+                  <p className="flex items-center gap-1"><RiCalendarLine className="text-[#00c6fb]" /> <span className="font-semibold">Member Since:</span> {new Date(userData.memberSince).toLocaleDateString()}</p>
+                )}
+                {userData.lastLogin && (
+                  <p className="flex items-center gap-1"><RiHistoryLine className="text-[#00c6fb]" /> <span className="font-semibold">Last Login:</span> {new Date(userData.lastLogin).toLocaleString()}</p>
+                )}
+              </div>
+            )}
+            
+            {accountData && (
+              <div className="mb-2">
+                <h4 className="font-bold text-[#005baa] mt-2 flex items-center gap-1">
+                  <RiBuildingLine /> Account Details
+                </h4>
+                <p><span className="font-semibold">Name:</span> {accountData.data?.name}</p>
+                <p><span className="font-semibold">Status:</span> <span className={`${accountData.data?.status === 'Active' ? 'text-green-600' : 'text-red-600'}`}>{accountData.data?.status}</span></p>
+                {accountData.data?.type && <p><span className="font-semibold">Type:</span> {accountData.data.type}</p>}
+                {accountData.data?.industry && <p><span className="font-semibold">Industry:</span> {accountData.data.industry}</p>}
+                {accountData.data?.annualRevenue && <p><span className="font-semibold">Annual Revenue:</span> ${accountData.data.annualRevenue.toLocaleString()}</p>}
+                {accountData.data?.employeeCount && <p><span className="font-semibold">Employees:</span> {accountData.data.employeeCount}</p>}
+              </div>
+            )}
+            
+            {locationData && (
+              <div className="mb-2">
+                <h4 className="font-bold text-[#005baa] mt-2 flex items-center gap-1">
+                  <RiMapPinLine /> Location Details
+                </h4>
+                <p><span className="font-semibold">Address:</span> {locationData.data?.street} {locationData.data?.city}, {locationData.data?.state} {locationData.data?.zip}</p>
+                <p><span className="font-semibold">Country:</span> {locationData.data?.country}</p>
+                {locationData.data?.phone && <p><span className="font-semibold">Location Phone:</span> {locationData.data.phone}</p>}
+                {locationData.data?.hours && <p><span className="font-semibold">Business Hours:</span> {locationData.data.hours}</p>}
+              </div>
+            )}
+            
+            {orderHistory && orderHistory.data && orderHistory.data.length > 0 && (
+              <div className="mb-2">
+                <h4 className="font-bold text-[#005baa] mt-2 flex items-center gap-1">
+                  <RiFileListLine /> Recent Orders ({orderHistory.data.length})
+                </h4>
+                <div className="max-h-40 overflow-y-auto">
+                  {formatOrderHistory().slice(0, 3).map((order, idx) => (
+                    <div key={idx} className="border-b border-gray-200 py-1">
+                      <p><span className="font-semibold">Order #{order.id}:</span> {order.status}</p>
+                      <p className="text-xs">Date: {order.date} | Total: ${order.total}</p>
+                      <p className="text-xs">Items: {order.items}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            <button
+              onClick={() => setShowUserInfo(false)}
+              className="mt-2 text-xs bg-[#00c6fb] text-white px-2 py-1 rounded"
+            >
+              Close
+            </button>
+          </div>
+        )}
         
         {isLoading && (
           <div className="max-w-[80%] px-4 py-2 text-sm rounded-lg bg-[#00c6fb] border border-[#0077cc] text-white self-start">

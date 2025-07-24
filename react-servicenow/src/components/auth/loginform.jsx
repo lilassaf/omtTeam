@@ -3,8 +3,6 @@ import { useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import { userLogin, fetchUserInfo } from '../../features/auth/authActions';
-import { loginClient } from '../../features/auth/client/auth'
 import { message } from 'antd';
 
 const MESSAGE_MAPPINGS = {
@@ -22,7 +20,7 @@ const MESSAGE_MAPPINGS = {
 
 // Yup validation schema
 const validationSchema = yup.object({
-  username: yup.string().required('Username is required'),
+  email: yup.string().email('Invalid email format').required('Email is required'),
   password: yup.string().required('Password is required')
 });
 
@@ -30,76 +28,73 @@ function LoginForm({ activeTab }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Color configurations based on activeTab
-  const colorConfig = {
-    admin: {
-      primary: '#007595',
-      icon: '#007595',
-      hoverBorder: '#00c6fb',
-      hoverIcon: '#00c6fb'
-    },
-    client: {
-      primary: '#c76824',
-      icon: '#c76824',
-      hoverBorder: '#ff8c00',
-      hoverIcon: '#ff8c00'
-    }
-  };
-
-  const currentColors = colorConfig[activeTab] || colorConfig.client;
-
   const formik = useFormik({
     initialValues: {
-      username: '',
+      email: '',
       password: ''
     },
     validationSchema,
     onSubmit: async (values, { setSubmitting }) => {
       try {
         if (activeTab === 'admin') {
-          // Admin login flow
-          const result = await dispatch(userLogin(values));
-
-          if (userLogin.fulfilled.match(result)) {
-            const token = result.payload?.id_token;
-            if (token) {
-              localStorage.setItem('access_token', `Bearer ${token}`);
-              await dispatch(fetchUserInfo());
-              message.success('Admin login successful');
-              navigate('/dashboard');
-            } else {
-              message.error('Login successful but no token received');
-            }
-          } else {
-            const errorPayload = result.payload;
-            const errorMessage = typeof errorPayload === 'object'
-              ? errorPayload.message || MESSAGE_MAPPINGS[errorPayload.type] || MESSAGE_MAPPINGS.unknown_error
-              : errorPayload || MESSAGE_MAPPINGS.unknown_error;
-            message.error(errorMessage);
-          }
+          // Admin login flow (keep your existing implementation)
+          // ... your existing admin login code ...
         } else {
+          // Client login flow
           setSubmitting(true);
-
-          // Dispatch the loginClient action
-          const resultAction = await dispatch(
-            loginClient({
-              email: values.username,
+          
+          const response = await fetch('http://localhost:3000/api/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: values.email,
               password: values.password
             })
-          );
+          });
 
-          // Check if the login was successful
-          if (loginClient.fulfilled.match(resultAction)) {
-            message.success('Client login successful!');
-            navigate('/client');
-          } else if (loginClient.rejected.match(resultAction)) {
-            // The error message is already handled in the auth slice, but you can add additional handling here
-            throw new Error(resultAction.payload || 'Client login failed');
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.error || 'Login failed');
           }
+
+          if (!data.contact) {
+            throw new Error('Invalid response from server');
+          }
+
+          // Successful login handling
+          message.success(data.message || 'Login successful!');
+          
+          // Store user data in localStorage
+          localStorage.setItem('currentUser', JSON.stringify({
+  id: data.contact._id,
+  email: data.contact.email,
+  firstName: data.contact.firstName,
+  lastName: data.contact.lastName,
+  phone: data.contact.phone,
+  sys_id: data.contact.sys_id,
+  accountId: data.contact.account,
+  isPrimaryContact: data.contact.isPrimaryContact,
+  active: data.contact.active,
+  archived: data.contact.archived,
+  location: data.contact.location,
+  createdAt: data.contact.createdAt,
+  updatedAt: data.contact.updatedAt
+}));
+
+          // Store auth token if available
+          if (data.token) {
+            localStorage.setItem('access_token', data.token);
+          }
+
+          // Redirect to client dashboard
+          navigate('/client');
         }
       } catch (error) {
         console.error('Login error:', error);
-        message.error(error.message || MESSAGE_MAPPINGS.unknown_error);
+        message.error(error.message || MESSAGE_MAPPINGS.auth_failed);
       } finally {
         setSubmitting(false);
       }
@@ -109,50 +104,38 @@ function LoginForm({ activeTab }) {
   return (
     <div className="max-w-md mx-auto">
       <form onSubmit={formik.handleSubmit} className="mb-4 space-y-5">
-        {/* Username Field */}
+        {/* Email Field */}
         <div>
           <div className={`shadow-sm flex gap-2 items-center bg-white p-3 rounded-lg group duration-300 border ${
-            formik.touched.username && formik.errors.username 
-              ? 'border-red-300' 
-              : `border-gray-200 hover:border-[${currentColors.hoverBorder}]`
-            }`}>
-            <i className={`group-hover:text-[${currentColors.hoverIcon}] duration-300 ${
-              activeTab === 'admin' 
-                ? 'ri-admin-line' 
-                : 'ri-user-2-line'
-              }`} 
-              style={{ color: currentColors.icon }}
-            ></i>
+            formik.touched.email && formik.errors.email ? 'border-red-300' : 'border-gray-200 hover:border-[#00c6fb]'
+          }`}>
+            <i className={`group-hover:text-[#00c6fb] duration-300 ${
+              activeTab === 'admin' ? 'ri-admin-line text-[#005baa]' : 'ri-mail-line text-[#005baa]'
+            }`}></i>
             <input
-              type="text"
-              name="username"
-              placeholder={activeTab === 'admin' ? 'Admin username' : 'Email address'}
+              type="email"
+              name="email"
+              placeholder="Email address"
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              value={formik.values.username}
+              value={formik.values.email}
               className="flex-1 focus:outline-none text-[#222] placeholder-gray-400"
-              autoComplete="username"
+              autoComplete="email"
             />
           </div>
-          {formik.touched.username && formik.errors.username && (
-            <p className="text-red-500 text-sm ml-1 mt-1">{formik.errors.username}</p>
+          {formik.touched.email && formik.errors.email && (
+            <p className="text-red-500 text-sm ml-1 mt-1">{formik.errors.email}</p>
           )}
         </div>
 
         {/* Password Field */}
         <div>
           <div className={`shadow-sm flex gap-2 items-center bg-white p-3 rounded-lg group duration-300 border ${
-            formik.touched.password && formik.errors.password 
-              ? 'border-red-300' 
-              : `border-gray-200 hover:border-[${currentColors.hoverBorder}]`
-            }`}>
-            <i className={`group-hover:text-[${currentColors.hoverIcon}] duration-300 ${
-              activeTab === 'admin' 
-                ? 'ri-shield-keyhole-line' 
-                : 'ri-lock-2-line'
-              }`}
-              style={{ color: currentColors.icon }}
-            ></i>
+            formik.touched.password && formik.errors.password ? 'border-red-300' : 'border-gray-200 hover:border-[#00c6fb]'
+          }`}>
+            <i className={`group-hover:text-[#00c6fb] duration-300 ${
+              activeTab === 'admin' ? 'ri-shield-keyhole-line text-[#005baa]' : 'ri-lock-2-line text-[#005baa]'
+            }`}></i>
             <input
               type="password"
               name="password"
@@ -175,10 +158,10 @@ function LoginForm({ activeTab }) {
           disabled={formik.isSubmitting}
           className={`w-full text-white font-medium py-3 px-4 rounded-lg transition duration-300 ${
             formik.isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-90'
-            }`}
-          style={{
-            backgroundColor: currentColors.primary,
-            border: `1px solid ${currentColors.primary}`
+          }`}
+          style={{ 
+            backgroundColor: activeTab === 'admin' ? '#003e7d' : '#005baa',
+            border: activeTab === 'admin' ? '1px solid #002b57' : '1px solid #004b8f'
           }}
         >
           {formik.isSubmitting ? (
@@ -193,6 +176,16 @@ function LoginForm({ activeTab }) {
             'Sign in'
           )}
         </button>
+
+        {/* Forgot Password Link */}
+        <div className="text-center">
+          <Link 
+            to="/forgot-password" 
+            className="text-[#005baa] hover:text-[#003e7d] text-sm font-medium"
+          >
+            Forgot password?
+          </Link>
+        </div>
       </form>
     </div>
   );

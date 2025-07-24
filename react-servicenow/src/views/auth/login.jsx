@@ -30,19 +30,19 @@ function Login() {
           style={{ border: '1px solid rgba(0, 91, 170, 0.1)' }}
         >
           {/* Dynamic gradient bar based on active tab */}
-          <div className={`h-2 ${activeTab === 'client' ? 'bg-gradient-to-r from-[#f68a30] to-[#fbb073]' : 'bg-gradient-to-r from-cyan-700 to-cyan-600'}`}></div>
+          <div className={`h-2 ${activeTab === 'client' ? 'bg-gradient-to-r from-[#005baa] to-[#00c6fb]' : 'bg-gradient-to-r from-[#003e7d] to-[#005baa]'}`}></div>
           
           {/* Tab selector */}
           <div className="flex border-b border-gray-200">
             <button
               onClick={() => setActiveTab('client')}
-              className={`flex-1 py-4 font-medium text-sm transition-colors ${activeTab === 'client' ? 'text-[#c76824] bg-[#b05b1f17]' : 'text-gray-500 hover:text-[#fbb073]'}`}
+              className={`flex-1 py-4 font-medium text-sm transition-colors ${activeTab === 'client' ? 'text-[#005baa] bg-[#f0f7ff]' : 'text-gray-500 hover:text-[#00c6fb]'}`}
             >
               <i className="ri-user-line mr-2"></i> Client Portal
             </button>
             <button
               onClick={() => setActiveTab('admin')}
-              className={`flex-1 py-4 font-medium text-sm transition-colors ${activeTab === 'admin' ? 'text-cyan-700 bg-[#f0f7ff]' : 'text-gray-500 hover:text-[#00c6fb]'}`}
+              className={`flex-1 py-4 font-medium text-sm transition-colors ${activeTab === 'admin' ? 'text-[#005baa] bg-[#f0f7ff]' : 'text-gray-500 hover:text-[#00c6fb]'}`}
             >
               <i className="ri-admin-line mr-2"></i> Admin Portal
             </button>

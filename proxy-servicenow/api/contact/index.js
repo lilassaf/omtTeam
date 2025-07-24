@@ -8,13 +8,13 @@ const deleteContact = require('../../controllers/contact/delete');
 const getAll = require('../../controllers/contact/getall');
 const getOne = require('../../controllers/contact/getone');
 const authjwt = require('../../middleware/auth');
-
-
+const login = require('../../controllers/contact/login');
 //routes
+router.post('/login', login.login);
 router.post('/contact', create)
-router.patch('/contact/:id',update);
+router.patch('/contact/:id', update);
 router.get('/contact/:id', getOne);
-router.delete('/contact/:id',authjwt ,deleteContact);
+router.delete('/contact/:id', authjwt, deleteContact);
 router.get('/contact', getAll);
 
 module.exports = router;

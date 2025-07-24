@@ -15,11 +15,11 @@ const verifyAccountToken = require('../../controllers/account/verifyAccountToken
 const sendMailInfo = require('../../controllers/account/sendMailInfo');
 
 //routes
-router.post('/account',authjwt, create)
-router.get('/account',authjwt, getAll);
-router.get('/account/:id',authjwt, getOne);
+router.post('/account', authjwt, create)
+router.get('/account', getAll);
+router.get('/account/:id', getOne);
 router.delete('/account/:id', authjwt, deleteAccount);
-router.patch('/account/:id',update);
+router.patch('/account/:id', update);
 
 
 router.post('/request-creation', requestCreation);
