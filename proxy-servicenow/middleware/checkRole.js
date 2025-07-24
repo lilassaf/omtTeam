@@ -24,6 +24,7 @@ const checkRole = (...allowedRoles) => {
       if (!decoded.role) {
         return res.status(401).json({ message: 'Unauthorized - Invalid token structure' });
       }
+      
 
       // Convert role to array if it's a single string (for consistency)
       const userRoles = Array.isArray(decoded.role) ? decoded.role : [decoded.role];
