@@ -13,18 +13,6 @@ require('dotenv').config();
 // CREATE ProductOfferingCategory
 module.exports = async (req, res) => {
   try {
-    // 1. Authentication
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-      return res.status(401).json({ error: 'Authorization required' });
-    }
-
-    let decodedToken;
-    try {
-      decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (err) {
-      return res.status(401).json({ error: 'Invalid or expired token' });
-    }
 
     const { name, code, is_leaf, catalog, start_date, end_date, description } = req.body;
     if (!name || !code || !start_date || typeof is_leaf === 'undefined') {
@@ -65,7 +53,7 @@ module.exports = async (req, res) => {
         },
         {
           headers: {
-            'Authorization': `Bearer ${decodedToken.sn_access_token}`,
+            'Authorization': `Bearer ${req.session.snAccessToken}`,
             'Content-Type': 'application/json'
           }
         }
@@ -94,7 +82,7 @@ module.exports = async (req, res) => {
       await createCatalogCategoryRelationship(
         catalogDoc,
         mongoDoc,
-        decodedToken.sn_access_token
+        req.session.snAccessToken
       );
     } catch (error) {
       return res.status(500).json({

@@ -3,6 +3,7 @@ const axios = require('axios');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
+
 const router = express.Router();
 
 const ERROR_MESSAGES = {
@@ -56,7 +57,7 @@ router.post('/get-token', async (req, res) => {
       scope: data.scope,
       iss: process.env.JWT_ISSUER || 'your-app',
       iat: Math.floor(Date.now() / 1000),
-      role: 'user'
+      role: 'Admin'
     };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, {

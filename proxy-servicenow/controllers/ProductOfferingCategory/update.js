@@ -9,20 +9,9 @@ const getone = require('./getone')
 
 module.exports = async (req, res) => {
   try {
-    // 1. Authentication
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-      return res.status(401).json({ error: 'Authorization required' });
-    }
+  
 
-    let decodedToken;
-    try {
-      decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (err) {
-      return res.status(401).json({ error: 'Invalid or expired token' });
-    }
-
-    // 2. Validate category ID
+    //  Validate category ID
     const { id } = req.params;
     if (!id) {
       return res.status(400).json({ error: 'Category ID is required' });
@@ -76,7 +65,7 @@ module.exports = async (req, res) => {
       await updateCatalogCategoryRelationship(
         catalogDoc,
         existingCategory,
-        decodedToken.sn_access_token
+        req.session.snAccessToken
       );
     } catch (error) {
       return res.status(500).json({
@@ -93,7 +82,7 @@ module.exports = async (req, res) => {
         updateBody,
         {
           headers: {
-            'Authorization': `Bearer ${decodedToken.sn_access_token}`,
+            'Authorization': `Bearer ${req.session.snAccessToken}`,
             'Content-Type': 'application/json'
           }
         }

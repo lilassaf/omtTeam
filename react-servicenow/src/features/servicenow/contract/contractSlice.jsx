@@ -1,24 +1,17 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import {api} from "../../../utils/axioswithsession";
 import dayjs from 'dayjs';
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-// Helper function to get authorization headers
-const getHeaders = () => {
-  const access_token = localStorage.getItem('access_token');
-  return { authorization: access_token };
-};
 
 // Async Thunk for contract generation
 export const generateContract = createAsyncThunk(
   'contract/generate',
-  async (quoteId, { rejectWithValue }) => {
+  async ({ quoteId, signature }, { rejectWithValue }) => { // Accept signature parameter
     try {
-      const response = await axios.post(
-        `${backendUrl}/api/contract/${quoteId}`,
-        {},
-        { headers: getHeaders() }
+      const response = await api.post(
+        `/api/contract/${quoteId}`,
+        { signature }, // Include signature in request body
       );
       return response.data;
     } catch (error) {
@@ -34,14 +27,11 @@ export const generateContract = createAsyncThunk(
 // Async Thunk for downloading contract
 export const downloadContract = createAsyncThunk(
   'contract/download',
-  async (args, { rejectWithValue }) => { // Change to accept single args object
+  async ({ contractId, quoteNumber }, { rejectWithValue }) => {
     try {
-      const { contractId, quoteNumber } = args; // Destructure arguments
-          
-      const response = await axios.get(
-        `${backendUrl}/api/download-contract/${contractId}`,
+      const response = await api.get(
+        `/api/download-contract/${contractId}`,
         {
-          headers: getHeaders(),
           responseType: 'blob'
         }
       );
@@ -71,11 +61,12 @@ const contractSlice = createSlice({
   name: 'contract',
   initialState: {
     generatedContract: null,
-    download: null,        // Stores download data { id, content, fileName }
-    loading: false,        // Loading state for generation
-    downloading: false,    // Loading state for download
-    error: null,           // Error for generation
-    downloadError: null    // Error for download
+    download: null,
+    loading: false,
+    downloading: false,
+    error: null,
+    downloadError: null,
+    signature: null // Store signature separately if needed
   },
   reducers: {
     clearGeneratedContract: (state) => {
@@ -89,6 +80,12 @@ const contractSlice = createSlice({
     },
     clearDownloadError: (state) => {
       state.downloadError = null;
+    },
+    setSignature: (state, action) => {
+      state.signature = action.payload;
+    },
+    clearSignature: (state) => {
+      state.signature = null;
     }
   },
   extraReducers: (builder) => {
@@ -101,6 +98,7 @@ const contractSlice = createSlice({
       .addCase(generateContract.fulfilled, (state, action) => {
         state.loading = false;
         state.generatedContract = action.payload;
+        state.error = null;
       })
       .addCase(generateContract.rejected, (state, action) => {
         state.loading = false;
@@ -115,6 +113,7 @@ const contractSlice = createSlice({
       .addCase(downloadContract.fulfilled, (state, action) => {
         state.downloading = false;
         state.download = action.payload;
+        state.downloadError = null;
       })
       .addCase(downloadContract.rejected, (state, action) => {
         state.downloading = false;
@@ -127,7 +126,9 @@ export const {
   clearGeneratedContract,
   clearContractError,
   clearDownload,
-  clearDownloadError
+  clearDownloadError,
+  setSignature,
+  clearSignature
 } = contractSlice.actions;
 
 export default contractSlice.reducer;

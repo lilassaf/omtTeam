@@ -1,12 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import {api} from "../../../utils/axioswithsession";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
-// ServiceNow API headers
-const getHeaders = () => ({
-  'Content-Type': 'application/json',
-  'authorization': `${localStorage.getItem('access_token')}`, // or your auth method
-});
 
 
 // 3. Product Offering Price CRUD operations
@@ -14,10 +8,10 @@ export const create = createAsyncThunk(
     'productOfferingPrice/create',
     async (productOfferingPriceData, { rejectWithValue }) => {
       try {
-        const response = await axios.post(
-          `${backendUrl}/api/product-offering-price`,
+        const response = await api.post(
+          `/api/product-offering-price`,
           productOfferingPriceData,
-          { headers: getHeaders() }
+          
         );
         return response.data.result;
       } catch (error) {
@@ -31,9 +25,9 @@ export const getAll = createAsyncThunk(
     'productOfferingPrice/getAll',
     async (_, { rejectWithValue }) => {
         try {
-        const response = await axios.get(
-            `${backendUrl}/api/product-offering-price`,
-            { headers: getHeaders() }
+        const response = await api.get(
+            `/api/product-offering-price`,
+            
         );
         return response.data.result;
         } catch (error) {
@@ -47,9 +41,9 @@ export const getByPriceList = createAsyncThunk(
     'productOfferingPrice/getByPriceList',
     async (priceListId, { rejectWithValue }) => {
         try {
-            const response = await axios.get(
-                `${backendUrl}/api/product-offering-price-pl/${priceListId}`,
-                { headers: getHeaders() }
+            const response = await api.get(
+                `/api/product-offering-price-pl/${priceListId}`,
+                
             );
             return response.data.result;
         } catch (error) {

@@ -40,7 +40,7 @@ async function createOpportunityLine(req, res = null) {
     };
 
     // Create in ServiceNow
-    const connection = snConnection.getConnection(req.user.sn_access_token);
+    const connection = snConnection.getConnection(req.session.snAccessToken);
     const snResponse = await axios.post(
       `${connection.baseURL}/api/now/table/sn_opty_mgmt_core_opportunity_line_item`,
       snPayload,

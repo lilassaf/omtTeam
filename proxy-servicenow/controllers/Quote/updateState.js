@@ -6,18 +6,7 @@ const getoneQuote = require('./getone');
 
 module.exports = async (req, res) => {
     try {
-        // Authorization handling
-        const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return res.status(401).json({ error: 'Invalid authorization format' });
-        }
-        const token = authHeader.split(' ')[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        if (!decoded.sn_access_token) {
-            return res.status(401).json({ error: 'Missing ServiceNow access token in JWT' });
-        }
-
+       
         const { id } = req.params;
 
         // Validate request body fields - expand as needed
@@ -64,17 +53,16 @@ module.exports = async (req, res) => {
 
         // ServiceNow update - using table API endpoint
         const snResponse = await axios.patch(
-            `${process.env.SERVICE_NOW_URL}/api/sn_quote_mgmt_core/bismilah`,
+            `${process.env.SERVICE_NOW_URL}/api/x_1598581_omt_dx_0/dxc_order_management_api/quote`,
             updateBody,
             {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${decoded.sn_access_token}`,
+                    'Authorization': `Bearer ${req.session.snAccessToken}`,
                     'Accept': 'application/json'
                 }
             }
         );
-
         // Handle ServiceNow response
         const snData = snResponse.data.result;
         if (!snData || snData.sys_id !== quote.sys_id) {

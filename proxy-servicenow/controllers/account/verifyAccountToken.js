@@ -11,7 +11,7 @@ const verifyAccountToken = async (req, res) => {
   try {
     // 1. Verify token in ServiceNow (check if it exists AND is unused)
     const query = `u_token=${token}^u_used=false`;
-    const servicenowResp = await axios.get(`${process.env.SERVICE_NOW_URL}/api/now/table/u_opportunity_tokens`, {
+    const servicenowResp = await axios.get(`${process.env.SERVICE_NOW_URL}/api/now/table/u_u_opportunity_tokens`, {
       params: {
         sysparm_query: query,
         sysparm_limit: 1
@@ -29,7 +29,7 @@ const verifyAccountToken = async (req, res) => {
     }
 
     // 2. Mark token as used
-    await axios.patch(`${process.env.SERVICE_NOW_URL}/api/now/table/u_opportunity_tokens/${tokenRecord.sys_id}`, {
+    await axios.patch(`${process.env.SERVICE_NOW_URL}/api/now/table/u_u_opportunity_tokens/${tokenRecord.sys_id}`, {
       u_used: true
     }, {
       auth: {

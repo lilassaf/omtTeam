@@ -95,7 +95,7 @@ const OpportunityStep2 = ({ formik, editMode=false, setPLSearchTerm }) => {
           options={priceLists
             .map(pl => ({
               value: pl._id,
-              label: `${pl.name} (${pl.currency})`
+              label: `${pl.name} (${pl.currency?.value || pl.currency})`
             }))}
             onChange={formik.handleChange}
         onBlur={formik.handleBlur}

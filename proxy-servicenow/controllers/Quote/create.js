@@ -11,8 +11,7 @@ const getOpportunityWithDetails = require('../Opportunity/getOpportuntityWithdet
 
 module.exports = async (req, res) => {
   try {
-    const token = req.headers.authorization.split(' ')[1];
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+ 
     const id = req.params.id;  
 
     if (!id) {
@@ -26,12 +25,13 @@ module.exports = async (req, res) => {
       return res.status(404).json({ error: `Opportunity not found with _id: ${id}` });
     }
 
+    req
     const snResponse = await axios.post(
-      `${process.env.SERVICE_NOW_URL}/api/sn_quote_mgmt_core/bismilah`,
+      `${process.env.SERVICE_NOW_URL}/api/x_1598581_omt_dx_0/dxc_order_management_api/quote`,
       { opty_sys_id: localOpportunity.sys_id },
       {
         headers: {
-          'Authorization': `Bearer ${decodedToken.sn_access_token}`,
+          'Authorization': `Bearer ${req.session.snAccessToken}`,
           'Content-Type': 'application/json',
         }
       }

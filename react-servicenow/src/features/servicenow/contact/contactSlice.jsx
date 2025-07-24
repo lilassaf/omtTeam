@@ -12,16 +12,14 @@ const initialState = {
   data: [],
   loading: false,
   error: null,
-  createLoading: false,
-  createError: null,
-  updateLoading: false,
-  updateError: null,
   deleteLoading: false,
   deleteError: null,
   currentPage: 1,
   totalItems: 0,
   limit: 6,
-  searchQuery: ''
+  searchQuery: '',
+  currentContact: null,
+  loadingContact: false
 };
 
 // Async Thunks
@@ -46,47 +44,13 @@ export const getContacts = createAsyncThunk(
   }
 );
 
-export const createContact = createAsyncThunk(
-  'contact/create',
-  async (contactData, { rejectWithValue }) => {
+export const getOneContact = createAsyncThunk(
+  'contact/getOne',
+  async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        `${backendUrl}/api/contact`,
-        contactData,
-        { headers: getHeaders() }
-      );
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
-  }
-);
-
-export const updateContact = createAsyncThunk(
-  'contact/update',
-  async ({ id, ...contactData }, { rejectWithValue }) => {
-    try {
-      const response = await axios.put(
-        `${backendUrl}/api/contact/${id}`,
-        contactData,
-        { headers: getHeaders() }
-      );
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
-  }
-);
-
-export const updateContactStatus = createAsyncThunk(
-  'contact/updateStatus',
-  async ({ id, active }, { rejectWithValue }) => {
-    try {
-      const response = await axios.patch(
-        `${backendUrl}/api/contact/${id}/status`,
-        { active },
-        { headers: getHeaders() }
-      );
+      const response = await axios.get(`${backendUrl}/api/contact/${id}`, { 
+        headers: getHeaders(),
+      });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -143,51 +107,18 @@ const contactSlice = createSlice({
         state.error = action.payload;
       })
       
-      // Create Contact
-      .addCase(createContact.pending, (state) => {
-        state.createLoading = true;
-        state.createError = null;
+      // Get One Contact
+      .addCase(getOneContact.pending, (state) => {
+        state.loadingContact = true;
+        state.error = null;
       })
-      .addCase(createContact.fulfilled, (state, action) => {
-        state.createLoading = false;
-        state.data = [action.payload, ...state.data].slice(0, state.limit);
-        state.totalItems += 1;
+      .addCase(getOneContact.fulfilled, (state, action) => {
+        state.currentContact = action.payload;
+        state.loadingContact = false;
       })
-      .addCase(createContact.rejected, (state, action) => {
-        state.createLoading = false;
-        state.createError = action.payload;
-      })
-      
-      // Update Contact
-      .addCase(updateContact.pending, (state) => {
-        state.updateLoading = true;
-        state.updateError = null;
-      })
-      .addCase(updateContact.fulfilled, (state, action) => {
-        state.updateLoading = false;
-        state.data = state.data.map(contact => 
-          contact._id === action.payload._id ? action.payload : contact
-        );
-      })
-      .addCase(updateContact.rejected, (state, action) => {
-        state.updateLoading = false;
-        state.updateError = action.payload;
-      })
-      
-      // Update Contact Status
-      .addCase(updateContactStatus.pending, (state) => {
-        state.updateLoading = true;
-        state.updateError = null;
-      })
-      .addCase(updateContactStatus.fulfilled, (state, action) => {
-        state.updateLoading = false;
-        state.data = state.data.map(contact => 
-          contact._id === action.payload._id ? action.payload : contact
-        );
-      })
-      .addCase(updateContactStatus.rejected, (state, action) => {
-        state.updateLoading = false;
-        state.updateError = action.payload;
+      .addCase(getOneContact.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loadingContact = false;
       })
       
       // Delete Contact

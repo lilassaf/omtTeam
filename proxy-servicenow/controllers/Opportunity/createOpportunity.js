@@ -6,6 +6,7 @@ const handleMongoError = require('../../utils/handleMongoError');
 const Account = require('../../models/account');
 const SCT = require('../../models/salesCycleType');
 const Stage = require('../../models/stage');
+const mongoose = require('mongoose');
 
 async function createOpportunity(req, res=null) {
   try {
@@ -42,6 +43,7 @@ async function createOpportunity(req, res=null) {
       }
       accountSysId = accountDoc.sys_id;
     }
+    console.log(accountSysId);
     
     // Get PriceList sys_id if price_list is provided
     if (price_list) {
@@ -51,12 +53,14 @@ async function createOpportunity(req, res=null) {
       }
       priceListSysId = priceListDoc.sys_id;
     }
+    console.log(priceListSysId)
+
 
     // Get stage sys_id if stage is provided 
     if(stage){
       stageDoc = await Stage.findById(stage);
       if (!stageDoc) {
-        return res.status(404).json({ error: `PriceList not found with id: ${stage}` });
+        return res.status(404).json({ error: `stage not found with id: ${stage}` });
       }
       stageSysId = stageDoc.sys_id;
     }
@@ -65,26 +69,18 @@ async function createOpportunity(req, res=null) {
     if(sales_cycle_type){
       SCTDoc = await SCT.findById(sales_cycle_type);
       if (!SCTDoc) {
-        return res.status(404).json({ error: `PriceList not found with id: ${SCT}` });
+        return res.status(404).json({ error: `sales cycle not found with id: ${SCT}` });
       }
       SCTSysId = SCTDoc.sys_id;
     }
-    const initialMongo = {
-      ...req.body,
-      // Override with MongoDB ObjectId references
-      ...(accountDoc && { account: accountDoc._id }),
-      ...(priceListDoc && { price_list: priceListDoc._id }),
-      ...(stageDoc && { stage: stageDoc._id }),
-      ...(SCTDoc && { sales_cycle_type: SCTDoc._id })
-    }
-    //create in mongo
-    const opportunity = new Opportunity(initialMongo);
-    const savedOpportunity = await opportunity.save();
+    
+
+    const newId = new mongoose.Types.ObjectId();
 
     // Step 2: Prepare ServiceNow payload with sys_ids
     const serviceNowPayload = {
       ...opportunityData,
-      external_id: savedOpportunity._id.toString(),
+      external_id: newId,
       account: accountSysId,
       price_list: priceListSysId,
       stage: stageSysId,
@@ -94,7 +90,7 @@ async function createOpportunity(req, res=null) {
     console.log('Creating opportunity in ServiceNow with payload:', serviceNowPayload);
     
     // Step 3: Create in ServiceNow
-    const connection = snConnection.getConnection(req.user.sn_access_token);
+    const connection = snConnection.getConnection(req.session.snAccessToken);
     const snResponse = await axios.post(
       `${connection.baseURL}/api/now/table/sn_opty_mgmt_core_opportunity`,
       serviceNowPayload,
@@ -105,20 +101,30 @@ async function createOpportunity(req, res=null) {
     
     // Step 4: Prepare MongoDB document with ObjectId references
     const mongoPayload = {
+      _id: newId,
+      ...snResponse.data.result,
       sys_id: snResponse.data.result.sys_id,
-      number: snResponse.data.result.number
+      number: snResponse.data.result.number,
+      // Override with MongoDB ObjectId references
+      ...(accountDoc && { account: accountDoc._id }),
+      ...(priceListDoc && { price_list: priceListDoc._id }),
+      ...(stageDoc && { stage: stageDoc._id }),
+      ...(SCTDoc && { sales_cycle_type: SCTDoc._id })
     };
     
     // Step 5: update in MongoDB
     try {
       
-      
-      // Populate the saved opportunity with account and price_list details
-      const populatedOpportunity = await Opportunity.findByIdAndUpdate(savedOpportunity._id, mongoPayload ,{new: true})
+      const opportunity = new Opportunity(mongoPayload);
+      const savedOpportunity = await opportunity.save();
+
+      // Populate the document for response
+      const populatedOpportunity = await Opportunity.findById(savedOpportunity._id)
         .populate('account', 'name email country city industry')
-        .populate('price_list')
+        .populate('price_list', 'name')
         .populate('sales_cycle_type')
-        .populate('price_list', 'name');
+        .populate('stage');
+      
       
       if(res){
         res.status(201).json({

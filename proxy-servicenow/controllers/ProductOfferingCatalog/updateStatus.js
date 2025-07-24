@@ -6,18 +6,7 @@ const getone = require('./getone');
 
 module.exports = async (req, res) => {
     try {
-        // Authorization handling
-        const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return res.status(401).json({ error: 'Invalid authorization format' });
-        }
-        const token = authHeader.split(' ')[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        if (!decoded.sn_access_token) {
-            return res.status(401).json({ error: 'Missing ServiceNow access token in JWT' });
-        }
-
+         
         const { id } = req.params;
 
         // Validate request body fields
@@ -55,12 +44,12 @@ module.exports = async (req, res) => {
 
         // ServiceNow update
         const snResponse = await axios.patch(
-            `${process.env.SERVICE_NOW_URL}/api/sn_prd_pm/update_status/poc_pub`,
+            `${process.env.SERVICE_NOW_URL}/api/x_1598581_omt_dx_0/product_management_api/poc_pubg`,
             updateBody,
             {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${decoded.sn_access_token}`
+                    'Authorization': `Bearer ${req.session.snAccessToken}`
                 }
             }
         );

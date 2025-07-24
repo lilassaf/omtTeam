@@ -1,5 +1,6 @@
 const config = require('../../utils/configCreateAccount');
 const axios = require('axios');
+const bcrypt = require('bcrypt');
 const handleMongoError = require('../../utils/handleMongoError');
 const Contact = require('../../models/Contact');
 const Account = require('../../models/account');
@@ -21,6 +22,11 @@ async function createContact(req, res = null) {
       username: config.serviceNow.user,
       password: config.serviceNow.password
     };
+    let hashedPassword = '';
+    if (req.body.password) {
+      const saltRounds = 10; // The cost factor for hashing
+      hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
+    }
 
     // First create in MongoDB to get the ID
     const contact = new Contact({
@@ -28,6 +34,7 @@ async function createContact(req, res = null) {
       lastName: req.body.lastName,
       email: req.body.email,
       phone: req.body.phone,
+      password: hashedPassword,
       account: accountDoc._id,
       isPrimaryContact: req.body.isPrimaryContact ?? true,
       active: req.body.active || true,
@@ -53,7 +60,7 @@ async function createContact(req, res = null) {
 
     // Create in ServiceNow
     const snResponse = await axios.post(
-      `${config.serviceNow.url}/api/now/table/customer_contact`,
+      `${config.serviceNow.url}/api/now/table/customer_contact?sysparm_input_display_value=true`,
       contactPayload,
       {
         headers: { 

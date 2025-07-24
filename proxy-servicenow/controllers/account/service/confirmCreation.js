@@ -21,7 +21,6 @@ const confirmCreation = async (req, res) => {
     const { userData } = registration;
     let accountId;
     let accountSysId;
-    console.log("1",accountSysId);
 
     // Use either system token or ServiceNow credentials
     const authConfig = {
@@ -51,8 +50,7 @@ const confirmCreation = async (req, res) => {
       const decoded = Buffer.from(rawToken, 'base64').toString('utf-8'); // "accountSysId:guid"
 
       // Split to extract the accountSysId and GUID
-      const [accountSysId, guid] = decoded.split(':');
-      console.log("2",accountSysId);
+      [accountSysId, guid] = decoded.split(':');
 
       if (!accountSysId) {
         throw new Error('Invalid token structure');
@@ -90,7 +88,6 @@ const confirmCreation = async (req, res) => {
       accountId = newAccount._id;
       accountSysId = newAccount.sys_id;
     }
-    console.log("4",accountSysId);
     // Arrays to store created contact and location IDs
     const contactIds = [];
     const locationIds = [];
@@ -185,19 +182,6 @@ const confirmCreation = async (req, res) => {
       authConfig
     );
 
-    // Send single welcome email to account with all contacts' credentials
-   try {
-      if (contactsCredentials.length > 0) {
-        await sendWelcomeEmail(
-          userData.email,
-          userData.name,
-          contactsCredentials
-        );
-      }
-    } catch (emailError) {
-      console.error('Email sending failed (non-critical):', emailError);
-      // Continue with registration even if email fails
-    }
     // Clean up the pending registration
     pendingRegistrations.delete(token);
     emailToTokenMap.delete(userData.email);

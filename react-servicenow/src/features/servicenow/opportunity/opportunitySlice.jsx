@@ -1,12 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import {api} from "../../../utils/axioswithsession";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
-// ServiceNow API headers
-const getHeaders = () => ({
-  'Content-Type': 'application/json',
-  'authorization': `${localStorage.getItem('access_token')}`, // or your auth method
-});
 
 // Async Thunks for each operation in the workflow
 
@@ -15,10 +9,10 @@ export const workflow = createAsyncThunk(
   'opportunity/workflow',
   async (opportunityData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        `${backendUrl}/api/opportunity-workflow`,
+      const response = await api.post(
+        `/api/opportunity-workflow`,
         opportunityData,
-        { headers: getHeaders() }
+        
       );
       
       return response.data.data;
@@ -33,10 +27,10 @@ export const createOpportunity = createAsyncThunk(
   'opportunity/createOpportunity',
   async (opportunityData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        `${backendUrl}/api/opportunity`,
+      const response = await api.post(
+        `/api/opportunity`,
         opportunityData,
-        { headers: getHeaders() }
+        
       );
       return response.data.result;
     } catch (error) {
@@ -49,10 +43,9 @@ export const getOpportunities = createAsyncThunk(
   'opportunity/getOpportunities',
   async ({ page = 1, limit = 6, q }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${backendUrl}/api/opportunity`,
+      const response = await api.get(
+        `/api/opportunity`,
         { 
-          headers: getHeaders(),
           params: { page, limit, q }
          },
         
@@ -70,13 +63,9 @@ export const getOpportunity = createAsyncThunk(
   'opportunity/getOpportunity',
   async ({id }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${backendUrl}/api/opportunity/${id}`,
-        { 
-          headers: getHeaders()
-         },
+      const response = await api.get(
+        `/api/opportunity/${id}`
       );
-      console.log("here")
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -86,12 +75,11 @@ export const getOpportunity = createAsyncThunk(
 
 export const updateOpportunityPricing = createAsyncThunk(
   'opportunity/updateOpportunityPricing',
-  async ( body , { rejectWithValue }) => {
+  async ( {id, body} , { rejectWithValue }) => {
     try {
-      const response = await axios.patch(
-        `${backendUrl}/api/opportunity-edit`,
+      const response = await api.patch(
+        `/api/opportunity-edit/${id}`,
         body,
-        { headers: getHeaders() }
       );
       return response.data;
     } catch (error) {
@@ -104,9 +92,9 @@ export const deleteOpportunity = createAsyncThunk(
   'opportunity/deleteOpportunity',
   async (id, { rejectWithValue }) => {
     try {
-      await axios.delete(
-        `${backendUrl}/api/opportunity/${id}`,
-        { headers: getHeaders() }
+      await api.delete(
+        `/api/opportunity/${id}`,
+        
       );
       return id;
     } catch (error) {
@@ -120,9 +108,9 @@ export const getSalesCycleTypes = createAsyncThunk(
   'opportunity/getSalesCycleTypes',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${backendUrl}/api/opportunity-sales-cycle-type`,
-        { headers: getHeaders() }
+      const response = await api.get(
+        `/api/opportunity-sales-cycle-type`,
+        
       );
       return response.data;
     } catch (error) {
@@ -135,9 +123,9 @@ export const getStages = createAsyncThunk(
   'opportunity/getStages',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${backendUrl}/api/opportunity-stage`,
-        { headers: getHeaders() }
+      const response = await api.get(
+        `/api/opportunity-stage`,
+        
       );
       return response.data;
     } catch (error) {
@@ -151,10 +139,10 @@ export const updateStage = createAsyncThunk(
   async (stageBody, { rejectWithValue }) => {
     try {
       console.log(stageBody);
-      const response = await axios.patch(
-        `${backendUrl}/api/opportunity-stage/${stageBody.id}`,
+      const response = await api.patch(
+        `/api/opportunity-stage/${stageBody.id}`,
         stageBody,
-        { headers: getHeaders() }
+        
       );
       return response.data;
     } catch (error) {
@@ -167,9 +155,9 @@ export const getUnitOfMeasures = createAsyncThunk(
   'opportunity/getUnitOfMeasures',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${backendUrl}/api/measurment-unit`,
-        { headers: getHeaders() }
+      const response = await api.get(
+        `/api/measurment-unit`,
+        
       );
       
       return response.data;
@@ -183,8 +171,8 @@ export const generateContract = createAsyncThunk(
   'opportunity/generateContract',
   async (op_id, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${backendUrl}/api/opportunity-generate-contract/${op_id}`,
+      const response = await api.get(
+        `/api/opportunity-generate-contract/${op_id}`,
         {headers: getHeaders()},
         
       );
@@ -200,8 +188,8 @@ export const downloadContract = createAsyncThunk(
   'opportunity/downloadContract',
   async (contract_id, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${backendUrl}/api/opportunity-download-contract/${contract_id}`,
+      const response = await api.get(
+        `/api/opportunity-download-contract/${contract_id}`,
         {
           headers: getHeaders(),
           responseType: 'blob'
@@ -298,7 +286,6 @@ const opportunitySlice = createSlice({
       })
       .addCase(getOpportunity.fulfilled, (state, action) => {
         state.loading = false;
-        console.log(action.payload)
         state.currentOpportunity = action.payload.data;
       })
       .addCase(getOpportunity.rejected, (state, action) => {

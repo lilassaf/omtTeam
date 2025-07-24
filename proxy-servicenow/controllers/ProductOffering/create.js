@@ -9,11 +9,19 @@ const mongoose = require('mongoose');
 // Create Product Offering 
 module.exports = async (req, res) => {
     try {
-        
-        let category;
         let prodSpec;
         try {
-            category = await ProductOfferingCategory.findById(req.body.category._id);
+            req.body.category.map(async (cat) => {
+                let category = await ProductOfferingCategory.findById(cat._id);
+                if (!category) {
+                    return res.status(404).json({ error: `category ${category._id.toString()} not found` });
+                }
+
+                if (!category.sys_id) {
+                    return res.status(400).json({ error: 'category not synced with ServiceNow (missing sys_id)' });
+                }
+            })
+            
             prodSpec = await ProductSpecification.findById(req.body.productSpecification._id);
         } catch (error) {
             if (error.name === 'CastError') {
@@ -22,20 +30,13 @@ module.exports = async (req, res) => {
             throw error;
         }
 
-        if (!category) {
-            return res.status(404).json({ error: 'category not found' });
-        }
-
-        if (!category.sys_id) {
-            return res.status(400).json({ error: 'category not synced with ServiceNow (missing sys_id)' });
-        }
         if (!prodSpec) {
             return res.status(404).json({ error: 'prodSpec not found' });
         }
 
         const newId = new mongoose.Types.ObjectId();
         //initialize servicenow connection
-        const connection = snConnection.getConnection(req.user.sn_access_token);
+        const connection = snConnection.getConnection(req.session.snAccessToken);
 
         // Prepare ServiceNow payload
         const snPayload = {
@@ -49,13 +50,14 @@ module.exports = async (req, res) => {
             productOfferingPrice: req.body.productOfferingPrice,
             productSpecification: {
                 id: prodSpec.sys_id,
+                name: prodSpec.name,
+                version: prodSpec.version,
+                internalVersion: prodSpec.internalVersion,
+                internalId: prodSpec.internalId
             },
-            //prodSpecCharValueUse: req.body.prodSpecCharValueUse,
+            prodSpecCharValueUse: req.body.prodSpecCharValueUse,
             channel: req.body.channel,
-            category: {
-                id: req.body.category.id,
-                name: req.body.category.name
-            },
+            category: req.body.category,
             lifecycleStatus: req.body.lifecycleStatus,
             status: req.body.status,
             externalId: newId
@@ -81,7 +83,7 @@ module.exports = async (req, res) => {
             mongoDoc = new ProductOffering({    
                 _id: newId,
                 ...snRecord,
-                category: req.body.category._id,
+                category: req.body.category.map(cat => cat._id),
                 productSpecification: req.body.productSpecification._id,
                 sys_id: snRecord.id
             });

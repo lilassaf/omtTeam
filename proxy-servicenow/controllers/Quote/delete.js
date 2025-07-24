@@ -1,21 +1,12 @@
 const axios = require('axios');
-const jwt = require('jsonwebtoken');
 const Quote = require('../../models/quote');
 const QuoteLine = require('../../models/quoteLine');
+const deleteContractById = require('../../controllers/Contract/delete');
 const handleMongoError = require('../../utils/handleMongoError');
 
 module.exports = async (req, res) => {
-  let session;
   try {
     const { id } = req.params;
-    // Get authorization token
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-      return res.status(401).json({ error: 'Authorization token required' });
-    }
-
-    // Verify JWT and get ServiceNow credentials
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     
     // Find the quote with associated sys_id
     const quote = await Quote.findById(id);
@@ -33,7 +24,7 @@ module.exports = async (req, res) => {
       `${process.env.SERVICE_NOW_URL}/api/now/table/sn_quote_mgmt_core_quote/${quote.sys_id}`,
       {
         headers: {
-          'Authorization': `Bearer ${decodedToken.sn_access_token}`,
+          'Authorization': `Bearer ${req.session.snAccessToken}`,
           'Content-Type': 'application/json'
         }
       }
@@ -47,7 +38,14 @@ module.exports = async (req, res) => {
       });
     }
 
-   
+    // Delete associated contracts
+    if (quote.contracts && quote.contracts.length > 0) {
+      const contractDeletionPromises = quote.contracts.map(contract => 
+        deleteContractById(contract._id)
+      );
+      
+      await Promise.all(contractDeletionPromises);
+    }
 
     // Delete associated quote lines
     const linesDeleteResult = await QuoteLine.deleteMany(
@@ -63,16 +61,15 @@ module.exports = async (req, res) => {
       return res.status(404).json({ error: 'Quote not found during deletion' });
     }
 
-
     res.status(200).json({
-      message: 'Quote deleted successfully from both systems',
+      message: 'Quote and associated data deleted successfully from both systems',
       serviceNowId: quote.sys_id,
       localId: id,
-      deletedLines: linesDeleteResult.deletedCount
+      deletedLines: linesDeleteResult.deletedCount,
+      deletedContracts: quote.contracts?.length || 0
     });
 
   } catch (error) { 
-
     // Handle ServiceNow API errors
     if (axios.isAxiosError(error)) {
       return res.status(error.response?.status || 500).json({
@@ -88,7 +85,5 @@ module.exports = async (req, res) => {
 
     // Handle other errors
     handleMongoError(error, res);
-  } finally {
-    if (session) session.endSession();
-  }
+  } 
 };

@@ -1,20 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+import {api} from "../../../utils/axioswithsession";
 
-// Helper function to get auth headers
-const getAuthHeaders = () => {
-  const access_token = localStorage.getItem('access_token');
-  return { headers: { authorization: access_token } };
-};
 
 // Async Thunks
 export const getQuotes = createAsyncThunk(
   'quotes/getall',
   async ({ page = 1, limit = 6, q = '' }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${backendUrl}/api/quote`, {
-        ...getAuthHeaders(),
+      const response = await api.get(`/api/quote`, {
         params: { page, limit, q }
       });
       return response.data || { data: [], page: 1, totalPages: 1, total: 0 };
@@ -28,10 +21,12 @@ export const getQuote = createAsyncThunk(
   'quotes/getOne',
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${backendUrl}/api/quote/${id}`,
-        getAuthHeaders()
-      );      
+      const response = await api.get(
+        `/api/quote/${id}`,
+        
+      );    
+      console.log(response.data );
+        
       return response.data || null;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -43,10 +38,10 @@ export const createQuote = createAsyncThunk(
   'quotes/create',
   async (opportunityId, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        `${backendUrl}/api/quote/${opportunityId}`, 
+      const response = await api.post(
+        `/api/quote/${opportunityId}`, 
         {},
-        getAuthHeaders()
+        
       );
       return response.data?.result || null;
     } catch (error) {
@@ -59,10 +54,10 @@ export const updateQuoteState = createAsyncThunk(
   'quotes/updateState',
   async ({ id, state }, { rejectWithValue }) => {
     try {
-      const response = await axios.patch(
-        `${backendUrl}/api/quote-state/${id}`,
+      const response = await api.patch(
+        `/api/quote-state/${id}`,
         { state },
-        getAuthHeaders()
+        
       );
       return response.data.result || null;
     } catch (error) {
@@ -79,10 +74,10 @@ export const updateQuote = createAsyncThunk(
   'quotes/update',
   async ({ id, ...quoteData }, { rejectWithValue }) => {
     try {
-      const response = await axios.patch(
-        `${backendUrl}/api/quote/${id}`,
+      const response = await api.patch(
+        `/api/quote/${id}`,
         quoteData,
-        getAuthHeaders()
+        
       );
       return response.data || null;
     } catch (error) {
@@ -95,10 +90,8 @@ export const deleteQuote = createAsyncThunk(
   'quotes/delete',
   async (id, { rejectWithValue }) => {
     try {
-      await axios.delete(
-        `${backendUrl}/api/quote/${id}`,
-        getAuthHeaders()
-      );
+      await api.delete(
+        `/api/quote/${id}`);
       return id;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);

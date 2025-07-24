@@ -59,9 +59,9 @@ async function createContractQuote(req, res = null) {
         
 
         // Create in ServiceNow
-        const connection = snConnection.getConnection(req.user.sn_access_token);
+        const connection = snConnection.getConnection(req.session.snAccessToken);
         const snResponse = await axios.post(
-            `${connection.baseURL}/api/sn_prd_pm/management_contract`,
+            `${connection.baseURL}/api/x_1598581_omt_dx_0/dxc_order_management_api/contract`,
             contractData,
             { headers: connection.headers }
         );

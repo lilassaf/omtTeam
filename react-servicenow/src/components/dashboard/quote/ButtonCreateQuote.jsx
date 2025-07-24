@@ -4,7 +4,7 @@ import { notification, Tooltip, Popconfirm } from 'antd';
 
 const CreateQuoteButton = ({ opportunityId, disabled }) => {
   const dispatch = useDispatch();
-  const { createLoading } = useSelector((state) => state.quotes);
+  const { createLoading } = useSelector((state) => state.quote);
 
   const handleCreate = async () => {
     try {

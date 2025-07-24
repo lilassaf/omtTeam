@@ -1,16 +1,15 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import {api} from "../../../utils/axioswithsession";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 
 // Async Thunks
 export const getall = createAsyncThunk(
   'ProductOfferingCategory/getall',
   async ({ page = 1, limit = 6, q = '' } = {}, { rejectWithValue }) => {
     try {
-      const access_token = localStorage.getItem('access_token');
-      const response = await axios.get(`${backendUrl}/api/product-offering-category`, {
-        headers: { authorization: access_token },
+      
+      const response = await api.get(`/api/product-offering-category`, {       
         params: { page, limit, q }
       });
       return response.data;
@@ -24,9 +23,9 @@ export const getPublish = createAsyncThunk(
   'productOfferingCatalog/getPublish',
   async ({ q }, { rejectWithValue }) => {
     try {
-      const access_token = localStorage.getItem('access_token');
-      const response = await axios.get(`${backendUrl}/api/product-offering-category-publish`, {
-        headers: { authorization: access_token },
+      
+      const response = await api.get(`/api/product-offering-category-publish`, {
+        
         params: { q }
       });
       return response.data;
@@ -40,8 +39,8 @@ export const getOne = createAsyncThunk(
   'ProductOfferingCategory/getOne',
   async (id, { rejectWithValue }) => {
     try {
-      const access_token = localStorage.getItem('access_token');
-      const response = await axios.get(`${backendUrl}/api/product-offering-category/${id}`, { headers: { authorization: access_token } });
+      
+      const response = await api.get(`/api/product-offering-category/${id}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -53,13 +52,8 @@ export const createCategory = createAsyncThunk(
   'ProductOfferingCategory/create',
   async (productData, { rejectWithValue }) => {
     try {
-      const access_token = localStorage.getItem('access_token');
-      const response = await axios.post(`${backendUrl}/api/product-offering-category`, productData, {
-        headers: {
-          authorization: access_token,
-          'Content-Type': 'application/json'
-        },
-      });
+      
+      const response = await api.post(`/api/product-offering-category`, productData);
       return response.data.result;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -71,11 +65,11 @@ export const updateCategoryStatus = createAsyncThunk(
   'ProductOfferingCategory/updateStatus',
   async ({ id, status }, { rejectWithValue }) => {
     try {
-      const access_token = localStorage.getItem('access_token');
-      const response = await axios.patch(
-        `${backendUrl}/api/product-offering-category-status/${id}`,
-        { status },
-        { headers: { authorization: access_token } }
+      
+      const response = await api.patch(
+        `/api/product-offering-category-status/${id}`,
+        { status }
+        
       );
       return response.data.result;
     } catch (err) {
@@ -88,12 +82,10 @@ export const updateCategory = createAsyncThunk(
   'ProductOfferingCategory/update',
   async ({ id, ...productData }, { rejectWithValue }) => {
     try {
-      const access_token = localStorage.getItem('access_token');
-      const response = await axios.patch(
-        `${backendUrl}/api/product-offering-category/${id}`,
-        productData,
-        { headers: { authorization: access_token } }
-      );
+      
+      const response = await api.patch(
+        `/api/product-offering-category/${id}`,
+        productData   );
       return response.data.result;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -105,10 +97,8 @@ export const deleteCategory = createAsyncThunk(
   'ProductOfferingCategory/delete',
   async (id, { rejectWithValue }) => {
     try {
-      const access_token = localStorage.getItem('access_token');
       console.log(id);
-      await axios.delete(`${backendUrl}/api/product-offering-category/${id}`,
-        { headers: { authorization: access_token } });
+      await api.delete(`/api/product-offering-category/${id}`);
       return id;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);

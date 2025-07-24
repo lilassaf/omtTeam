@@ -5,7 +5,7 @@ const snConnection = require('../../utils/servicenowConnection');
 module.exports = async (req, res) => {
   try {
     // Utiliser le token d'authentification de l'utilisateur
-    const connection = snConnection.getConnection(req.user.sn_access_token);
+    const connection = snConnection.getConnection(req.session.snAccessToken);
     
     // Récupérer les données de ServiceNow
     const snResponse = await axios.get(

@@ -1,20 +1,15 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+import {api} from "../../../utils/axioswithsession";
 
-// Helper function to get auth headers
-const getAuthHeaders = () => {
-  const access_token = localStorage.getItem('access_token');
-  return { headers: { authorization: access_token } };
-};
+
 
 // Async Thunks
 export const getall = createAsyncThunk(
   'ProductOffering/getall',
   async ({ page = 1, limit = 6, q = '' }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${backendUrl}/api/product-offering`, {
-        ...getAuthHeaders(),
+      const response = await api.get(`/api/product-offering`, {
+       
         params: { page, limit, q }
       });
       return response.data || { data: [], page: 1, totalPages: 1, total: 0 };
@@ -28,9 +23,9 @@ export const getOne = createAsyncThunk(
   'ProductOffering/getOne',
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${backendUrl}/api/product-offering/${id}`,
-        getAuthHeaders()
+      const response = await api.get(
+        `/api/product-offering/${id}`,
+        
       );
       
       return response.data.data || null;
@@ -45,10 +40,10 @@ export const createProductOffering = createAsyncThunk(
   async (productData, { rejectWithValue }) => {
     try {
       console.log(JSON.stringify(productData, null, 2));
-      const response = await axios.post(
-        `${backendUrl}/api/product-offering`,
+      const response = await api.post(
+        `/api/product-offering`,
         productData,
-        getAuthHeaders()
+        
       );
       return response.data?.result || null;
     } catch (error) {
@@ -61,10 +56,10 @@ export const updateProductOfferingStatus = createAsyncThunk(
   'ProductOffering/updateStatus',
   async (data, { rejectWithValue }) => {
     try {
-      const response = await axios.patch(
-        `${backendUrl}/api/product-offering-status`,
+      const response = await api.patch(
+        `/api/product-offering-status`,
         data,
-        getAuthHeaders()
+        
       );
       return response.data?.result || null;
     } catch (error) {
@@ -77,10 +72,10 @@ export const updateProductOffering = createAsyncThunk(
   'ProductOffering/update',
   async ({ id, ...productData }, { rejectWithValue }) => {
     try {
-      const response = await axios.patch(
-        `${backendUrl}/api/product-offering/${id}`,
+      const response = await api.patch(
+        `/api/product-offering/${id}`,
         productData,
-        getAuthHeaders()
+        
       );
       return response.data || null;
     } catch (error) {
@@ -93,9 +88,8 @@ export const deleteProductOffering = createAsyncThunk(
   'ProductOffering/delete',
   async (id, { rejectWithValue }) => {
     try {
-      await axios.delete(
-        `${backendUrl}/api/product-offering/${id}`,
-        getAuthHeaders()
+      await api.delete(
+        `/api/product-offering/${id}`,
       );
       return id;
     } catch (error) {
