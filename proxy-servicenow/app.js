@@ -6,7 +6,8 @@ const rateLimit = require('express-rate-limit');
 const authjwt = require('./middleware/auth');
 const connectDB = require('./utils/connectionMongodb');
 const morgan = require('morgan'); // Optional: for request logging
-
+const crypto = require('crypto');
+const exec = require('child_process').exec;
 
 //middleware
 const checkRole = require('./middleware/checkRole');
@@ -44,12 +45,38 @@ const productSpecRoutes = require('./api/ProductSpecification/productSpecRoutes'
 const clientRoutes = require('./api/client/index');
 // Client
 const authClient = require('./api/client/authClient');
+
 const quoteClient = require('./api/client/Quote')
+
+const order = require('./api/client/order/index');
+
+
 
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Middleware to get raw body for GitHub webhook verification
+app.use('/webhook', express.raw({ type: 'application/json' }));
+
+// GitHub Webhook
+app.post('/webhook', (req, res) => {
+  const sig = req.headers['x-hub-signature-256'];
+  const hmac = crypto.createHmac('sha256', process.env.GITHUB_WEBHOOK_SECRET);
+  const digest = Buffer.from('sha256=' + hmac.update(req.body).digest('hex'), 'utf8');
+  const checksum = Buffer.from(sig, 'utf8');
+  if (checksum.length !== digest.length || !crypto.timingSafeEqual(digest, checksum)) {
+    return res.status(403).send('Forbidden');
+  }
+  try{
+      exec('git pull origin main && npm install --production && pm2 restart app.js');
+  }catch(error){
+      console.error(error);
+      res.status(400).send(error);
+  }
+  res.status(200).send('Deployment successful');
+});
 
 // Database connection
 connectDB();
@@ -63,7 +90,7 @@ const limiter = rateLimit({
 
 // connection Kafka
 // const producer = require('./utils/connectionKafka');
-//app.set('trust proxy', 1);
+app.set('trust proxy', 1);
 
 // Configuration
 
@@ -72,6 +99,10 @@ const allowedOrigins = [
     'https://omt-team-dhxpck1wp-jmili-mouads-projects.vercel.app',
     'https://delightful-sky-0cdf0611e.6.azurestaticapps.net',
     'http://localhost:5173',
+    'https://api.github.com',
+    'http://localhost:3000',
+    'http://138.201.188.195',
+    'http://138.201.188.195:3000',
     'https://superb-starburst-b1a498.netlify.app/'
 ];
 
@@ -92,6 +123,8 @@ app.use(limiter);
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(express.static(path.join(__dirname, '/client/dist')));  
 
 // Serve static files from public directory
 app.use('/images', express.static(path.join(__dirname, 'public/images'), {
@@ -120,7 +153,8 @@ app.use('/api', [
     knowledgeBaseRoute,
     ProductSpecification,
     productSpecRoutes,
-    authClient
+    authClient,
+    order
 
 
 ]);
@@ -168,6 +202,11 @@ app.get('/health', (req, res) => {
     });
 });
 
+// Handle React routing, return all requests to React app
+app.get('/{*any}', (req, res) => {
+  res.sendFile(path.join(__dirname, '/client/dist', 'index.html'));
+});
+
 // Error handling
 app.use((err, req, res, next) => {
     console.error(`[${new Date().toISOString()}] Error:`, err.stack);
@@ -197,6 +236,10 @@ process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection:', reason);
     // Optionally, add some custom cleanup here if necessary
 });
+
+
+
+
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
