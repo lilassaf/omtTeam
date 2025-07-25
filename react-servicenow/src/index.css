@@ -4,6 +4,39 @@
   border-radius: 0px !important;
 }
 
+/* Dashboard Layout Scroll Fixes */
+.dashboard-layout {
+  overflow: hidden;
+}
+
+.dashboard-content {
+  overflow: hidden;
+}
+
+/* Ensure proper scrolling in main content area */
+.dashboard-content > div:last-child {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar for dashboard content */
+.dashboard-content > div:last-child::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dashboard-content > div:last-child::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.dashboard-content > div:last-child::-webkit-scrollbar-thumb {
+  background-color: #0891b2;
+  border-radius: 4px;
+}
+
+.dashboard-content > div:last-child::-webkit-scrollbar-thumb:hover {
+  background: #0e7490;
+}
+
 /* For Chrome, Edge, and Safari */
 ::-webkit-scrollbar {
   width: 10px;

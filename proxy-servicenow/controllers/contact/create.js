@@ -60,7 +60,7 @@ async function createContact(req, res = null) {
 
     // Create in ServiceNow
     const snResponse = await axios.post(
-      `${config.serviceNow.url}/api/now/table/customer_contact`,
+      `${config.serviceNow.url}/api/now/table/customer_contact?sysparm_input_display_value=true`,
       contactPayload,
       {
         headers: { 

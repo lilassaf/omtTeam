@@ -34,10 +34,14 @@ const productsRouter = require('./controllers/ProductOffering/servicenowproducts
 const emailroutes = require('./email/router');
 const contract = require('./api/contract');
 const contractQuote = require('./api/contractQuote')
-    // const createAccount = require('./api/createAccount/index')
+// const createAccount = require('./api/createAccount/index')
 const knowledgeBaseRoute = require('./api/ai-search/chatboot');
 const productOfferingRoute = require('./api/ai-search/productoffering');
 const productSpecRoutes = require('./api/ProductSpecification/productSpecRoutes');
+const clientRoutes = require('./api/client/index');
+// Client
+const authClient = require('./api/client/authClient');
+const order = require('./api/client/order/index');
 
 
 require('dotenv').config();
@@ -78,7 +82,7 @@ const limiter = rateLimit({
 
 // connection Kafka
 // const producer = require('./utils/connectionKafka');
-//app.set('trust proxy', 1);
+app.set('trust proxy', 1);
 
 // Configuration
 
@@ -126,8 +130,7 @@ if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev')); // Logs requests in the 'dev' format
 }
 app.use('/', productsRouter);
-
-
+app.use('/api/clients', clientRoutes);
 // Routes
 app.use('/api', [
     authRoutes, // Login
@@ -141,7 +144,9 @@ app.use('/api', [
     productOfferingRoute,
     knowledgeBaseRoute,
     ProductSpecification,
-    productSpecRoutes
+    productSpecRoutes,
+    authClient,
+    order
 
 
 ]);
@@ -166,7 +171,6 @@ app.use('/api', authjwt, [
     contract,
     Quote,
     contractQuote
-
 ]);
 
 

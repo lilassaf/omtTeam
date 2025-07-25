@@ -1,10 +1,10 @@
 const axios = require('axios');
 const Quote = require('../../models/quote');
 const QuoteLine = require('../../models/quoteLine');
+const deleteContractById = require('../../controllers/Contract/delete');
 const handleMongoError = require('../../utils/handleMongoError');
 
 module.exports = async (req, res) => {
-  let session;
   try {
     const { id } = req.params;
     
@@ -38,7 +38,14 @@ module.exports = async (req, res) => {
       });
     }
 
-   
+    // Delete associated contracts
+    if (quote.contracts && quote.contracts.length > 0) {
+      const contractDeletionPromises = quote.contracts.map(contract => 
+        deleteContractById(contract._id)
+      );
+      
+      await Promise.all(contractDeletionPromises);
+    }
 
     // Delete associated quote lines
     const linesDeleteResult = await QuoteLine.deleteMany(
@@ -54,16 +61,15 @@ module.exports = async (req, res) => {
       return res.status(404).json({ error: 'Quote not found during deletion' });
     }
 
-
     res.status(200).json({
-      message: 'Quote deleted successfully from both systems',
+      message: 'Quote and associated data deleted successfully from both systems',
       serviceNowId: quote.sys_id,
       localId: id,
-      deletedLines: linesDeleteResult.deletedCount
+      deletedLines: linesDeleteResult.deletedCount,
+      deletedContracts: quote.contracts?.length || 0
     });
 
   } catch (error) { 
-
     // Handle ServiceNow API errors
     if (axios.isAxiosError(error)) {
       return res.status(error.response?.status || 500).json({
@@ -79,7 +85,5 @@ module.exports = async (req, res) => {
 
     // Handle other errors
     handleMongoError(error, res);
-  } finally {
-    if (session) session.endSession();
-  }
+  } 
 };
