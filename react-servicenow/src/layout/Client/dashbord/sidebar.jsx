@@ -7,7 +7,7 @@ const Sidebar = ({ toggleSidebar, open, isSidebarCollapsed }) => {
   const location = useLocation();
   const [expandedItems, setExpandedItems] = useState({});
 
-  
+
   const toggleExpand = (path) => {
     setExpandedItems(prev => ({ ...prev, [path]: !prev[path] }));
   };
@@ -18,8 +18,22 @@ const Sidebar = ({ toggleSidebar, open, isSidebarCollapsed }) => {
     location.pathname.toLowerCase().startsWith(child.path.toLowerCase())
   );
 
- const navItems = [
-  
+  const navItems = [
+       {
+      path: '/client',
+      icon: 'dashboard-line',
+      text: 'Dashboard'
+    },
+    {
+      path: '/client/quote',
+      icon: 'shopping-cart-line',
+      text: 'Order',
+      children: [
+        { path: '/client/quote', icon: 'contract-line', text: 'My Quote' }
+
+      ]
+    },
+
   ];
 
   return (
@@ -30,7 +44,7 @@ const Sidebar = ({ toggleSidebar, open, isSidebarCollapsed }) => {
         <div className="mb-8 mt-2 h-12 flex justify-center items-center px-2 text-white font-bold text-xl truncate">
           <i className={`ri-user-2-line  text-[#fbb073] ${open ? '' : 'mr-2'}  `} />
           <span className={`${open ? 'hidden ' : 'inline'}`}>
-        My Account
+            My Account
           </span>
         </div>
 
@@ -76,7 +90,7 @@ const Sidebar = ({ toggleSidebar, open, isSidebarCollapsed }) => {
                             <Link
                               to={child.path}
                               className={`flex items-center px-3 py-2 text-sm rounded transition-all duration-200 ${isActive(child.path)
-                                ? 'bg-[#e6f4ff] text-[#007B98] font-medium'
+                                ? 'bg-[#e6f4ff] text-[#c76824] font-medium'
                                 : 'text-white hover:bg-[#c76824] hover:text-white'
                                 }`}
                             >

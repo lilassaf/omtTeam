@@ -18,7 +18,7 @@ function Dashboard() {
 
 
     return (
-        <div className="dashboard-layout flex w-screen h-screen relative">
+        <div className="dashboard-layout flex w-screen h-screen relative client">
             <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 <Sidebar
                     open={open}

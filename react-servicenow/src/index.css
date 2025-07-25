@@ -282,3 +282,66 @@
   color: rgba(0, 0, 0, 0.25);
   cursor: not-allowed;
 }
+
+
+
+
+.client .ant-btn-color-primary.ant-btn-variant-solid {
+  background-color: #c76824 !important;  /* was var(--color-cyan-700) */
+  color: white !important;
+}
+
+.client .ant-btn-primary.ant-btn-color-primary.ant-btn-variant-solid.ant-btn-sm {
+  color: #c76824 !important;  /* was var(--color-cyan-700) */
+}
+
+.client .ant-btn-primary.ant-btn-color-primary.ant-btn-variant-solid.ant-btn-sm:hover {
+  color: white !important;
+}
+
+.client .ant-btn-color-primary:hover {
+  background-color: #a7541d !important;  /* was var(--color-cyan-900) */
+}
+
+.client .ant-btn-color-default:hover {
+  border-color: #c76824 !important;  /* was var(--color-cyan-700) */
+  color: #c76824 !important;         /* was var(--color-cyan-700) */
+}
+
+
+/* Table header styles */
+.client .ant-table-thead .ant-table-cell {
+  background-color: #c76824 !important;  /* was oklch(52% 0.105 223.128) */
+  color: white !important;
+}
+
+/* Steps component styles */
+.client :where(.css-dev-only-do-not-override-1261szd).ant-steps .ant-steps-item-process .ant-steps-item-icon {
+  background-color: #c76824 !important;  /* was oklch(52% 0.105 223.128) */
+  color: white !important;
+  border-color: #c76824 !important;     /* was oklch(52% 0.105 223.128) */
+}
+
+/* Table cell padding (unchanged, just scoped to .client) */
+.client .ant-table-cell {
+  padding: 11.5px 16px !important;
+}
+
+/* Scrollbar styles for service-now-table */
+.client .service-now-table .ant-table-body::-webkit-scrollbar {
+  width: 5px;
+  height: 8px;
+}
+
+.client .service-now-table .ant-table-body::-webkit-scrollbar-track {
+  background: rgba(199, 104, 36, 0.2) !important;  /* was #00759536 */
+}
+
+.client .service-now-table .ant-table-body::-webkit-scrollbar-thumb {
+  background-color: #c76824 !important;  /* was #005f78 */
+  border-radius: 0px;
+}
+
+.client .service-now-table .ant-table-body::-webkit-scrollbar-thumb:hover {
+  background: #a7541d !important;  /* was #007595 */
+}

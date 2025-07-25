@@ -8,29 +8,36 @@ const jwt = require('jsonwebtoken');
 const checkRole = (...allowedRoles) => {
   return (req, res, next) => {
     try {
+
+      
       // Check if authorization header exists
       const authHeader = req.headers.authorization;
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ message: 'Unauthorized - No token provided' });
       }
-
+     
       // Extract token from header
       const token = authHeader.split(' ')[1];
       
       // Verify and decode the token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       
+      
       // Check if user has roles in token
       if (!decoded.role) {
         return res.status(401).json({ message: 'Unauthorized - Invalid token structure' });
       }
-      
 
       // Convert role to array if it's a single string (for consistency)
-      const userRoles = Array.isArray(decoded.role) ? decoded.role : [decoded.role];
+      const userRoles = Array.isArray(decoded.role) 
+        ? decoded.role.map(role => role.toLowerCase()) 
+        : [decoded.role.toLowerCase()];
+      
+      // Convert allowed roles to lowercase for case-insensitive comparison
+      const lowerAllowedRoles = allowedRoles.map(role => role.toLowerCase());
       
       // Check if user has any of the allowed roles
-      const hasPermission = allowedRoles.some(role => userRoles.includes(role));
+      const hasPermission = lowerAllowedRoles.some(role => userRoles.includes(role));
       
       if (hasPermission) {
         // Attach user payload to request for use in subsequent middleware

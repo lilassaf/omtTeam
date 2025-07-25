@@ -6,7 +6,7 @@ import {
   selectClientAuthToken,
   selectIsClientAuthenticated,
   selectClientAuthRole,
-} from '../../features/auth/client/auth'; // Update path as needed
+} from '../../features/client/auth'; // Update path as needed
 
 const TokenValid = (token) => {
   if (!token) return false;
@@ -31,12 +31,13 @@ const ProtectedRoute = ({
   const location = useLocation();
   const isTokenValid = TokenValid(token);
 
+  
+
   // If token is invalid or user is not authenticated, redirect to login
   if (!isTokenValid || !isAuthenticated) {
     return (
       <Navigate 
         to={redirectPath} 
-        state={{ from: location }} 
         replace 
       />
     );
