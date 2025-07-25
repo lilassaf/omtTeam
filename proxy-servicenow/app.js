@@ -9,6 +9,10 @@ const morgan = require('morgan'); // Optional: for request logging
 const crypto = require('crypto');
 const exec = require('child_process').exec;
 
+//middleware
+const checkRole = require('./middleware/checkRole');
+
+
 // Route imports
 const authRoutes = require('./api/auth/login');
 const signupRoutes = require('./api/auth/signup');
@@ -41,7 +45,11 @@ const productSpecRoutes = require('./api/ProductSpecification/productSpecRoutes'
 const clientRoutes = require('./api/client/index');
 // Client
 const authClient = require('./api/client/authClient');
+
+const quoteClient = require('./api/client/Quote')
+
 const order = require('./api/client/order/index');
+
 
 
 require('dotenv').config();
@@ -153,6 +161,7 @@ app.use('/api', [
 
 
 // Protected routes
+//admin
 app.use('/api', authjwt, [
     // routes that need middaleware
     ProductOfferingCatalog,
@@ -172,6 +181,13 @@ app.use('/api', authjwt, [
     Quote,
     contractQuote
 ]);
+
+//primaryContact
+app.use('/api/client',checkRole('primarycontact'), [
+ quoteClient,
+]);
+
+
 
 
 
