@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { selectClientAuthEmail } from '../../../features/auth/client/auth';
+import { selectClientAuthEmail } from '../../../features/client/auth';
 
 const WelcomeMessage = () => {
   const userEmail = useSelector(selectClientAuthEmail);

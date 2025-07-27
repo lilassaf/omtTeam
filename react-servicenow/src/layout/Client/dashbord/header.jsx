@@ -3,8 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { message, Badge, Dropdown } from 'antd';
 import { SearchOutlined, BellOutlined, LogoutOutlined, UserOutlined, SettingOutlined } from '@ant-design/icons';
-import { logoutClient } from '../../../features/auth/client/auth';
-import { selectClientAuthRole, selectClientAuthName, selectClientAuthEmail } from '../../../features/auth/client/auth';
+import { logoutClient } from '../../../features/client/auth';
+import { selectClientAuthRole, selectClientAuthName, selectClientAuthEmail } from '../../../features/client/auth';
 
 function Header() {
   const dispatch = useDispatch();

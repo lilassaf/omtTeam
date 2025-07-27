@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { userLogin, fetchUserInfo } from '../../features/auth/authActions';
-import { loginClient } from '../../features/auth/client/auth'
+import { loginClient } from '../../features/client/auth'
 import { message } from 'antd';
 
 const MESSAGE_MAPPINGS = {

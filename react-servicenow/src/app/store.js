@@ -16,8 +16,9 @@ import locationReducer from '../features/servicenow/location/locationSlice';
 import contractQReducer from '../features/servicenow/contract-q/contractQSlice';
 import contractModelReducer from '../features/servicenow/contract-model/contractModelSlice';
 // Client 
-import authClientReducer from '../features/auth/client/auth'; 
 import OrderReducer from '../views/Client/orders/orderSlice';
+import authClientReducer from '../features/client/auth'; 
+import quoteClientReducer from '../features/client/quote'
 
 const store = configureStore({
   reducer: {
@@ -40,6 +41,7 @@ const store = configureStore({
     // Client
     authClient:authClientReducer,
     order:OrderReducer
+    quoteClient: quoteClientReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
