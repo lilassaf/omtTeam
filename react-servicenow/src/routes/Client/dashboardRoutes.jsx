@@ -14,6 +14,8 @@ import History from '../../views/Client/Pages/MyOrders/OrderHistoryPage.jsx';
 import AllProducts from '../../views/Client/Pages/Shop/AllProducts.jsx';
 import OrderTracking from '../../views/Client/Pages/Shop/OrderTracking.jsx';
 import MyProfile from '../../views/Client/Pages/Extra/MyProfile.jsx';
+import OrderForm from '../../views/Client/orders/form.jsx';
+import Order from '../../views/Client/orders/index.jsx';
 
 const dashboardRoutes = {
   path: '/client',
@@ -32,6 +34,9 @@ const dashboardRoutes = {
     { path: 'MyProfile/:id', element: <MyProfile /> },
     { path: 'shop/all-products', element: <AllProducts /> },
     { path: 'shop/order-tracking', element: <OrderTracking /> },
+
+    {path: 'order/view/:id',element: <OrderForm />},
+        { path: 'order', element: <Order /> },
   ],
 };
 

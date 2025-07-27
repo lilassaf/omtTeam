@@ -33,9 +33,8 @@ export const getOrder = createAsyncThunk(
         headers: getHeaders(),
         params: { page, limit, q }
       });
-      
       return {
-        data: response.data.result || [],
+        data: response.data.data || [],
         currentPage: page,
         totalItems: response.data.total || 0,
         limit
@@ -53,7 +52,7 @@ export const getOneOrder = createAsyncThunk(
       const response = await axios.get(`${backendUrl}/api/order/${id}`, { 
         headers: getHeaders(),
       });
-      return response.data;
+      return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
