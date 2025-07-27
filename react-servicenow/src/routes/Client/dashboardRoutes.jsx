@@ -18,8 +18,9 @@ const dashboardRoutes = {
   ),
   children: [
     { index: true, element: <Dashboard /> },
+    {path: 'order/view/:id',element: <OrderForm />},
+        { path: 'order', element: <Order /> },
     { path: 'quote', element: <Quote /> },
-  
   ],
 };
 

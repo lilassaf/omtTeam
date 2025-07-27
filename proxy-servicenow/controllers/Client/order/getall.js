@@ -9,13 +9,24 @@ async function getOrders(req, res) {
     // Extract query parameters
     const { q: searchTerm, page = 1, limit = 10 } = req.query;
     const skip = (page - 1) * limit;
-
+    console.log(req.headers.authorization?.replace('Bearer ', ''))
     // Verify JWT token and extract contact ID
-    const token = req.headers.authorization?.replace('Bearer ', '');
-    if (!token) {
-      return res.status(401).json({ error: 'Authorization token required' });
-    }
-    
+    let token;
+try {
+  const authHeader = JSON.parse(req.headers.authorization);
+  token = authHeader.token;
+} catch (err) {
+  // Fallback to standard Bearer token if parsing fails
+  token = req.headers.authorization?.replace('Bearer ', '');
+}
+
+if (!token) {
+  return res.status(401).json({ 
+    success: false,
+    error: 'Authorization token required' 
+  });
+}
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const contactId = decoded.id;
     console.log('Extracted Contact ID from token:', contactId);
@@ -47,21 +58,24 @@ async function getOrders(req, res) {
     const serviceNowSysId = account.sys_id;
     console.log('Found ServiceNow sys_id:', serviceNowSysId);
 
-    // 3. Build query to find orders where rawOrder.order.account matches the sys_id
+    // 3. Build base query
     const query = { 'rawOrder.order.account': serviceNowSysId };
-
-    // Debug: Log the query being executed
-    console.log('Executing query:', JSON.stringify(query, null, 2));
 
     // Add search functionality
     if (searchTerm) {
       query.$or = [
         { 'rawOrder.order.number': { $regex: searchTerm, $options: 'i' } },
         { 'rawOrder.order.short_description': { $regex: searchTerm, $options: 'i' } },
-        { 'rawOrder.order.lineItems.short_description': { $regex: searchTerm, $options: 'i' } },
-        { 'rawOrder.order.lineItems.number': { $regex: searchTerm, $options: 'i' } },
-        { 'rawOrder.order.lineItems.product_offering': searchTerm },
-        { 'rawOrder.order.lineItems.external_id': searchTerm }
+        { 'rawOrder.lineItems': { 
+          $elemMatch: {
+            $or: [
+              { 'short_description': { $regex: searchTerm, $options: 'i' } },
+              { 'number': { $regex: searchTerm, $options: 'i' } },
+              { 'product_offering': searchTerm },
+              { 'external_id': searchTerm }
+            ]
+          }
+        }}
       ];
     }
 
@@ -73,17 +87,54 @@ async function getOrders(req, res) {
         .skip(skip)
         .limit(limit)
         .lean()
+        .select({
+          '_id': 1,
+          'rawOrder.order.number': 1,
+          'rawOrder.order.order_date': 1,
+          'rawOrder.order.state': 1,
+          'rawOrder.order.status': 1,
+          'rawOrder.order.short_description': 1,
+          'rawOrder.order.total_monthly_recurring_price': 1,
+          'rawOrder.order.mrc': 1,
+          'rawOrder.order.order_currency': 1,
+          'rawOrder.lineItems': 1,
+          'updatedAt': 1
+        })
     ]);
 
-    // Debug: Log the results
-    console.log(`Found ${orders.length} orders out of ${total} total`);
-    if (orders.length > 0) {
-      console.log('First order account:', orders[0].rawOrder.order.account);
-    }
+    // Transform the data with defensive checks
+    const filteredOrders = orders.map(order => {
+      // Safely access nested properties
+      const rawOrder = order.rawOrder || {};
+      const orderData = rawOrder.order || {};
+      const lineItems = Array.isArray(rawOrder.lineItems) ? rawOrder.lineItems : [];
+
+      return {
+        _id: order._id,
+        number: orderData.number || '',
+        order_date: orderData.order_date || '',
+        state: orderData.state || '',
+        status: orderData.status || '',
+        description: orderData.short_description || '',
+        total_price: orderData.total_monthly_recurring_price || orderData.mrc || 0,
+        currency: orderData.order_currency || 'USD',
+        lineItems: lineItems.map(item => ({
+          id: item.sys_id || '',
+          number: item.number || '',
+          description: item.short_description || '',
+          state: item.state || '',
+          status: item.status || '',
+          price: item.mrc || 0,
+          quantity: item.quantity || 0
+          // Removed characteristics from here
+        })),
+        updatedAt: order.updatedAt
+      };
+    });
 
     return res.json({
       success: true,
-      data: orders,
+      data: filteredOrders,
       pagination: {
         total,
         page: Number(page),
@@ -102,8 +153,12 @@ async function getOrders(req, res) {
       return res.status(401).json({ error: 'Token expired' });
     }
     
-    const { status, message } = handleMongoError(error);
-    return res.status(status).json({ error: message });
+    // Handle MongoDB errors
+    if (error.name === 'MongoServerError') {
+      return res.status(400).json({ error: 'Database error occurred' });
+    }
+    
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }
 
