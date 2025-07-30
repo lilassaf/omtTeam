@@ -7,6 +7,8 @@ import IsAuth from '../../middleware/client/ProtectedRoute';
 // Dashboard Pages
 import Dashboard from '../../views/Client/Dashboard/index.jsx';
 import Quote from '../../views/Client/Quote/index.jsx'
+import Order from '../../views/Client/orders'
+import OrderForm from "../../views/Client/orders/form.jsx"
 
 
 const dashboardRoutes = {
@@ -18,8 +20,8 @@ const dashboardRoutes = {
   ),
   children: [
     { index: true, element: <Dashboard /> },
-    {path: 'order/view/:id',element: <OrderForm />},
-        { path: 'order', element: <Order /> },
+    { path: 'order/view/:id', element: <OrderForm /> },
+    { path: 'order', element: <Order /> },
     { path: 'quote', element: <Quote /> },
   ],
 };
