@@ -80,7 +80,7 @@ export default function OverviewPage() {
     const fetchProducts = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('http://localhost:3000/api/products');
+        const response = await fetch('https://proxy-servicenow.onrender.com/api/products');
         if (!response.ok) {
           throw new Error('Failed to fetch products');
         }

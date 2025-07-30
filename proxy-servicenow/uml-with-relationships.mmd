@@ -12,6 +12,7 @@ classDiagram
       +String email
       +String website
       +String customer
+      +String number
       +Boolean archived (default: false)
       +Array contacts
       +Array locations
@@ -20,120 +21,31 @@ classDiagram
       +Date updatedAt
       +Number __v
     }
-    class contractQuote {
+    class Contact {
       +String sys_id
-      +String short_description
-      +String description
-      +String start_date
-      +String end_date
-      +ObjectId quote
-      +ObjectId contract_model
-      +ObjectId product_offring
-      +ObjectId _id
-      +Date createdAt
-      +Date updatedAt
-      +Number __v
-    }
-    class OpportunityLine {
-      +String cumulative_acv
-      +String service_location
-      +ObjectId productOffering
-      +String term_month
-      +String external_id
-      +String sys_updated_on
-      +String number
-      +String sys_id (unique)
-      +ObjectId priceList
-      +Embedded unit_of_measurement
-      +String cumulative_tcv
-      +String sys_updated_by
-      +String sys_created_on
-      +String unit_net_price
-      +String cumulative_arr
-      +String sys_created_by
-      +String quantity
-      +String sys_mod_count
-      +String cumulative_mrr
-      +ObjectId opportunity
-      +String sys_tags
-      +String unit_list_price
-      +String total_one_time_price
-      +String work_notes
-      +String external_system
-      +ObjectId _id
-      +Number __v
-    }
-    class ProductOfferingPrice {
-      +String sys_id (required, unique)
-      +String id
-      +String name
-      +Embedded price
-      +String lifecycleStatus
-      +Embedded validFor
-      +ObjectId productOffering
-      +Embedded productOfferingData
-      +String priceType
-      +String recurringChargePeriodType
-      +Embedded unitOfMeasure
-      +ObjectId priceList
-      +Embedded priceListData
-      +String @type
-      +String state
-      +String href
-      +ObjectId _id
-      +Date createdAt
-      +Date updatedAt
-      +Number __v
-    }
-    class QuoteLine {
-      +String sys_id (required, unique)
-      +String number (required)
-      +ObjectId product_offering (required)
-      +String term_month
-      +String quantity
-      +String unit_price
-      +ObjectId price_list (required)
-      +String unit_of_measurement
-      +ObjectId quote (required)
-      +String state (default: "draft")
-      +String action
-      +ObjectId _id
-      +Number __v
-    }
-    class Quote {
-      +String number (unique)
-      +String sys_id (unique)
-      +String state
-      +String version
-      +String currency
-      +String assigned_to
-      +String assignment_group
-      +String subscription_start_date
-      +String subscription_end_date
-      +String short_description
-      +String expiration_date
-      +String active (default: "true")
-      +ObjectId opportunity (required)
+      +String firstName (required)
+      +String lastName
+      +String email (required)
+      +String phone
+      +String password
+      +String jobTitle
+      +Boolean isPrimaryContact (default: true)
+      +Boolean active (default: true)
       +ObjectId account (required)
-      +ObjectId price_list
+      +ObjectId location
+      +Boolean archived (default: false)
       +ObjectId _id
       +Date createdAt
       +Date updatedAt
       +Number __v
     }
-    class contractModel {
+    class Location {
       +String sys_id
-      +String name
-      +String description
-      +ObjectId _id
-      +Date createdAt
-      +Date updatedAt
-      +Number __v
-    }
-    class PriceList {
-      +String sys_id (unique)
-      +String name
-      +String description
+      +String name (required)
+      +String latitude
+      +String longitude
+      +String street
+      +String city
       +String state
       +String country
       +String zip
@@ -171,33 +83,39 @@ classDiagram
       +Date updatedAt
       +Number __v
     }
+    class Quote {
+      +String number (unique)
+      +String sys_id (unique)
+      +String state
+      +String version
+      +String currency
+      +String assigned_to
+      +String assignment_group
+      +String subscription_start_date
+      +String subscription_end_date
+      +String short_description
+      +String expiration_date
+      +String active (default: "true")
+      +ObjectId opportunity (required)
+      +ObjectId account (required)
+      +ObjectId price_list
+      +ObjectId _id
+      +Date createdAt
+      +Date updatedAt
+      +Number __v
+    }
     class Contract {
       +ObjectId opportunity
       +ObjectId quote
       +String file_name
       +String download_url
+      +String m_signature
+      +Date m_signature_date
+      +String c_signature
+      +Date c_signature_date
       +Date created_at (default: undefined)
       +Date updated_at (default: undefined)
       +ObjectId _id
-      +Number __v
-    }
-    class Account {
-      +String name (required)
-      +String sys_id
-      +Date sys_created_on
-      +String sys_created_by
-      +String business_owners
-      +String phone
-      +String industry
-      +String email
-      +String website
-      +String customer
-      +Boolean archived (default: false)
-      +Array contacts
-      +Array locations
-      +ObjectId _id
-      +Date createdAt
-      +Date updatedAt
       +Number __v
     }
     class salesCycleType {
@@ -215,19 +133,165 @@ classDiagram
       +ObjectId _id
       +Number __v
     }
-    class Contact {
+    class PriceList {
+      +String sys_id (unique)
+      +String name
+      +String description
+      +String state
+      +String defaultflag
+      +Mixed currency (required)
+      +Date validFor.startDateTime
+      +Date validFor.endDateTime
+      +ObjectId _id
+      +Date createdAt
+      +Date updatedAt
+      +Number __v
+    }
+    class OpportunityLine {
+      +String cumulative_acv
+      +String service_location
+      +ObjectId productOffering
+      +String term_month
+      +String external_id
+      +String sys_updated_on
+      +String number
+      +String sys_id (unique)
+      +ObjectId priceList
+      +Embedded unit_of_measurement
+      +String cumulative_tcv
+      +String sys_updated_by
+      +String sys_created_on
+      +String unit_net_price
+      +String cumulative_arr
+      +String sys_created_by
+      +String quantity
+      +String sys_mod_count
+      +String cumulative_mrr
+      +ObjectId opportunity
+      +String sys_tags
+      +String unit_list_price
+      +String total_one_time_price
+      +String work_notes
+      +String external_system
+      +ObjectId _id
+      +Number __v
+    }
+    class contractQuote {
       +String sys_id
-      +String firstName (required)
-      +String lastName (required)
-      +String email (required)
-      +String phone
-      +String password
-      +String jobTitle
-      +Boolean isPrimaryContact (default: true)
-      +Boolean active (default: true)
-      +ObjectId account (required)
-      +ObjectId location
-      +Boolean archived (default: false)
+      +String short_description
+      +String description
+      +String start_date
+      +String end_date
+      +ObjectId quote
+      +ObjectId contract_model
+      +ObjectId product_offring
+      +ObjectId _id
+      +Date createdAt
+      +Date updatedAt
+      +Number __v
+    }
+    class QuoteLine {
+      +String sys_id (required, unique)
+      +String number (required)
+      +ObjectId product_offering (required)
+      +String term_month
+      +String quantity
+      +String unit_price
+      +ObjectId price_list (required)
+      +String unit_of_measurement
+      +ObjectId quote (required)
+      +String state (default: "draft")
+      +String action
+      +ObjectId _id
+      +Number __v
+    }
+    class ProductOfferingPrice {
+      +String sys_id (required, unique)
+      +String id
+      +String name
+      +Embedded price
+      +String lifecycleStatus
+      +Embedded validFor
+      +ObjectId productOffering
+      +Embedded productOfferingData
+      +String priceType
+      +String recurringChargePeriodType
+      +Embedded unitOfMeasure
+      +ObjectId priceList
+      +Embedded priceListData
+      +String @type
+      +String state
+      +String href
+      +ObjectId _id
+      +Date createdAt
+      +Date updatedAt
+      +Number __v
+    }
+    class ProductOffering {
+      +String number
+      +Array category
+      +Array channel
+      +String description
+      +String externalId (default: "")
+      +String id
+      +String sys_id
+      +String internalId
+      +String lastUpdate (default: "")
+      +String name (required)
+      +Array productOfferingPrice
+      +String productOfferingTerm (default: "")
+      +ObjectId productSpecification
+      +Array prodSpecCharValueUse
+      +Embedded validFor
+      +String version
+      +String status
+      +String lifecycleStatus
+      +String href
+      +ObjectId _id
+      +Number __v
+    }
+    class contractModel {
+      +String sys_id
+      +String name
+      +String description
+      +ObjectId _id
+      +Date createdAt
+      +Date updatedAt
+      +Number __v
+    }
+    class ProductOfferingCategory {
+      +String name (required)
+      +String code (required, unique)
+      +Boolean is_leaf (required, default: false)
+      +Date start_date (required)
+      +Date end_date (default: null)
+      +String status (required, enum: [published,draft,archived,retired], default: "draft")
+      +String description
+      +String image
+      +String thumbnail
+      +String number (required, unique)
+      +String sys_id (required, unique)
+      +String sys_created_by (required)
+      +String sys_updated_by (required)
+      +Date sys_created_on (required)
+      +Date sys_updated_on (required)
+      +Number sys_mod_count (default: 0)
+      +String external_id
+      +String sys_tags
+      +String leaf_categories
+      +String external_source
+      +ObjectId _id
+      +Date createdAt
+      +Date updatedAt
+    }
+    class ProductSpecification {
+      +String sys_id (unique)
+      +String display_name
+      +String specification_category
+      +String specification_type
+      +String start_date
+      +String description
+      +String status
       +ObjectId _id
       +Date createdAt
       +Date updatedAt
@@ -252,16 +316,23 @@ classDiagram
     }
     class ProductOfferingCatalog {
       +String name (required)
-      +String latitude
-      +String longitude
-      +String street
-      +String city
-      +String state
-      +String country
-      +String zip
-      +ObjectId account (required)
-      +ObjectId contact (required)
-      +Boolean archived (default: false)
+      +String code (required, unique)
+      +Date start_date (required)
+      +Date end_date (default: null)
+      +String status (required, enum: [published,draft,archived,retired], default: "draft")
+      +String hierarchy_json (default: "")
+      +String description
+      +String external_id (default: "")
+      +Boolean is_default (default: false)
+      +String number (required, unique)
+      +String sys_id (required, unique)
+      +String sys_updated_by (required)
+      +Date sys_created_on (required)
+      +String sys_created_by (required)
+      +Date sys_updated_on (required)
+      +Number sys_mod_count (default: 0)
+      +String sys_tags (default: "")
+      +String external_source (default: "")
       +ObjectId _id
       +Date createdAt
       +Date updatedAt
@@ -270,6 +341,40 @@ classDiagram
   end
 
   subgraph Component_2
+    class Client {
+      +String u_first_name (required)
+      +String u_last_name (required)
+      +String u_username (required, unique)
+      +String u_email_address (required, unique)
+      +String u_password (required)
+      +String u_phone_number
+      +String u_address
+      +String u_city
+      +String u_province
+      +String u_country
+      +String u_postal_code
+      +Date u_date_of_birth
+      +Date u_account_creation_date
+      +Date u_last_login_date
+      +String u_account_status (enum: [active,suspended,deleted,pending], default: "active")
+      +Date verificationTokenExpires
+      +String u_user_role (enum: [client,admin], default: "client")
+      +String u_preferred_payment_method (enum: [credit card,paypal,bank transfer], default: "credit card")
+      +String u_contact.link
+      +String u_contact.value
+      +String sys_id (unique)
+      +Date sys_created_on
+      +Date sys_updated_on
+      +String sys_created_by
+      +String sys_updated_by
+      +Number sys_mod_count (default: 0)
+      +Array sys_tags
+      +ObjectId _id
+      +Number __v
+    }
+  end
+
+  subgraph Component_3
     class Intent {
       +String tag
       +Array patterns
@@ -280,7 +385,19 @@ classDiagram
     }
   end
 
-  subgraph Component_3
+  subgraph Component_4
+    class order {
+      +String sys_id (required, unique)
+      +String number
+      +Mixed rawOrder
+      +Date createdAt (default: undefined)
+      +Date updatedAt (default: undefined)
+      +ObjectId _id
+      +Number __v
+    }
+  end
+
+  subgraph Component_5
     class User {
       +String serviceNowId (required)
       +String firstName (required)
@@ -310,10 +427,6 @@ classDiagram
   CatalogCategoryRelations --> ProductOfferingCategory : "category"
   Contact --> Account : "account"
   Contact --> Location : "location"
-  ProductOffering --> ProductOfferingCategory : "category"
-  ProductOffering --> ProductSpecification : "productSpecification"
-  Account --> Contact : "contacts"
-  Account --> Location : "locations"
   Contract --> Opportunity : "opportunity"
   Contract --> Quote : "quote"
   contractQuote --> Quote : "quote"
