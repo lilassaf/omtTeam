@@ -18,7 +18,7 @@ import contractModelReducer from '../features/servicenow/contract-model/contract
 // Client 
 import OrderReducer from '../views/Client/orders/orderSlice';
 import authClientReducer from '../features/client/auth'; 
-import quoteClientReducer from '../features/client/Quote'
+import quoteClientReducer from '../features/client/quote'
 
 const store = configureStore({
   reducer: {
