@@ -37,7 +37,7 @@ const ProductDetails = () => {
       try {
         const token = localStorage.getItem('authToken');
         
-        const productRes = await axios.get(`http://localhost:3000/api/products/${productId}`, {
+        const productRes = await axios.get(`https://proxy-servicenow.onrender.com/api/products/${productId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setProduct(productRes.data.data);

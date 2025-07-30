@@ -48,7 +48,7 @@ export default function WishlistPage() {
         }
 
         // Fetch all products using the same API as OverviewPage
-        const productsResponse = await fetch('http://localhost:3000/api/products');
+        const productsResponse = await fetch('https://proxy-servicenow.onrender.com/api/products');
         if (!productsResponse.ok) {
           const text = await productsResponse.text();
           try {

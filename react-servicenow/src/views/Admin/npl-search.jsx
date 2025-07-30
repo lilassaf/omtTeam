@@ -20,7 +20,7 @@ const ProductSearch = () => {
       setIsLoading(true);
       try {
         const token = localStorage.getItem('authToken');
-        const response = await axios.get('http://localhost:3000/api/products', {
+        const response = await axios.get('https://proxy-servicenow.onrender.com/api/products', {
           headers: {
             Authorization: `Bearer ${token}`,
           },

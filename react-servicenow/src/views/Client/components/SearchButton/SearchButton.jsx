@@ -13,7 +13,7 @@ const SearchButton = ({ placeholder = 'Search products...', darkMode = false }) 
 
   const searchProducts = useCallback(async (query) => {
     try {
-      const response = await axios.get('http://localhost:3000/api/products', {
+      const response = await axios.get('https://proxy-servicenow.onrender.com/api/products', {
         params: { q: query }
       });
       return response.data;
