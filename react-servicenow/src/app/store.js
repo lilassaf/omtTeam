@@ -18,7 +18,7 @@ import contractModelReducer from '../features/servicenow/contract-model/contract
 // Client 
 import OrderReducer from '../views/Client/orders/orderSlice';
 import authClientReducer from '../features/client/auth'; 
-import quoteClientReducer from '../features/client/quote'
+import quoteClientReducer from '../features/client/Quote'
 
 const store = configureStore({
   reducer: {
@@ -40,7 +40,7 @@ const store = configureStore({
     contractModel: contractModelReducer,
     // Client
     authClient:authClientReducer,
-    order:OrderReducer
+    order:OrderReducer,
     quoteClient: quoteClientReducer
   },
   middleware: (getDefaultMiddleware) =>
