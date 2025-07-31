@@ -60,7 +60,7 @@ export const updateQuoteState = createAsyncThunk(
         
       );
       //create case from quote
-      //const response2 = await api.post(`/api/quote-to-case/${id}`);
+      const response2 = await api.post(`/api/quote-to-case/${id}`);
       return response.data.result || null;
     } catch (error) {
       return rejectWithValue(
